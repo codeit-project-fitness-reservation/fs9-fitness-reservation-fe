@@ -1,19 +1,21 @@
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import localFont from 'next/font/local';
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: '운동 예약 플랫폼',
-  description: '쉽고 빠른 운동 예약 서비스',
+export const metadata = {
+  title: '피트니스 예약 서비스',
+  description: '편리한 수업 예약 시스템',
 };
+
+const pretendard = localFont({
+  src: './font/PretendardVariable.woff2',
+  variable: '--font-pretendard',
+  display: 'swap',
+});
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+    <html lang="ko-kr" className={`${pretendard.variable}`} suppressHydrationWarning>
+      <body className="font-pretendard antialiased">{children}</body>
     </html>
   );
 }
