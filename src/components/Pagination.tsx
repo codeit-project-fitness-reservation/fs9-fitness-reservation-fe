@@ -48,21 +48,7 @@ export default function Pagination({
           disabled={currentPage === 1}
           className="flex size-8 items-center justify-center rounded-lg p-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10 12L6 8L10 4"
-              stroke="#A4A7AE"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <span className="text-gray-500">&lt;</span>
         </button>
 
         {getPageNumbers().map((page, index) => {
@@ -94,21 +80,7 @@ export default function Pagination({
           disabled={currentPage === totalPages}
           className="flex size-8 items-center justify-center rounded-lg p-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M6 12L10 8L6 4"
-              stroke="#A4A7AE"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <span className="text-gray-500">&gt;</span>
         </button>
       </div>
     </div>

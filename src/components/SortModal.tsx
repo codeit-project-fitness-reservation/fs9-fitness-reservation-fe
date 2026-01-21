@@ -3,7 +3,6 @@ import React from 'react';
 export type SortOption = 'recommended' | 'distance' | 'priceLow';
 
 type SortModalProps = {
-  /** parent must be `relative` so this dropdown can anchor under the trigger button */
   isOpen: boolean;
   selectedSort: SortOption;
   onClose: () => void;

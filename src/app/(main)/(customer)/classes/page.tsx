@@ -10,27 +10,6 @@ import FilterBadge from '@/components/FilterBadge';
 import SortModal, { SortOption } from '@/components/SortModal';
 import { Class } from '@/types/class';
 
-// TODO: API 함수 구현 필요
-// const fetchClasses = async (params: {
-//   search?: string;
-//   category?: string[];
-//   level?: string[];
-//   time?: string[];
-//   reservationStatus?: 'all' | 'available';
-//   sort?: 'recommended' | 'distance' | 'priceLow';
-//   page?: number;
-//   limit?: number;
-// }): Promise<{ classes: Class[]; total: number }> => {
-//   // API 호출 로직
-//   const response = await fetch('/api/classes', {
-//     method: 'GET',
-//     headers: { 'Content-Type': 'application/json' },
-//     // params를 query string으로 변환
-//   });
-//   if (!response.ok) throw new Error('Failed to fetch classes');
-//   return response.json();
-// };
-
 export default function ClassesPage() {
   const router = useRouter();
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -110,19 +89,6 @@ export default function ClassesPage() {
       setError(null);
       try {
         // TODO: API 호출 구현
-        // const result = await fetchClasses({
-        //   search: appliedSearchQuery || undefined,
-        //   category: filters.programTypes.length > 0 ? filters.programTypes : undefined,
-        //   level: filters.difficulty.length > 0 ? filters.difficulty : undefined,
-        //   time: filters.time.length > 0 ? filters.time : undefined,
-        //   reservationStatus: filters.reservationStatus,
-        //   sort: selectedSort,
-        //   page: currentPage,
-        //   limit: itemsPerPage,
-        // });
-        // setClasses(result.classes);
-        // setTotalCount(result.total);
-
         // 임시: API 연결 전까지 빈 배열
         setClasses([]);
         setTotalCount(0);
@@ -140,12 +106,12 @@ export default function ClassesPage() {
 
   const handleSearch = (query: string) => {
     setAppliedSearchQuery(query);
-    setCurrentPage(1); // 검색 시 첫 페이지로 이동
+    setCurrentPage(1);
   };
 
   const handleApplyFilters = (newFilters: FilterState) => {
     setFilters(newFilters);
-    setCurrentPage(1); // 필터 적용 시 첫 페이지로 이동
+    setCurrentPage(1);
   };
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
