@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import searchIcon from '@/assets/images/search.svg';
 
 type SearchBarProps = {
   className?: string;
@@ -35,7 +36,7 @@ export default function SearchBar({
         className="flex-1 text-base font-normal text-gray-500 outline-none placeholder:text-gray-500"
       />
       <div className="relative size-4 shrink-0 overflow-hidden">
-        <Image src="/search.svg" alt="검색" width={16} height={16} />
+        <Image src={searchIcon} alt="검색" width={16} height={16} />
       </div>
     </div>
   );

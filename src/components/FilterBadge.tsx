@@ -1,4 +1,6 @@
 import React from 'react';
+import Image from 'next/image';
+import xCloseIcon from '@/assets/images/x-close.svg';
 
 type FilterBadgeProps = {
   label: string;
@@ -14,7 +16,7 @@ export default function FilterBadge({ label, onRemove }: FilterBadgeProps) {
         className="flex size-3.5 items-center justify-center transition-opacity hover:opacity-70"
         aria-label={`${label} 필터 제거`}
       >
-        <img src="/x-close.svg" alt="제거" width={14} height={14} />
+        <Image src={xCloseIcon} alt="제거" width={14} height={14} />
       </button>
     </div>
   );

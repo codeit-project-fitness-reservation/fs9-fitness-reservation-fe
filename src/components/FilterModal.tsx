@@ -1,4 +1,6 @@
 import React from 'react';
+import Image from 'next/image';
+import xCloseIcon from '@/assets/images/x-close.svg';
 
 export type FilterState = {
   reservationStatus: 'all' | 'available';
@@ -98,16 +100,7 @@ export default function FilterModal({
           className="flex items-center justify-center rounded-lg p-2 transition-colors hover:bg-gray-100"
           aria-label="닫기"
         >
-          <img
-            src="/icons/x-close.svg"
-            alt="닫기"
-            width={18}
-            height={18}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/x-close.svg'; // fallback to public root
-            }}
-          />
+          <Image src={xCloseIcon} alt="닫기" width={18} height={18} />
         </button>
       </div>
 
@@ -212,22 +205,11 @@ export default function FilterModal({
                   : `${localFilters.time[0]} 외 ${localFilters.time.length - 1}개`
                 : '원하는 시간을 선택해주세요.'}
             </span>
-            <svg
-              width="17"
-              height="17"
-              viewBox="0 0 17 17"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className={`transition-transform ${isTimeDropdownOpen ? 'rotate-180' : ''}`}
+            <span
+              className={`text-gray-500 transition-transform ${isTimeDropdownOpen ? 'rotate-180' : ''}`}
             >
-              <path
-                d="M4.25 6.375L8.5 10.625L12.75 6.375"
-                stroke="#414651"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+              v
+            </span>
           </button>
           {isTimeDropdownOpen && (
             <div className="absolute top-full z-10 mt-1 max-h-[200px] w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg">

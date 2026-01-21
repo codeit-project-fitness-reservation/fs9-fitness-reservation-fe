@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import SearchBar from '@/components/SearchBar';
 import ClassCard from '@/components/ClassCard';
 import Pagination from '@/components/Pagination';
@@ -9,6 +10,8 @@ import FilterModal, { FilterState } from '@/components/FilterModal';
 import FilterBadge from '@/components/FilterBadge';
 import SortModal, { SortOption } from '@/components/SortModal';
 import { Class } from '@/types/class';
+import filterLinesIcon from '@/assets/images/filter-lines.svg';
+import filterIcon from '@/assets/images/filter.svg';
 
 export default function ClassesPage() {
   const router = useRouter();
@@ -187,7 +190,7 @@ export default function ClassesPage() {
                     className="flex shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white p-3.5 transition-colors hover:bg-gray-50"
                     aria-label="정렬"
                   >
-                    <img src="/filter-lines.svg" alt="정렬" width={20} height={20} />
+                    <Image src={filterLinesIcon} alt="정렬" width={20} height={20} />
                   </button>
                   <SortModal
                     isOpen={isSortOpen}
@@ -206,7 +209,7 @@ export default function ClassesPage() {
                     }`}
                     aria-label="필터"
                   >
-                    <img src="/filter.svg" alt="필터" width={20} height={20} />
+                    <Image src={filterIcon} alt="필터" width={20} height={20} />
                   </button>
 
                   <FilterModal
