@@ -8,144 +8,28 @@ import Pagination from '@/components/Pagination';
 import FilterModal, { FilterState } from '@/components/FilterModal';
 import FilterBadge from '@/components/FilterBadge';
 import SortModal, { SortOption } from '@/components/SortModal';
-import { Class, ClassStatus } from '@/types/class';
+import { Class } from '@/types/class';
 
-// 임시 데이터 - 실제로는 API에서 가져올 데이터
-const mockClasses: Class[] = [
-  {
-    id: '1',
-    centerId: 'center-1',
-    title: '베이직 웨이트 트레이닝',
-    category: '헬스',
-    level: '입문',
-    description: null,
-    notice: null,
-    pricePoints: 5000,
-    capacity: 20,
-    bannerUrl: 'https://www.figma.com/api/mcp/asset/f8d4d4c7-33b2-44b7-a205-29792a2a1e80',
-    imgUrls: [],
-    status: ClassStatus.APPROVED,
-    rejectReason: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    rating: 4.8,
-    reviewCount: 156,
-  },
-  {
-    id: '2',
-    centerId: 'center-1',
-    title: '필라테스 입문 클래스',
-    category: '필라테스',
-    level: '입문',
-    description: null,
-    notice: null,
-    pricePoints: 6000,
-    capacity: 15,
-    bannerUrl: 'https://www.figma.com/api/mcp/asset/1d0581a8-398d-44a9-b44f-84e788dfb729',
-    imgUrls: [],
-    status: ClassStatus.APPROVED,
-    rejectReason: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    rating: 4.8,
-    reviewCount: 156,
-  },
-  {
-    id: '3',
-    centerId: 'center-1',
-    title: '스트레스를 날리는 복싱 기초 클래스',
-    category: '복싱',
-    level: '입문',
-    description: null,
-    notice: null,
-    pricePoints: 7000,
-    capacity: 10,
-    bannerUrl: 'https://www.figma.com/api/mcp/asset/b9a37c96-cbd6-484f-89b7-c9532566037d',
-    imgUrls: [],
-    status: ClassStatus.APPROVED,
-    rejectReason: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    rating: 4.8,
-    reviewCount: 156,
-  },
-  {
-    id: '4',
-    centerId: 'center-1',
-    title: '릴렉스 요가',
-    category: '요가',
-    level: '입문',
-    description: null,
-    notice: null,
-    pricePoints: 5500,
-    capacity: 25,
-    bannerUrl: 'https://www.figma.com/api/mcp/asset/d22b14a7-7b83-43ae-8dc9-4f4a3317f63d',
-    imgUrls: [],
-    status: ClassStatus.APPROVED,
-    rejectReason: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    rating: 4.8,
-    reviewCount: 156,
-  },
-  {
-    id: '5',
-    centerId: 'center-1',
-    title: '실전 스쿼시 클래스',
-    category: '스쿼시',
-    level: '입문',
-    description: null,
-    notice: null,
-    pricePoints: 8000,
-    capacity: 8,
-    bannerUrl: 'https://www.figma.com/api/mcp/asset/59ce9e72-0bc2-454f-9202-f44df0a6699f',
-    imgUrls: [],
-    status: ClassStatus.APPROVED,
-    rejectReason: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    rating: 4.8,
-    reviewCount: 156,
-  },
-  {
-    id: '6',
-    centerId: 'center-1',
-    title: '30분 순환 근력 운동',
-    category: '헬스',
-    level: '초급',
-    description: null,
-    notice: null,
-    pricePoints: 4500,
-    capacity: 30,
-    bannerUrl: 'https://www.figma.com/api/mcp/asset/6e87b31a-f51a-4f5e-b404-112d98b0abfd',
-    imgUrls: [],
-    status: ClassStatus.APPROVED,
-    rejectReason: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    rating: 4.8,
-    reviewCount: 156,
-  },
-  {
-    id: '7',
-    centerId: 'center-1',
-    title: '자세 교정을 위한 소도구 필라테스',
-    category: '필라테스',
-    level: '중급',
-    description: null,
-    notice: null,
-    pricePoints: 6500,
-    capacity: 12,
-    bannerUrl: 'https://www.figma.com/api/mcp/asset/33660e76-e9bb-4c2d-abcf-08044b6070ad',
-    imgUrls: [],
-    status: ClassStatus.APPROVED,
-    rejectReason: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    rating: 4.8,
-    reviewCount: 156,
-  },
-];
+// TODO: API 함수 구현 필요
+// const fetchClasses = async (params: {
+//   search?: string;
+//   category?: string[];
+//   level?: string[];
+//   time?: string[];
+//   reservationStatus?: 'all' | 'available';
+//   sort?: 'recommended' | 'distance' | 'priceLow';
+//   page?: number;
+//   limit?: number;
+// }): Promise<{ classes: Class[]; total: number }> => {
+//   // API 호출 로직
+//   const response = await fetch('/api/classes', {
+//     method: 'GET',
+//     headers: { 'Content-Type': 'application/json' },
+//     // params를 query string으로 변환
+//   });
+//   if (!response.ok) throw new Error('Failed to fetch classes');
+//   return response.json();
+// };
 
 export default function ClassesPage() {
   const router = useRouter();
@@ -163,6 +47,10 @@ export default function ClassesPage() {
     difficulty: [],
     time: [],
   });
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 7;
 
   const handleClassClick = (classId: string) => {
@@ -215,6 +103,41 @@ export default function ClassesPage() {
     setSelectedSort(sort);
   };
 
+  // API 호출
+  useEffect(() => {
+    const loadClasses = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // TODO: API 호출 구현
+        // const result = await fetchClasses({
+        //   search: appliedSearchQuery || undefined,
+        //   category: filters.programTypes.length > 0 ? filters.programTypes : undefined,
+        //   level: filters.difficulty.length > 0 ? filters.difficulty : undefined,
+        //   time: filters.time.length > 0 ? filters.time : undefined,
+        //   reservationStatus: filters.reservationStatus,
+        //   sort: selectedSort,
+        //   page: currentPage,
+        //   limit: itemsPerPage,
+        // });
+        // setClasses(result.classes);
+        // setTotalCount(result.total);
+
+        // 임시: API 연결 전까지 빈 배열
+        setClasses([]);
+        setTotalCount(0);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '클래스를 불러오는데 실패했습니다.');
+        setClasses([]);
+        setTotalCount(0);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadClasses();
+  }, [appliedSearchQuery, filters, selectedSort, currentPage, itemsPerPage]);
+
   const handleSearch = (query: string) => {
     setAppliedSearchQuery(query);
     setCurrentPage(1); // 검색 시 첫 페이지로 이동
@@ -222,60 +145,10 @@ export default function ClassesPage() {
 
   const handleApplyFilters = (newFilters: FilterState) => {
     setFilters(newFilters);
+    setCurrentPage(1); // 필터 적용 시 첫 페이지로 이동
   };
 
-  // 검색어와 필터에 따라 클래스 필터링
-  const filteredClasses = mockClasses.filter((classItem) => {
-    // 검색어 필터링
-    if (appliedSearchQuery.trim()) {
-      const query = appliedSearchQuery.toLowerCase();
-      const matchesSearch =
-        classItem.title.toLowerCase().includes(query) ||
-        classItem.category.toLowerCase().includes(query) ||
-        classItem.level.toLowerCase().includes(query) ||
-        (classItem.description && classItem.description.toLowerCase().includes(query));
-
-      if (!matchesSearch) return false;
-    }
-
-    // 프로그램 종류 필터링
-    if (filters.programTypes.length > 0 && !filters.programTypes.includes(classItem.category)) {
-      return false;
-    }
-
-    // 난이도 필터링
-    if (filters.difficulty.length > 0 && !filters.difficulty.includes(classItem.level)) {
-      return false;
-    }
-
-    // 예약 상태 필터링 (현재는 mock 데이터이므로 모든 클래스가 available로 간주)
-    // 실제로는 ClassSlot의 isOpen을 확인해야 함
-
-    return true;
-  });
-
-  // 정렬 적용
-  const sortedClasses = [...filteredClasses].sort((a, b) => {
-    switch (selectedSort) {
-      case 'recommended':
-        // 추천순은 기본 정렬 (생성일 기준 최신순)
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      case 'distance':
-        // 거리순은 현재 구현 불가 (위치 정보 필요)
-        return 0;
-      case 'priceLow':
-        // 가격낮은순
-        return a.pricePoints - b.pricePoints;
-      default:
-        return 0;
-    }
-  });
-
-  const totalPages = Math.ceil(sortedClasses.length / itemsPerPage);
-  const paginatedClasses = sortedClasses.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const handleResetFilters = () => {
     const resetFilters: FilterState = {
@@ -405,8 +278,16 @@ export default function ClassesPage() {
           </div>
 
           <div className="flex w-full flex-col items-start gap-3 rounded-lg bg-gray-50 p-6">
-            {paginatedClasses.length > 0 ? (
-              paginatedClasses.map((classItem) => (
+            {isLoading ? (
+              <div className="flex w-full items-center justify-center py-12">
+                <p className="text-base font-medium text-gray-400">로딩 중...</p>
+              </div>
+            ) : error ? (
+              <div className="flex w-full items-center justify-center py-12">
+                <p className="text-base font-medium text-red-500">{error}</p>
+              </div>
+            ) : classes.length > 0 ? (
+              classes.map((classItem) => (
                 <ClassCard
                   key={classItem.id}
                   classData={classItem}
