@@ -1,6 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
 import { Class } from '@/types/class';
+import starBackgroundIcon from '@/assets/images/Star background.svg';
+import starIcon from '@/assets/images/Star.svg';
 
 type ClassCardProps = {
   classData: Class;
@@ -50,36 +52,20 @@ export default function ClassCard({ classData, onClick }: ClassCardProps) {
           <div className="flex items-end gap-1">
             <div className="flex items-center gap-0.5">
               <div className="relative size-5 shrink-0 overflow-hidden">
-                <div className="absolute inset-[2.5%_0_-2.5%_0]">
-                  <div className="absolute inset-[4.01%_6.13%_12.31%_6.13%]">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M10 2L12.5 7.5L18.5 8.5L14 12.5L15 18.5L10 15.5L5 18.5L6 12.5L1.5 8.5L7.5 7.5L10 2Z"
-                        fill="#F5F5F5"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div className="absolute top-0 left-0 size-5">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M10 2L12.5 7.5L18.5 8.5L14 12.5L15 18.5L10 15.5L5 18.5L6 12.5L1.5 8.5L7.5 7.5L10 2Z"
-                      fill="#FFD700"
-                    />
-                  </svg>
-                </div>
+                <Image
+                  src={starBackgroundIcon}
+                  alt="Star empty"
+                  width={20}
+                  height={20}
+                  className="absolute inset-[2.5%_0_-2.5%_0]"
+                />
+                <Image
+                  src={starIcon}
+                  alt="Star"
+                  width={20}
+                  height={20}
+                  className="absolute top-0 left-0 size-5"
+                />
               </div>
               <p className="text-base font-semibold text-gray-900">{rating ?? 0}</p>
             </div>
