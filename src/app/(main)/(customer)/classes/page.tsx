@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
 import SearchBar from '@/components/SearchBar';
 import ClassCard from '@/components/ClassCard';
 import Pagination from '@/components/Pagination';
@@ -163,7 +162,6 @@ export default function ClassesPage() {
 
   return (
     <div className="min-h-screen bg-gray-200">
-      <Header className="sticky top-0 z-10" />
       <div className="mx-auto flex min-h-[calc(100vh-56px)] max-w-[960px] flex-col items-center gap-8 bg-gray-50 px-8 py-6">
         <div className="flex w-full flex-col items-start gap-6">
           <div className="flex w-full flex-col gap-3">
