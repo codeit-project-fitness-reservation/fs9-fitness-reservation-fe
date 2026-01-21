@@ -1,27 +1,14 @@
 import React from 'react';
 import Image from 'next/image';
+import { Class } from '@/types/class';
 
 type ClassCardProps = {
-  id: string;
-  image: string;
-  category: string;
-  level: string;
-  title: string;
-  rating: number;
-  reviewCount: number;
+  classData: Class;
   onClick?: () => void;
 };
 
-export default function ClassCard({
-  id: _id,
-  image,
-  category,
-  level,
-  title,
-  rating,
-  reviewCount,
-  onClick,
-}: ClassCardProps) {
+export default function ClassCard({ classData, onClick }: ClassCardProps) {
+  const { id: _id, bannerUrl, category, level, title, rating, reviewCount } = classData;
   return (
     <div
       className="w-full cursor-pointer rounded-2xl border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md"
@@ -29,7 +16,20 @@ export default function ClassCard({
     >
       <div className="flex items-start gap-4">
         <div className="relative h-[140px] w-[140px] shrink-0 overflow-hidden rounded-lg border border-black/4">
-          <Image src={image} alt={title} fill className="object-cover" sizes="140px" unoptimized />
+          {bannerUrl ? (
+            <Image
+              src={bannerUrl}
+              alt={title}
+              fill
+              className="object-cover"
+              sizes="140px"
+              unoptimized
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400">
+              이미지 없음
+            </div>
+          )}
         </div>
         <div className="flex min-h-[140px] flex-1 flex-col justify-between">
           <div className="flex flex-col gap-2">
@@ -81,9 +81,9 @@ export default function ClassCard({
                   </svg>
                 </div>
               </div>
-              <p className="text-base font-semibold text-gray-900">{rating}</p>
+              <p className="text-base font-semibold text-gray-900">{rating ?? 0}</p>
             </div>
-            <p className="text-base font-medium text-gray-400">리뷰 {reviewCount}개</p>
+            <p className="text-base font-medium text-gray-400">리뷰 {reviewCount ?? 0}개</p>
           </div>
         </div>
       </div>

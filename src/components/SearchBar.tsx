@@ -5,6 +5,7 @@ type SearchBarProps = {
   placeholder?: string;
   value?: string;
   onChange?: (value: string) => void;
+  onSearch?: (query: string) => void;
 };
 
 export default function SearchBar({
@@ -12,7 +13,14 @@ export default function SearchBar({
   placeholder = '검색어를 입력해주세요.',
   value = '',
   onChange,
+  onSearch,
 }: SearchBarProps) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && onSearch) {
+      onSearch(value);
+    }
+  };
+
   return (
     <div
       className={`flex flex-1 items-center gap-2 rounded-full border border-gray-300 bg-white px-6 py-3 ${className}`}
@@ -22,6 +30,7 @@ export default function SearchBar({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
+        onKeyDown={handleKeyDown}
         className="flex-1 text-base font-normal text-gray-500 outline-none placeholder:text-gray-500"
       />
       <div className="size-4 shrink-0 overflow-hidden">
