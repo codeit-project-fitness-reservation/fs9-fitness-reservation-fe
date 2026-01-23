@@ -5,8 +5,8 @@ import icX from '@/assets/images/x.svg';
 interface NotificationDropdownProps {
   items: NotificationItem[];
   onReadAll: () => void;
-  onReadOne: (id: number) => void;
-  onDelete: (id: number) => void;
+  onReadOne: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 export const NotificationDropdown = ({
@@ -15,8 +15,8 @@ export const NotificationDropdown = ({
   onReadOne,
   onDelete,
 }: NotificationDropdownProps) => (
-  <div className="absolute top-full right-0 z-50 mt-2 max-h-96 w-80 overflow-y-auto rounded-2xl border border-[#D5D7DA] bg-white text-left shadow-lg">
-    <div className="flex items-center justify-between border-b border-[#D5D7DA] px-4 py-3">
+  <div className="absolute top-full right-0 z-50 mt-2 max-h-96 w-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white text-left shadow-lg">
+    <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
       <p className="text-[15px] font-bold text-gray-900">알림</p>
       <button
         onClick={onReadAll}
@@ -25,17 +25,25 @@ export const NotificationDropdown = ({
         전체 읽음
       </button>
     </div>
-    <ul className="divide-y divide-[#D5D7DA]">
+
+    <ul className="divide-y divide-gray-200">
       {items.length > 0 ? (
         items.map((item) => (
           <li
             key={item.id}
             onClick={() => onReadOne(item.id)}
-            className={`cursor-pointer p-4 hover:bg-gray-50 ${item.isRead ? 'opacity-50' : ''} group relative`}
+            className={`cursor-pointer p-4 hover:bg-gray-50 ${
+              item.isRead ? 'opacity-50' : ''
+            } group relative`}
           >
             <div className="pr-8">
-              <p className="text-[13px] leading-relaxed text-gray-800">{item.message}</p>
-              <p className="mt-1 text-[11px] text-gray-400">{item.date}</p>
+              <p className="text-[13px] font-semibold text-gray-900">{item.title}</p>
+              {item.body && (
+                <p className="mt-1 text-[13px] leading-relaxed text-gray-800">{item.body}</p>
+              )}
+              <p className="mt-1 text-[11px] text-gray-400">
+                {new Date(item.createdAt).toLocaleDateString('ko-KR')}
+              </p>
             </div>
             <button
               onClick={(e) => {
