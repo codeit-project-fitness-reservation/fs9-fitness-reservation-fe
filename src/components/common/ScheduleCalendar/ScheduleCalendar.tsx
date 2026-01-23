@@ -93,11 +93,12 @@ export default function ScheduleCalendar({
           ? 'bg-blue-50 text-blue-600'
           : 'bg-[#f5f5f5] text-[#414651]';
 
-    const capacityText = capacity
-      ? capacity
-      : currentReservations != null && maxCapacity != null
+    const capacityText =
+      currentReservations != null && maxCapacity != null
         ? `${currentReservations}/${maxCapacity}`
-        : null;
+        : capacity
+          ? capacity
+          : null;
 
     return (
       <div className="flex h-full w-full flex-col px-1.5 py-1">
