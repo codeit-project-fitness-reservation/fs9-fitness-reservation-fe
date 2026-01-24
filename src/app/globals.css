@@ -84,3 +84,106 @@
   --text-text-2xs: 0.625rem;
   --text-text-2xs--line-height: 0.875rem;
 }
+@layer components {
+  /* 캘린더 컨테이너*/
+  .schedule-calendar {
+    @apply overflow-hidden rounded-xl border border-gray-200 bg-white;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .schedule-calendar .fc {
+    --fc-border-color: var(--color-gray-200);
+    --fc-today-bg-color: transparent;
+    --fc-now-indicator-color: var(--color-blue-500);
+    width: 100% !important;
+  }
+
+  /*스크롤바/테두리 정리*/
+  .schedule-calendar .fc-theme-standard .fc-scrollgrid {
+    border: none !important;
+  }
+  .schedule-calendar .fc-scroller {
+    overflow: hidden !important;
+  }
+
+  /*헤더 (요일/날짜) */
+  .schedule-calendar .fc .fc-col-header-cell {
+    background: white !important;
+    padding: 8px 0 !important;
+    border: none !important;
+    border-bottom: 1px solid var(--color-gray-200) !important;
+    border-right: 1px solid var(--color-gray-200) !important;
+  }
+
+  .schedule-calendar .fc .fc-col-header-cell:last-child {
+    border-right: none !important;
+  }
+
+  /* 주간 뷰 세로 구분선 */
+
+  .schedule-calendar .fc .fc-col-header-cell {
+    border-right: 1px solid var(--color-gray-200) !important;
+  }
+
+  .schedule-calendar .fc-timeGridWeek-view .fc-timegrid-col {
+    border-right: 1px solid var(--color-gray-200) !important;
+    background-color: transparent !important;
+  }
+
+  .schedule-calendar .fc .fc-col-header-cell:last-child,
+  .schedule-calendar .fc-timeGridWeek-view .fc-timegrid-col:last-child {
+    border-right: none !important;
+  }
+
+  /*왼쪽 시간축 */
+  .schedule-calendar .fc .fc-timegrid-axis,
+  .schedule-calendar .fc .fc-timegrid-slot-label {
+    background-color: var(--color-gray-50) !important;
+    border-right: 1px solid var(--color-gray-200) !important;
+    border-bottom: none !important;
+    border-color: transparent !important;
+  }
+
+  /* 시간 텍스트 내부 프레임 */
+  .schedule-calendar .fc .fc-timegrid-slot-label-frame {
+    text-align: center !important;
+  }
+
+  /* 시간 텍스트 (숫자) */
+  .schedule-calendar .fc .fc-timegrid-slot-label-cushion {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: var(--color-gray-500) !important;
+    background-color: transparent !important;
+    padding-right: 0 !important;
+    display: inline-block !important;
+    transform: translateY(8px) !important;
+  }
+
+  /*. 이벤트 카드 스타일 */
+  .schedule-calendar .fc-v-event {
+    background-color: var(--color-blue-25) !important;
+    border: 1px solid var(--color-blue-200) !important;
+    border-radius: 6px !important;
+    margin: 1px 2px !important;
+    opacity: 1 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .schedule-calendar .fc-event-main {
+    padding: 0 !important;
+    color: inherit;
+  }
+
+  /*일간(Day) */
+  .schedule-calendar .fc-timeGridDay-view .fc-col-header th.fc-timegrid-axis {
+    display: none !important;
+  }
+
+  .schedule-calendar .fc-timeGridDay-view .fc-col-header th.fc-col-header-cell {
+    width: 100% !important;
+    border-left: none !important;
+  }
+}

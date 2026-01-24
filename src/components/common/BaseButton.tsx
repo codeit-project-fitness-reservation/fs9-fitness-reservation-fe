@@ -11,8 +11,8 @@ export const BaseButton = ({
 }: BaseButtonProps) => {
   const variantStyles =
     variant === 'primary'
-      ? 'bg-[#2970FF] text-white hover:bg-[#155EEF]'
-      : 'border border-[#D5D7DA] bg-[#FFF] text-[#344054] hover:bg-gray-50';
+      ? 'bg-blue-500 text-white hover:bg-blue-600'
+      : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50';
 
   return (
     <button

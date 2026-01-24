@@ -1,27 +1,214 @@
-import { User, NotificationItem } from '@/types';
+import { User, NotificationItem, Center, ClassItem, ScheduleEvent } from '@/types';
 
-export const MOCK_ACCOUNTS: Record<string, User & { password?: string }> = {
+export const MOCK_ACCOUNTS: Record<string, User> = {
   'user@test.com': {
+    id: 'user-1',
     email: 'user@test.com',
     nickname: '홍길동',
-    role: 'USER',
+    phone: '010-1234-5678',
+    role: 'CUSTOMER',
     password: 'password123',
+    pointBalance: 5000,
+    createdAt: new Date('2026-01-01'),
+    updatedAt: new Date('2026-01-20'),
   },
   'seller@test.com': {
+    id: 'seller-1',
     email: 'seller@test.com',
     nickname: '김강사',
+    phone: '010-9876-5432',
     role: 'SELLER',
     password: 'sellerpassword',
+    pointBalance: 0,
+    createdAt: new Date('2026-01-01'),
+    updatedAt: new Date('2026-01-20'),
   },
   'admin@test.com': {
+    id: 'admin-1',
     email: 'admin@test.com',
     nickname: '최고관리자',
+    phone: '010-0000-0000',
     role: 'ADMIN',
     password: 'adminpassword',
+    pointBalance: 0,
+    createdAt: new Date('2026-01-01'),
+    updatedAt: new Date('2026-01-20'),
   },
 };
 
 export const MOCK_NOTIFICATIONS: NotificationItem[] = [
-  { id: 1, message: '새로운 예약이 신청되었습니다.', date: '2026.01.19' },
-  { id: 2, message: '시스템 점검 안내입니다.', date: '2026.01.18' },
+  {
+    id: 'noti-1',
+    userId: 'seller-1',
+    title: '새로운 예약이 신청되었습니다.',
+    body: '초급 필라테스 클래스에 새로운 예약이 있습니다.',
+    isRead: false,
+    createdAt: new Date('2026-01-19'),
+  },
+  {
+    id: 'noti-2',
+    userId: 'seller-1',
+    title: '시스템 점검 안내입니다.',
+    body: '2026년 1월 25일 새벽 2시~4시 시스템 점검이 예정되어 있습니다.',
+    isRead: true,
+    createdAt: new Date('2026-01-18'),
+  },
+];
+
+// 판매자 센터 정보
+export const MOCK_SELLER_CENTER: Center = {
+  id: 'center-1',
+  ownerId: 'seller-1',
+  name: '김강사 휘트니스',
+  address1: '서울시 강남구 테헤란로 123',
+  address2: '2층',
+  introduction: '건강한 삶을 위한 최고의 선택, 김강사 휘트니스입니다.',
+  businessHours: {
+    monday: '06:00-22:00',
+    tuesday: '06:00-22:00',
+    wednesday: '06:00-22:00',
+    thursday: '06:00-22:00',
+    friday: '06:00-22:00',
+    saturday: '08:00-18:00',
+    sunday: '08:00-18:00',
+  },
+  lat: 37.5012,
+  lng: 127.0396,
+  createdAt: new Date('2026-01-01'),
+  updatedAt: new Date('2026-01-15'),
+};
+
+// 판매자 클래스 목록
+export const MOCK_SELLER_CLASSES: ClassItem[] = [
+  {
+    id: 'class-1',
+    centerId: 'center-1',
+    title: '30분 근력 운동',
+    category: '헬스',
+    level: '초급',
+    description: '전신 근력을 강화하는 30분 집중 운동 프로그램',
+    notice: '운동화와 수건을 지참해주세요.',
+    pricePoints: 1200,
+    capacity: 10,
+    bannerUrl:
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+    imgUrls: [
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+    ],
+    status: 'APPROVED',
+    displayCapacity: '7/10',
+    createdAt: new Date('2026-01-10'),
+    updatedAt: new Date('2026-01-15'),
+  },
+  {
+    id: 'class-2',
+    centerId: 'center-1',
+    title: '힐링 요가 클래스',
+    category: '요가',
+    level: '입문',
+    description: '마음의 평화와 몸의 균형을 찾는 힐링 요가',
+    notice: '요가 매트는 센터에서 제공됩니다.',
+    pricePoints: 950,
+    capacity: 12,
+    imgUrls: [
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    ],
+    status: 'PENDING',
+    statusLabel: '대기중',
+    displayCapacity: '0/12',
+    createdAt: new Date('2026-01-18'),
+    updatedAt: new Date('2026-01-18'),
+  },
+  {
+    id: 'class-3',
+    centerId: 'center-1',
+    title: '아침 스트레칭',
+    category: '필라테스',
+    level: '초급',
+    description: '상쾌한 아침을 시작하는 전신 스트레칭',
+    pricePoints: 800,
+    capacity: 8,
+    imgUrls: [
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    ],
+    status: 'REJECTED',
+    statusLabel: '반려됨',
+    rejectReason:
+      '이미지 해상도가 기준에 미달합니다. 최소 1920x1080 이상의 이미지를 업로드해주세요.',
+    displayCapacity: '0/8',
+    createdAt: new Date('2026-01-17'),
+    updatedAt: new Date('2026-01-19'),
+  },
+];
+
+// 판매자 스케줄 (오늘의 스케줄) - ClassSlot 기반
+export const MOCK_SELLER_SCHEDULES: ScheduleEvent[] = [
+  {
+    id: 'slot-1',
+    classId: 'class-1',
+    slotId: 'slot-1',
+    title: ' 근력 운동',
+    start: new Date(2026, 0, 22, 12, 0),
+    end: new Date(2026, 0, 22, 13, 0),
+    resource: {
+      className: '근력 운동',
+      category: '헬스',
+      level: '초급',
+      capacity: 10,
+      currentReservations: 8,
+      maxCapacity: 10,
+      isOpen: true,
+    },
+  },
+  {
+    id: 'slot-2',
+    classId: 'class-1',
+    slotId: 'slot-2',
+    title: '30분 근력 운동',
+    start: new Date(2026, 0, 21, 14, 30),
+    end: new Date(2026, 0, 21, 15, 30),
+    resource: {
+      className: '30분 근력 운동',
+      category: '헬스',
+      level: '초급',
+      capacity: 10,
+      currentReservations: 5,
+      maxCapacity: 10,
+      isOpen: true,
+    },
+  },
+  {
+    id: 'slot-5',
+    classId: 'class-2',
+    slotId: 'slot-5',
+    title: '힐링 요가 클래스',
+    start: new Date(2026, 0, 23, 18, 0),
+    end: new Date(2026, 0, 23, 19, 30),
+    resource: {
+      className: '힐링 요가 클래스',
+      category: '요가',
+      level: '입문',
+      capacity: 12,
+      currentReservations: 6,
+      maxCapacity: 12,
+      isOpen: true,
+    },
+  },
+  {
+    id: 'slot-7',
+    classId: 'class-1',
+    slotId: 'slot-7',
+    title: '60분 근력 운동',
+    start: new Date(2026, 0, 24, 11, 0),
+    end: new Date(2026, 0, 24, 12, 0),
+    resource: {
+      className: '30분 근력 운동',
+      category: '헬스',
+      level: '초급',
+      capacity: 10,
+      currentReservations: 3,
+      maxCapacity: 10,
+      isOpen: true,
+    },
+  },
 ];

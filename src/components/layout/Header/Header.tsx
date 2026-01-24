@@ -27,11 +27,11 @@ const Header = () => {
     setNotifications(notifications.map((n) => ({ ...n, isRead: true })));
   };
 
-  const handleReadOne = (id: number) => {
+  const handleReadOne = (id: string) => {
     setNotifications(notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     setNotifications(notifications.filter((n) => n.id !== id));
   };
 
@@ -52,7 +52,7 @@ const Header = () => {
   if (user?.role === 'ADMIN' || pathname.startsWith('/admin')) return null;
 
   return (
-    <header className="sticky top-0 z-50 h-14 w-full border-b border-[#D5D7DA] bg-white">
+    <header className="sticky top-0 z-50 h-14 w-full border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-8">
         <Link
           href="/"
@@ -83,7 +83,7 @@ const Header = () => {
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-32 rounded-xl border border-[#D5D7DA] bg-white py-2 shadow-lg">
+                  <div className="absolute top-full right-0 mt-2 w-32 rounded-xl border border-gray-200 bg-white py-2 shadow-lg">
                     <Link
                       href="/mypage"
                       onClick={() => setIsProfileOpen(false)}
@@ -96,7 +96,7 @@ const Header = () => {
                         setUser(null);
                         setIsProfileOpen(false);
                       }}
-                      className="w-full border-t border-[#D5D7DA] px-4 py-2 text-right text-sm font-medium text-gray-900 hover:bg-gray-50"
+                      className="w-full border-t border-gray-200 px-4 py-2 text-right text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >
                       로그아웃
                     </button>
