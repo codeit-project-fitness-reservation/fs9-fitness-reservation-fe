@@ -1,6 +1,6 @@
 'use client';
 
-import AdminFilter, { classFilterConfigs, FilterValues } from '../_components/adminFilter';
+import AdminFilter, { classFilterConfigs, FilterValues } from '../_components/AdminFilter';
 
 export default function AdminClassesPage() {
   const handleFilterChange = (filters: FilterValues) => {
