@@ -2,7 +2,7 @@ import { RefObject } from 'react';
 import Image from 'next/image';
 
 interface ImageUploadProps {
-  selectedImages: string[];
+  selectedImages: File[];
   fileInputRef: RefObject<HTMLInputElement | null>;
   onImageSelect: (file: File) => void;
   onImageRemove: (index: number) => void;
@@ -50,12 +50,17 @@ export function ImageUpload({
             />
           </>
         )}
-        {selectedImages.map((image, index) => (
+        {selectedImages.map((file, index) => (
           <div
-            key={`${image}-${index}`}
+            key={`${file.name}-${index}`}
             className="relative h-20 w-20 overflow-hidden rounded-lg border border-gray-200"
           >
-            <Image src={image} alt={`Preview ${index + 1}`} fill className="object-cover" />
+            <Image
+              src={URL.createObjectURL(file)}
+              alt={`Preview ${index + 1}`}
+              fill
+              className="object-cover"
+            />
             <button
               type="button"
               onClick={() => onImageRemove(index)}

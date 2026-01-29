@@ -6,7 +6,7 @@ import { classFormSchema, ClassFormInput } from './classschema';
 
 export function useClassForm() {
   const router = useRouter();
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
 
   const {
     register,
@@ -51,6 +51,56 @@ export function useClassForm() {
       return;
     }
 
+    // FormData 생성
+    const formData = new FormData();
+
+    // 기본 필드 추가
+    formData.append('title', data.title);
+    formData.append('category', data.category);
+    formData.append('level', data.level);
+    formData.append('pricePoints', data.pricePoints.replace(/[^0-9]/g, ''));
+    formData.append('capacity', data.capacity.replace(/[^0-9]/g, ''));
+    formData.append('description', data.description);
+
+    // 이미지 파일 추가 (File 객체 그대로)
+    selectedImages.forEach((file) => {
+      formData.append(`images`, file);
+    });
+
+    // 스케줄 JSON.stringify로 문자열로 변환하여 추가
+    const scheduleData = Object.entries(data.schedule)
+      .filter(([, time]) => !!time)
+      .reduce(
+        (acc, [day, time]) => {
+          if (time) acc[day] = time;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+    formData.append('schedule', JSON.stringify(scheduleData));
+
+    // FormData 내용 확인 (개발용)
+    console.log('=== FormData 내용 ===');
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`${key}:`, {
+          name: value.name,
+          size: value.size,
+          type: value.type,
+        });
+      } else {
+        console.log(`${key}:`, value);
+      }
+    }
+    console.log('===================');
+
+    // TODO: 실제 API 호출 시 사용
+    // const response = await fetch('/api/classes', {
+    //   method: 'POST',
+    //   body: formData, // Content-Type은 자동으로 multipart/form-data로 설정됨
+    // });
+
+    // 임시: 로컬 스토리지 저장 (개발용)
     const payload = {
       ...data,
       id: Date.now().toString(),
@@ -59,31 +109,18 @@ export function useClassForm() {
       centerId: 'center-1',
       pricePoints: Number(data.pricePoints.replace(/[^0-9]/g, '')),
       capacity: Number(data.capacity.replace(/[^0-9]/g, '')),
-      imgUrls: selectedImages,
+      imgUrls: selectedImages.map((file) => URL.createObjectURL(file)), // 임시 미리보기용
       displayCapacity: `0/${Number(data.capacity.replace(/[^0-9]/g, ''))}`,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      schedule: Object.entries(data.schedule)
-        .filter(([, time]) => !!time)
-        .reduce(
-          (acc, [day, time]) => {
-            if (time) acc[day] = time;
-            return acc;
-          },
-          {} as Record<string, string>,
-        ),
+      schedule: scheduleData,
     };
 
-    //  기존 로컬 스토리지 데이터 불러오기
     const existingClasses = JSON.parse(localStorage.getItem('myClasses') || '[]');
     const updatedClasses = [payload, ...existingClasses];
-
-    //  로컬 스토리지에 다시 저장
     localStorage.setItem('myClasses', JSON.stringify(updatedClasses));
 
     alert('클래스가 성공적으로 등록되었습니다!');
-
-    // 판매자 메인 페이지로 이동
     router.push('/seller');
   };
 

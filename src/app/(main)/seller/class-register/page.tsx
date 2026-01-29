@@ -77,12 +77,8 @@ export default function RegisterClassPage() {
             selectedImages={selectedImages}
             fileInputRef={fileInputRef}
             onImageSelect={(file) => {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                const base64String = reader.result as string;
-                setSelectedImages([...selectedImages, base64String]);
-              };
-              reader.readAsDataURL(file);
+              // File 객체를 그대로 저장
+              setSelectedImages([...selectedImages, file]);
             }}
             onImageRemove={(index) => {
               setSelectedImages(selectedImages.filter((_, i) => i !== index));
