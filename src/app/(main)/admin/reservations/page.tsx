@@ -1,6 +1,6 @@
 'use client';
 
-import AdminFilter, { reservationFilterConfigs, FilterValues } from '../_components/adminFilter';
+import AdminFilter, { reservationFilterConfigs, FilterValues } from '../_components/AdminFilter';
 
 export default function AdminReservationsPage() {
   const handleFilterChange = (filters: FilterValues) => {
