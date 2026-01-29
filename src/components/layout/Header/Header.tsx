@@ -10,11 +10,12 @@ import { MOCK_NOTIFICATIONS } from '@/mocks/mockdata';
 import { User, NotificationItem } from '@/types';
 import icBell from '@/assets/images/bell.svg';
 import icChevronDown from '@/assets/images/chevron-down.svg';
+import logoImg from '@/assets/images/FITMATCH.svg';
 
 const Header = () => {
   const pathname = usePathname();
 
-  // 로그인 테스트: MOCK_ACCOUNTS['user@test.com'] / 비로그인 테스트: null
+  // 로그인 테스트: useState<User | null>(MOCK_ACCOUNTS['user@test.com']);/ 비로그인 테스트: useState<User | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
   const [isNotiOpen, setIsNotiOpen] = useState(false);
@@ -54,13 +55,16 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 h-14 w-full border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-8">
-        <Link
-          href="/"
-          className="text-[20px] font-black tracking-tighter text-black md:text-[22px]"
-        >
-          LOGO
+        <Link href="/" className="flex items-center">
+          <Image
+            src={logoImg}
+            alt="Fitmatch 로고"
+            width={103}
+            height={32}
+            priority
+            className="h-8"
+          />
         </Link>
-
         <div className="flex items-center gap-2">
           {user ? (
             <div className="flex items-center gap-3">
