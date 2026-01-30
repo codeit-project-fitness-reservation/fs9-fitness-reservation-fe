@@ -178,3 +178,30 @@ export interface Review {
   userNickname?: string;
   userProfileImg?: string;
 }
+
+// --- [10. Sales (매출)] ---
+export interface SalesSummary {
+  totalRevenue: number;
+  couponDiscount: number;
+  refundAmount: number;
+  netRevenue: number;
+}
+
+export interface ClassSales {
+  id: string;
+  classId: string;
+  title: string;
+  imageUrl?: string;
+  revenue: number;
+}
+
+export interface SalesTransaction {
+  id: string;
+  classId: string;
+  className: string;
+  status: 'BOOKED' | 'CANCELED';
+  statusLabel: string;
+  dateTime: string;
+  amount: number;
+  createdAt: Date;
+}
