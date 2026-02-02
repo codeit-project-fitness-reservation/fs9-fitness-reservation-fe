@@ -1,4 +1,13 @@
-import { User, NotificationItem, Center, ClassItem, ScheduleEvent } from '@/types';
+import {
+  User,
+  NotificationItem,
+  Center,
+  ClassItem,
+  ScheduleEvent,
+  SalesSummary,
+  ClassSales,
+  SalesTransaction,
+} from '@/types';
 
 export const MOCK_ACCOUNTS: Record<string, User> = {
   'user@test.com': {
@@ -210,5 +219,200 @@ export const MOCK_SELLER_SCHEDULES: ScheduleEvent[] = [
       maxCapacity: 10,
       isOpen: true,
     },
+  },
+];
+
+// 매출 정산 데이터
+export const MOCK_SALES_SUMMARY: SalesSummary = {
+  totalRevenue: 420000,
+  couponDiscount: 10000,
+  refundAmount: 10000,
+  netRevenue: 400000,
+};
+
+export const MOCK_CLASS_SALES: ClassSales[] = [
+  {
+    id: 'cs-1',
+    classId: 'class-1',
+    title: '30분 근력 운동',
+    imageUrl:
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+    revenue: 200000,
+  },
+  {
+    id: 'cs-2',
+    classId: 'class-2',
+    title: '힐링 요가 클래스',
+    imageUrl:
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    revenue: 220000,
+  },
+];
+
+export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
+  // ===== 2025년 12월 거래 =====
+  {
+    id: 'st-2025-12-1',
+    classId: 'class-1',
+    className: '30분 근력 운동',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2025.12.05. 10:00',
+    amount: 50000,
+    createdAt: new Date('2025-12-05T10:00:00'),
+  },
+  {
+    id: 'st-2025-12-2',
+    classId: 'class-2',
+    className: '힐링 요가 클래스',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2025.12.10. 18:00',
+    amount: 40000,
+    createdAt: new Date('2025-12-10T18:00:00'),
+  },
+  {
+    id: 'st-2025-12-3',
+    classId: 'class-1',
+    className: '30분 근력 운동',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2025.12.15. 14:00',
+    amount: 50000,
+    createdAt: new Date('2025-12-15T14:00:00'),
+  },
+  {
+    id: 'st-2025-12-4',
+    classId: 'class-2',
+    className: '힐링 요가 클래스',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2025.12.20. 19:00',
+    amount: 40000,
+    createdAt: new Date('2025-12-20T19:00:00'),
+  },
+  {
+    id: 'st-2025-12-5',
+    classId: 'class-2',
+    className: '힐링 요가 클래스',
+    status: 'CANCELED',
+    statusLabel: '환불',
+    dateTime: '2025.12.25. 18:00',
+    amount: -40000,
+    createdAt: new Date('2025-12-25T18:00:00'),
+  },
+
+  // ===== 2026년 1월 거래 (총 매출 420,000원) =====
+  {
+    id: 'st-1',
+    classId: 'class-1',
+    className: '30분 근력 운동',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2026.01.02. 10:00',
+    amount: 50000,
+    createdAt: new Date('2026-01-02T10:00:00'),
+  },
+  {
+    id: 'st-2',
+    classId: 'class-1',
+    className: '30분 근력 운동',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2026.01.05. 14:00',
+    amount: 50000,
+    createdAt: new Date('2026-01-05T14:00:00'),
+  },
+  {
+    id: 'st-3',
+    classId: 'class-1',
+    className: '30분 근력 운동',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2026.01.10. 11:00',
+    amount: 50000,
+    createdAt: new Date('2026-01-10T11:00:00'),
+  },
+  {
+    id: 'st-4',
+    classId: 'class-1',
+    className: '30분 근력 운동',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2026.01.15. 16:00',
+    amount: 50000,
+    createdAt: new Date('2026-01-15T16:00:00'),
+  },
+  // 힐링 요가 클래스 거래 (총 220,000원)
+  {
+    id: 'st-5',
+    classId: 'class-2',
+    className: '힐링 요가 클래스',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2026.01.03. 18:00',
+    amount: 40000,
+    createdAt: new Date('2026-01-03T18:00:00'),
+  },
+  {
+    id: 'st-6',
+    classId: 'class-2',
+    className: '힐링 요가 클래스',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2026.01.06. 19:00',
+    amount: 40000,
+    createdAt: new Date('2026-01-06T19:00:00'),
+  },
+  {
+    id: 'st-7',
+    classId: 'class-2',
+    className: '힐링 요가 클래스',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2026.01.08. 18:30',
+    amount: 40000,
+    createdAt: new Date('2026-01-08T18:30:00'),
+  },
+  {
+    id: 'st-8',
+    classId: 'class-2',
+    className: '힐링 요가 클래스',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2026.01.12. 17:00',
+    amount: 40000,
+    createdAt: new Date('2026-01-12T17:00:00'),
+  },
+  {
+    id: 'st-9',
+    classId: 'class-2',
+    className: '힐링 요가 클래스',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2026.01.16. 19:30',
+    amount: 40000,
+    createdAt: new Date('2026-01-16T19:30:00'),
+  },
+  {
+    id: 'st-10',
+    classId: 'class-2',
+    className: '힐링 요가 클래스',
+    status: 'BOOKED',
+    statusLabel: '완료',
+    dateTime: '2026.01.20. 18:00',
+    amount: 20000,
+    createdAt: new Date('2026-01-20T18:00:00'),
+  },
+  // 취소/환불 (총 10,000원)
+  {
+    id: 'st-11',
+    classId: 'class-1',
+    className: '30분 근력 운동',
+    status: 'CANCELED',
+    statusLabel: '환불',
+    dateTime: '2026.01.18. 14:00',
+    amount: -50000,
+    createdAt: new Date('2026-01-18T14:00:00'),
   },
 ];

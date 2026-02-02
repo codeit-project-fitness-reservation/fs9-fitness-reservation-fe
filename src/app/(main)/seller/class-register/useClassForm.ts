@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { classFormSchema, ClassFormInput } from './classschema';
+import { formatWithCommas } from '@/lib/utils/format';
 
 export function useClassForm() {
   const router = useRouter();
@@ -38,11 +39,7 @@ export function useClassForm() {
     mode: 'onChange',
   });
 
-  const formatWithCommas = (value: number | string) => {
-    if (!value) return '';
-    const num = typeof value === 'string' ? Number(value.replace(/[^0-9]/g, '')) : value;
-    return num.toLocaleString('ko-KR');
-  };
+  const getError = (fieldName: keyof ClassFormInput) => errors[fieldName]?.message;
 
   const onSubmit = (data: ClassFormInput) => {
     if (selectedImages.length === 0) {
@@ -60,6 +57,7 @@ export function useClassForm() {
     formData.append('description', data.description);
     formData.append('precautions', data.precautions);
 
+    // 이미지 파일 추가
     selectedImages.forEach((file) => {
       formData.append(`images`, file);
     });
