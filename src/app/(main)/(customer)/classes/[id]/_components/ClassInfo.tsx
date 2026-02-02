@@ -27,9 +27,7 @@ export default function ClassInfo({ classData, centerData }: ClassInfoProps) {
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
           <Image src={userIcon} alt="참가자" width={20} height={20} />
-          <p className="text-base text-gray-700">
-            {classData.capacity - 5}/{classData.capacity}
-          </p>
+          <p className="text-base text-gray-700">{classData.capacity}명</p>
         </div>
         <p className="text-xl font-semibold text-gray-900">
           {classData.pricePoints.toLocaleString()}원

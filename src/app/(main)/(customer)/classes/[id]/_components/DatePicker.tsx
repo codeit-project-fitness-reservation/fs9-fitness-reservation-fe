@@ -4,6 +4,8 @@ import { DayPicker } from 'react-day-picker';
 import { ko } from 'date-fns/locale';
 import { format } from 'date-fns';
 import 'react-day-picker/dist/style.css';
+import chevronLeftIcon from '@/assets/images/chevron-left.svg';
+import chevronRightIcon from '@/assets/images/chevron-right.svg';
 
 interface DatePickerProps {
   selectedDate: Date | undefined;
@@ -11,35 +13,44 @@ interface DatePickerProps {
 }
 
 export default function DatePicker({ selectedDate, onSelect }: DatePickerProps) {
+  // Next.js에서 import한 이미지 경로를 문자열로 변환
+  const chevronLeftUrl =
+    typeof chevronLeftIcon === 'string' ? chevronLeftIcon : chevronLeftIcon.src || chevronLeftIcon;
+  const chevronRightUrl =
+    typeof chevronRightIcon === 'string'
+      ? chevronRightIcon
+      : chevronRightIcon.src || chevronRightIcon;
+
   return (
     <div className="flex justify-center rounded-lg border border-gray-200 bg-white p-4">
       <style>{`
-        .rdp-caption {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 0.5rem;
-          margin-bottom: 1rem;
-        }
-        .rdp-cell {
-          cursor: pointer;
-          font-size: 0.875rem;
-        }
-        .rdp-head_cell {
-          font-size: 0.875rem;
-          font-weight: 500;
-          color: #535862;
-        }
         .rdp-day.rdp-day_selected {
           background: #2970ff;
           color: white;
         }
-        .rdp-day:hover:not(.rdp-day_selected):not(.rdp-day_disabled):not(.rdp-day_outside) {
-          background: #f5f5f5;
+        .rdp-button_previous svg,
+        .rdp-button_next svg {
+          display: none;
         }
-        .rdp-day_outside {
-          color: #a4a7ae;
-          opacity: 0.5;
+        .rdp-button_previous::before {
+          content: '';
+          display: inline-block;
+          width: 24px;
+          height: 24px;
+          background-image: url(${chevronLeftUrl});
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
+        }
+        .rdp-button_next::before {
+          content: '';
+          display: inline-block;
+          width: 24px;
+          height: 24px;
+          background-image: url(${chevronRightUrl});
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
         }
       `}</style>
       <DayPicker
