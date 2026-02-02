@@ -1,4 +1,5 @@
 import { User, NotificationItem, Center, ClassItem, ScheduleEvent } from '@/types';
+import { Class } from '@/types/class';
 
 export const MOCK_ACCOUNTS: Record<string, User> = {
   'user@test.com': {
@@ -212,3 +213,28 @@ export const MOCK_SELLER_SCHEDULES: ScheduleEvent[] = [
     },
   },
 ];
+
+// 클래스 상세 페이지용 Mock 데이터
+export const MOCK_CLASS_DETAIL: Class = {
+  id: 'class-1',
+  centerId: 'center-1',
+  title: '30분 순환 근력 운동',
+  category: '헬스',
+  level: '입문',
+  description:
+    '짧은 시간 안에 전신 근육을 고르게 사용하는 순환형 근력 클래스입니다.\n웨이트와 맨몸 동작을 번갈아 진행해 운동 효율을 높이고 체력과 근력을 동시에 강화할 수 있어요.\n운동 초보자도 따라올 수 있도록 동작 난이도를 조절하며, 바쁜 일상 속에서도 30분으로 확실한 운동 효과를 느낄 수 있습니다.',
+  notice: '운동화와 수건을 지참해주세요.',
+  pricePoints: 24000,
+  capacity: 30,
+  bannerUrl:
+    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+  imgUrls: [
+    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+  ],
+  status: 'APPROVED',
+  rejectReason: null,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  rating: 4.5,
+  reviewCount: 18,
+};
