@@ -13,7 +13,7 @@ import ClassInfo from './_components/ClassInfo';
 import TabNavigation from './_components/TabNavigation';
 import TabContent from './_components/TabContent';
 import ReservationBottomBar from './_components/ReservationBottomBar';
-import userIcon from '@/assets/images/user-02.svg';
+import userIcon from '@/assets/images/user-03.svg';
 
 export default function ClassDetailPage() {
   const params = useParams();
