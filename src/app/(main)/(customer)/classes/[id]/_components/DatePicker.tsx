@@ -2,9 +2,9 @@
 
 import { DayPicker } from 'react-day-picker';
 import { ko } from 'date-fns/locale';
-import { format } from 'date-fns';
 import 'react-day-picker/dist/style.css';
 import './react-day-picker.css';
+import { formatDateCaption } from '@/lib/utils/date';
 import chevronLeftIcon from '@/assets/images/chevron-left.svg';
 import chevronRightIcon from '@/assets/images/chevron-right.svg';
 
@@ -104,7 +104,7 @@ export default function DatePicker({ selectedDate, onSelect }: DatePickerProps) 
         locale={ko}
         disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
         formatters={{
-          formatCaption: (date) => format(date, 'yyyy.M', { locale: ko }),
+          formatCaption: formatDateCaption,
         }}
         showOutsideDays={false}
       />

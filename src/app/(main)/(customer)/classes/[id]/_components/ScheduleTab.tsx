@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
 import DatePicker from './DatePicker';
 import TimeSlotList from './TimeSlotList';
 import { ClassSlot } from '@/types/class';
+import { formatDate } from '@/lib/utils/date';
 
 interface ScheduleTabProps {
   selectedDate: Date | undefined;
@@ -31,7 +31,7 @@ export default function ScheduleTab({
 
     // TODO: API 호출로 대체 - 선택한 날짜의 시간 슬롯 가져오기
     // 선택한 날짜의 시작 시간을 기준으로 슬롯 생성
-    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    const dateStr = formatDate(selectedDate);
     const mockTimeSlots: ClassSlot[] = [
       {
         id: 'slot-1',

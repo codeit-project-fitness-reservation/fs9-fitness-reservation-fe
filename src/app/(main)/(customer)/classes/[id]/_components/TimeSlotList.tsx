@@ -1,6 +1,6 @@
-import { format, parseISO } from 'date-fns';
 import Image from 'next/image';
 import { ClassSlot } from '@/types/class';
+import { formatTime } from '@/lib/utils/date';
 import userIcon from '@/assets/images/user-02.svg';
 
 interface TimeSlotListProps {
@@ -16,8 +16,8 @@ export default function TimeSlotList({ timeSlots, selectedTimeSlot, onSelect }: 
         const isSelected = selectedTimeSlot?.id === slot.id;
         const remaining = slot.capacity - slot.currentReservation;
         const isFull = remaining === 0 || !slot.isOpen;
-        const startTime = format(parseISO(slot.startAt), 'HH:mm');
-        const endTime = format(parseISO(slot.endAt), 'HH:mm');
+        const startTime = formatTime(slot.startAt);
+        const endTime = formatTime(slot.endAt);
 
         return (
           <button
@@ -46,7 +46,7 @@ export default function TimeSlotList({ timeSlots, selectedTimeSlot, onSelect }: 
               </div>
             </div>
             <div
-              className={`h-5 w-5 flex-shrink-0 rounded-full border-2 ${
+              className={`h-5 w-5 shrink-0 rounded-full border-2 ${
                 isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300 bg-white'
               }`}
             >
