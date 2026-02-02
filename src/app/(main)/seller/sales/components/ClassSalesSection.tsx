@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { formatCurrency } from '@/lib/utils/format';
 
 interface ClassSales {
   id: string;
@@ -14,11 +15,6 @@ interface ClassSalesSectionProps {
 }
 
 export default function ClassSalesSection({ classSales }: ClassSalesSectionProps) {
-  const formatCurrency = (amount: number) => {
-    const sign = amount >= 0 ? '+' : '';
-    return `${sign}${amount.toLocaleString('ko-KR')}원`;
-  };
-
   return (
     <section className="mb-6">
       <h2 className="mb-3 text-base font-semibold text-gray-900">클래스별 매출</h2>
@@ -52,7 +48,7 @@ export default function ClassSalesSection({ classSales }: ClassSalesSectionProps
               <div className="flex min-w-0 flex-col gap-1.5">
                 <p className="truncate text-sm font-medium text-gray-800">{item.title}</p>
                 <p className="text-sm font-semibold text-gray-950">
-                  {formatCurrency(item.revenue)}
+                  {formatCurrency(item.revenue, { showSign: true })}
                 </p>
               </div>
             </div>

@@ -34,11 +34,6 @@ export default function SalesPage() {
     return () => window.removeEventListener('storage', loadClasses);
   }, []);
 
-  const handleDateChange = (year: string, month: string) => {
-    setSelectedYear(year);
-    setSelectedMonth(month);
-  };
-
   // 거래 내역 필터링
   const filteredTransactions = useMemo(() => {
     return MOCK_SALES_TRANSACTIONS.filter((transaction) => {
@@ -78,8 +73,8 @@ export default function SalesPage() {
     });
 
     return Object.entries(salesByClass)
-      .map(([classId, data], index) => ({
-        id: `cs-${index}`,
+      .map(([classId, data]) => ({
+        id: classId,
         classId,
         title: data.title,
         revenue: data.revenue,
@@ -112,7 +107,7 @@ export default function SalesPage() {
 
   return (
     <div className="py-6">
-      <DateFilter onDateChange={handleDateChange} />
+      <DateFilter onYearChange={setSelectedYear} onMonthChange={setSelectedMonth} />
       <SalesSummaryCard summary={salesSummary} />
       <ClassSalesSection classSales={classSales} />
       <TransactionList transactions={filteredTransactions} />

@@ -2,17 +2,13 @@
 
 import StatusBadge from '@/components/common/StatusBadge';
 import { SalesTransaction } from '@/types';
+import { formatCurrency } from '@/lib/utils/format';
 
 interface TransactionListProps {
   transactions: SalesTransaction[];
 }
 
 export default function TransactionList({ transactions }: TransactionListProps) {
-  const formatCurrency = (amount: number) => {
-    const sign = amount >= 0 ? '+' : '';
-    return `${sign}${amount.toLocaleString('ko-KR')}원`;
-  };
-
   return (
     <section>
       <h2 className="mb-3 text-base font-semibold text-gray-900">거래 내역</h2>
@@ -42,7 +38,7 @@ export default function TransactionList({ transactions }: TransactionListProps) 
               <p
                 className={`text-sm font-semibold ${transaction.amount >= 0 ? 'text-blue-600' : 'text-gray-400'}`}
               >
-                {formatCurrency(transaction.amount)}
+                {formatCurrency(transaction.amount, { showSign: true })}
               </p>
             </div>
           ))

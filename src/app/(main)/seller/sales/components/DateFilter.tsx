@@ -3,14 +3,16 @@
 import { useState, useRef, useEffect } from 'react';
 
 interface DateFilterProps {
-  onDateChange?: (year: string, month: string) => void;
+  onYearChange?: (year: string) => void;
+  onMonthChange?: (month: string) => void;
 }
 
-export default function DateFilter({ onDateChange }: DateFilterProps) {
+export default function DateFilter({ onYearChange, onMonthChange }: DateFilterProps) {
   const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
 
-  const [selectedYear, setSelectedYear] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState('');
+  const [selectedYear, setSelectedYear] = useState(currentYear.toString());
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth.toString());
   const [isYearOpen, setIsYearOpen] = useState(false);
   const [isMonthOpen, setIsMonthOpen] = useState(false);
 
@@ -23,13 +25,13 @@ export default function DateFilter({ onDateChange }: DateFilterProps) {
   const handleYearChange = (year: string) => {
     setSelectedYear(year);
     setIsYearOpen(false);
-    if (selectedMonth) onDateChange?.(year, selectedMonth);
+    onYearChange?.(year);
   };
 
   const handleMonthChange = (month: string) => {
     setSelectedMonth(month);
     setIsMonthOpen(false);
-    if (selectedYear) onDateChange?.(selectedYear, month);
+    onMonthChange?.(month);
   };
 
   useEffect(() => {

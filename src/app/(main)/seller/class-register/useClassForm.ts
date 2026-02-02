@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { classFormSchema, ClassFormInput } from './classschema';
+import { formatWithCommas } from '@/lib/utils/format';
 
 export function useClassForm() {
   const router = useRouter();
@@ -37,12 +38,6 @@ export function useClassForm() {
     mode: 'onChange',
   });
 
-  const formatWithCommas = (value: number | string) => {
-    if (!value) return '';
-    const num = typeof value === 'string' ? Number(value.replace(/[^0-9]/g, '')) : value;
-    return num.toLocaleString('ko-KR');
-  };
-
   const getError = (fieldName: keyof ClassFormInput) => errors[fieldName]?.message;
 
   const onSubmit = (data: ClassFormInput) => {
@@ -51,7 +46,6 @@ export function useClassForm() {
       return;
     }
 
-    // FormData 생성
     const formData = new FormData();
 
     // 기본 필드 추가
@@ -62,12 +56,11 @@ export function useClassForm() {
     formData.append('capacity', data.capacity.replace(/[^0-9]/g, ''));
     formData.append('description', data.description);
 
-    // 이미지 파일 추가 (File 객체 그대로)
+    // 이미지 파일 추가
     selectedImages.forEach((file) => {
       formData.append(`images`, file);
     });
 
-    // 스케줄 JSON.stringify로 문자열로 변환하여 추가
     const scheduleData = Object.entries(data.schedule)
       .filter(([, time]) => !!time)
       .reduce(
@@ -79,7 +72,6 @@ export function useClassForm() {
       );
     formData.append('schedule', JSON.stringify(scheduleData));
 
-    // FormData 내용 확인 (개발용)
     console.log('=== FormData 내용 ===');
     for (const [key, value] of formData.entries()) {
       if (value instanceof File) {
