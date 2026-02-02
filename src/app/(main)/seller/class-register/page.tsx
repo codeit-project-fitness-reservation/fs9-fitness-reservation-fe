@@ -20,7 +20,6 @@ export default function RegisterClassPage() {
     setValue,
     selectedImages,
     setSelectedImages,
-    getError,
     onSubmit,
     isFormValid,
     trigger,
@@ -52,7 +51,7 @@ export default function RegisterClassPage() {
               control={control}
               setValue={setValue}
               trigger={trigger}
-              error={getError('category')}
+              error={errors.category?.message}
             />
             <RadioGroup
               label="난이도"
@@ -61,7 +60,7 @@ export default function RegisterClassPage() {
               control={control}
               setValue={setValue}
               trigger={trigger}
-              error={getError('level')}
+              error={errors.level?.message}
             />
           </div>
 
@@ -92,8 +91,20 @@ export default function RegisterClassPage() {
             </label>
             <TextAreaField
               placeholder="상세 소개를 입력해주세요."
-              error={getError('description')}
+              error={errors.description?.message}
               {...register('description')}
+            />
+          </section>
+
+          {/* 주의사항 입력 */}
+          <section className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-800">
+              주의사항 <span className="text-blue-500">*</span>
+            </label>
+            <TextAreaField
+              placeholder="주의사항을 입력해주세요."
+              error={errors.precautions?.message}
+              {...register('precautions')}
             />
           </section>
 

@@ -25,14 +25,15 @@ export function useClassForm() {
       pricePoints: '',
       capacity: '',
       description: '',
+      precautions: '',
       schedule: {
-        monday: null,
-        tuesday: null,
-        wednesday: null,
-        thursday: null,
-        friday: null,
-        saturday: null,
-        sunday: null,
+        monday: [],
+        tuesday: [],
+        wednesday: [],
+        thursday: [],
+        friday: [],
+        saturday: [],
+        sunday: [],
       },
     },
     mode: 'onChange',
@@ -48,13 +49,13 @@ export function useClassForm() {
 
     const formData = new FormData();
 
-    // 기본 필드 추가
     formData.append('title', data.title);
     formData.append('category', data.category);
     formData.append('level', data.level);
     formData.append('pricePoints', data.pricePoints.replace(/[^0-9]/g, ''));
     formData.append('capacity', data.capacity.replace(/[^0-9]/g, ''));
     formData.append('description', data.description);
+    formData.append('precautions', data.precautions);
 
     // 이미지 파일 추가
     selectedImages.forEach((file) => {
@@ -62,13 +63,13 @@ export function useClassForm() {
     });
 
     const scheduleData = Object.entries(data.schedule)
-      .filter(([, time]) => !!time)
+      .filter(([, times]) => times && times.length > 0)
       .reduce(
-        (acc, [day, time]) => {
-          if (time) acc[day] = time;
+        (acc, [day, times]) => {
+          if (times && times.length > 0) acc[day] = times;
           return acc;
         },
-        {} as Record<string, string>,
+        {} as Record<string, string[]>,
       );
     formData.append('schedule', JSON.stringify(scheduleData));
 
@@ -84,7 +85,6 @@ export function useClassForm() {
         console.log(`${key}:`, value);
       }
     }
-    console.log('===================');
 
     // TODO: 실제 API 호출 시 사용
     // const response = await fetch('/api/classes', {
@@ -103,6 +103,8 @@ export function useClassForm() {
       capacity: Number(data.capacity.replace(/[^0-9]/g, '')),
       imgUrls: selectedImages.map((file) => URL.createObjectURL(file)), // 임시 미리보기용
       displayCapacity: `0/${Number(data.capacity.replace(/[^0-9]/g, ''))}`,
+      description: data.description,
+      precautions: data.precautions,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       schedule: scheduleData,
@@ -128,7 +130,6 @@ export function useClassForm() {
     selectedImages,
     setSelectedImages,
     formatWithCommas,
-    getError,
     onSubmit,
     isFormValid,
     trigger,
