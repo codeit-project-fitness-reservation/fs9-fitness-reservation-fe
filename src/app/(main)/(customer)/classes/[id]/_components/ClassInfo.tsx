@@ -2,7 +2,6 @@ import Image from 'next/image';
 import { Class } from '@/types/class';
 import { Center } from '@/types';
 import mapPinIcon from '@/assets/images/map-pin.svg';
-import userIcon from '@/assets/images/user-02.svg';
 
 interface ClassInfoProps {
   classData: Class;
@@ -23,16 +22,10 @@ export default function ClassInfo({ classData, centerData }: ClassInfoProps) {
         </p>
       </div>
 
-      {/* 참가자 수 및 가격 */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <Image src={userIcon} alt="참가자" width={20} height={20} />
-          <p className="text-base text-gray-700">{classData.capacity}명</p>
-        </div>
-        <p className="text-xl font-semibold text-gray-900">
-          {classData.pricePoints.toLocaleString()}원
-        </p>
-      </div>
+      {/* 가격 */}
+      <p className="text-xl font-semibold text-gray-900">
+        {classData.pricePoints.toLocaleString()}원
+      </p>
     </>
   );
 }

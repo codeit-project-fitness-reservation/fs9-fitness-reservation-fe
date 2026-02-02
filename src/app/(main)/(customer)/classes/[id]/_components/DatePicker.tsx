@@ -4,6 +4,7 @@ import { DayPicker } from 'react-day-picker';
 import { ko } from 'date-fns/locale';
 import { format } from 'date-fns';
 import 'react-day-picker/dist/style.css';
+import './react-day-picker.css';
 import chevronLeftIcon from '@/assets/images/chevron-left.svg';
 import chevronRightIcon from '@/assets/images/chevron-right.svg';
 
@@ -24,9 +25,52 @@ export default function DatePicker({ selectedDate, onSelect }: DatePickerProps) 
   return (
     <div className="flex justify-center rounded-lg border border-gray-200 bg-white p-4">
       <style>{`
-        .rdp-day.rdp-day_selected {
-          background: #2970ff;
-          color: white;
+        .rdp-caption {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          align-self: stretch;
+          position: relative;
+          margin-bottom: 0;
+        }
+        .rdp-month {
+          padding: 0;
+        }
+        .rdp-table {
+          margin: 0;
+          width: 100%;
+        }
+        .rdp-cell,
+        .rdp-head_cell {
+          padding: 0.5rem;
+        }
+        .rdp-caption_label {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+        .rdp-nav {
+          display: flex;
+          width: 100%;
+          justify-content: space-between;
+          position: absolute;
+          left: 0;
+          right: 0;
+          pointer-events: none;
+        }
+        .rdp-button_previous,
+        .rdp-button_next {
+          pointer-events: auto;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          align-items: center;
+        }
+        .rdp-button_previous {
+          margin-left: 0.5rem;
+        }
+        .rdp-button_next {
+          margin-right: 0.5rem;
         }
         .rdp-button_previous svg,
         .rdp-button_next svg {

@@ -24,6 +24,7 @@ export interface Class {
   updatedAt: string;
   rating?: number;
   reviewCount?: number;
+  currentReservation?: number;
 }
 
 export interface ClassSlot {

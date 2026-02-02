@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { Class } from '@/types/class';
 
 interface ClassImageProps {
@@ -7,22 +6,14 @@ interface ClassImageProps {
 
 export default function ClassImage({ classData }: ClassImageProps) {
   return (
-    <div className="relative h-[400px] w-full overflow-hidden rounded-xl max-[768px]:h-[300px]">
-      {classData.bannerUrl ? (
-        <Image
-          src={classData.bannerUrl}
-          alt={classData.title}
-          fill
-          className="object-cover"
-          sizes="100vw"
-          priority
-          unoptimized
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400">
-          이미지 없음
-        </div>
-      )}
-    </div>
+    <div
+      className="h-[400px] w-full max-[768px]:h-[300px]"
+      style={{
+        borderBottom: '1px solid rgba(0, 0, 0, 0.04)',
+        background: classData.bannerUrl
+          ? `url(${classData.bannerUrl}) lightgray 50% / cover no-repeat`
+          : 'lightgray',
+      }}
+    />
   );
 }

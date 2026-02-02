@@ -1,0 +1,17 @@
+/* Custom overrides for react-day-picker selected day styles */
+.rdp-selected {
+    font-weight: normal;
+    /* Changed from bold to normal */
+}
+
+.rdp-selected .rdp-day_button {
+    border: none;
+    border-radius: 9999px;
+    background: #2970FF !important;
+    color: #FFF !important;
+}
+
+.rdp-selected .rdp-day_button:hover {
+    background: #2970FF !important;
+    /* Keep background on hover */
+}

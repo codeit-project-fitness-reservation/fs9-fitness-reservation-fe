@@ -1,5 +1,5 @@
 import { User, NotificationItem, Center, ClassItem, ScheduleEvent } from '@/types';
-import { Class } from '@/types/class';
+import { Class, ClassStatus } from '@/types/class';
 
 export const MOCK_ACCOUNTS: Record<string, User> = {
   'user@test.com': {
@@ -231,10 +231,11 @@ export const MOCK_CLASS_DETAIL: Class = {
   imgUrls: [
     'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
   ],
-  status: 'APPROVED',
+  status: ClassStatus.APPROVED,
   rejectReason: null,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   rating: 4.5,
   reviewCount: 18,
+  currentReservation: 5,
 };

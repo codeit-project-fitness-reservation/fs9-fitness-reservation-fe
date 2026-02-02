@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Class, ClassSlot } from '@/types/class';
 import { Center } from '@/types';
 import { MOCK_CLASS_DETAIL, MOCK_SELLER_CENTER } from '@/mocks/mockdata';
@@ -12,6 +13,7 @@ import ClassInfo from './_components/ClassInfo';
 import TabNavigation from './_components/TabNavigation';
 import TabContent from './_components/TabContent';
 import ReservationBottomBar from './_components/ReservationBottomBar';
+import userIcon from '@/assets/images/user-02.svg';
 
 export default function ClassDetailPage() {
   const params = useParams();
@@ -67,12 +69,21 @@ export default function ClassDetailPage() {
       className={`mx-auto flex min-h-[calc(100vh-56px)] max-w-[960px] flex-col gap-8 px-4 py-8 max-[1200px]:px-6 max-[768px]:gap-6 max-[768px]:px-4 max-[768px]:py-6 md:px-8 ${hasBottomBar ? 'pb-24' : ''}`}
     >
       <ClassImage classData={classData} />
-      <EventTags
-        category={classData.category}
-        level={classData.level}
-        size="md"
-        className="gap-2"
-      />
+      {/* EventTags와 예약 인원 */}
+      <div className="flex items-center justify-between">
+        <EventTags
+          category={classData.category}
+          level={classData.level}
+          size="md"
+          className="gap-2"
+        />
+        <div className="flex items-center gap-2">
+          <Image src={userIcon} alt="예약 인원" width={20} height={20} />
+          <p className="text-base text-gray-400">
+            {classData.currentReservation || 0}/{classData.capacity}
+          </p>
+        </div>
+      </div>
       <ClassInfo classData={classData} centerData={centerData} />
       <TabNavigation
         activeTab={activeTab}
