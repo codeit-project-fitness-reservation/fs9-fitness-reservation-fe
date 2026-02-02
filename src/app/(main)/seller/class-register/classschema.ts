@@ -56,16 +56,18 @@ export const classFormSchema = z.object({
       message: '올바른 인원을 입력해주세요.',
     }),
 
-  description: z.string().min(1, '상세 소개를 입력해주세요.'),
+  description: z.string().min(3, '상세 소개를 3글자 이상 입력해주세요.'),
+
+  precautions: z.string().min(3, '주의사항을 3글자 이상 입력해주세요.'),
 
   schedule: z.object({
-    monday: z.string().nullable().optional(),
-    tuesday: z.string().nullable().optional(),
-    wednesday: z.string().nullable().optional(),
-    thursday: z.string().nullable().optional(),
-    friday: z.string().nullable().optional(),
-    saturday: z.string().nullable().optional(),
-    sunday: z.string().nullable().optional(),
+    monday: z.array(z.string()),
+    tuesday: z.array(z.string()),
+    wednesday: z.array(z.string()),
+    thursday: z.array(z.string()),
+    friday: z.array(z.string()),
+    saturday: z.array(z.string()),
+    sunday: z.array(z.string()),
   }),
 });
 
