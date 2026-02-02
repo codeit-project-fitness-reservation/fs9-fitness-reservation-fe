@@ -69,8 +69,8 @@ export default function SellerPage() {
         />
         <QuickActionCard
           icon={<Image src={icCoins} alt="" width={24} height={24} />}
-          label="마이페이지"
-          href="/seller/mypage"
+          label="매출 정산"
+          href="/seller/sales"
         />
       </div>
 
