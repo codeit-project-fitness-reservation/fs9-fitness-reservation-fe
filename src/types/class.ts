@@ -30,10 +30,10 @@ export interface Class {
 export interface ClassSlot {
   id: string;
   classId: string;
-  startAt: string;
-  endAt: string;
+  startAt: Date | string; // Prisma DateTime은 Date 객체로 반환, JSON 직렬화 시 string
+  endAt: Date | string; // Prisma DateTime은 Date 객체로 반환, JSON 직렬화 시 string
   capacity: number;
   currentReservation: number;
   isOpen: boolean;
-  createdAt: string;
+  createdAt: Date | string;
 }

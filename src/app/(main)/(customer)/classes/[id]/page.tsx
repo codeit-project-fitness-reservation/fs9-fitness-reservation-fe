@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Class, ClassSlot } from '@/types/class';
 import { Center } from '@/types';
-import { MOCK_CLASS_DETAIL, MOCK_SELLER_CENTER } from '@/mocks/mockdata';
+import { MOCK_CLASS_LIST, MOCK_SELLER_CENTER } from '@/mocks/mockdata';
 import { TabType } from './_components/types';
 import ClassImage from './_components/ClassImage';
 import EventTags from '@/components/common/EventTags';
@@ -30,14 +30,16 @@ export default function ClassDetailPage() {
   // Mock 데이터 로드
   useEffect(() => {
     // TODO: API 호출로 대체
-    const mockClass: Class = {
-      ...MOCK_CLASS_DETAIL,
-      id: classId,
-    };
+    const mockClass = MOCK_CLASS_LIST.find((classItem) => classItem.id === classId);
+
+    if (!mockClass) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsLoading(false);
+      return;
+    }
 
     const mockCenter: Center = MOCK_SELLER_CENTER;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setClassData(mockClass);
 
     setCenterData(mockCenter);
