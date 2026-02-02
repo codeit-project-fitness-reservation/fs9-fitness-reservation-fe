@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import DatePicker from './DatePicker';
 import TimeSlotList from './TimeSlotList';
 import { ClassSlot } from '@/types/class';
-import { formatDate } from '@/lib/utils/date';
+import { getMockClassSlotsForDate } from '@/mocks/classSlots';
 
 interface ScheduleTabProps {
+  classId: string;
   selectedDate: Date | undefined;
   onDateSelect: (date: Date | undefined) => void;
   onTimeSlotSelect: (slot: ClassSlot) => void;
@@ -14,6 +15,7 @@ interface ScheduleTabProps {
 }
 
 export default function ScheduleTab({
+  classId,
   selectedDate,
   onDateSelect,
   onTimeSlotSelect,
@@ -30,53 +32,8 @@ export default function ScheduleTab({
     }
 
     // TODO: API 호출로 대체 - 선택한 날짜의 시간 슬롯 가져오기
-    // 선택한 날짜의 시작 시간을 기준으로 슬롯 생성
-    const dateStr = formatDate(selectedDate);
-    const mockTimeSlots: ClassSlot[] = [
-      {
-        id: 'slot-1',
-        classId: 'class-1',
-        startAt: `${dateStr}T13:00:00.000Z`,
-        endAt: `${dateStr}T14:00:00.000Z`,
-        capacity: 10,
-        currentReservation: 8,
-        isOpen: true,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'slot-2',
-        classId: 'class-1',
-        startAt: `${dateStr}T14:00:00.000Z`,
-        endAt: `${dateStr}T15:00:00.000Z`,
-        capacity: 10,
-        currentReservation: 8,
-        isOpen: true,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'slot-3',
-        classId: 'class-1',
-        startAt: `${dateStr}T15:00:00.000Z`,
-        endAt: `${dateStr}T16:00:00.000Z`,
-        capacity: 10,
-        currentReservation: 8,
-        isOpen: true,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 'slot-4',
-        classId: 'class-1',
-        startAt: `${dateStr}T16:00:00.000Z`,
-        endAt: `${dateStr}T17:00:00.000Z`,
-        capacity: 10,
-        currentReservation: 10,
-        isOpen: false,
-        createdAt: new Date().toISOString(),
-      },
-    ];
-
-    setTimeSlots(mockTimeSlots);
-  }, [selectedDate]);
+    setTimeSlots(getMockClassSlotsForDate({ classId, date: selectedDate }));
+  }, [classId, selectedDate]);
 
   return (
     <div className="flex flex-col gap-6">

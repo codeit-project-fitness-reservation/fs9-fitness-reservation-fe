@@ -27,6 +27,7 @@ export default function TabContent({
       {activeTab === 'intro' && <IntroTab classData={classData} />}
       {activeTab === 'schedule' && (
         <ScheduleTab
+          classId={classData.id}
           selectedDate={selectedDate}
           onDateSelect={onDateSelect}
           onTimeSlotSelect={onTimeSlotSelect}
