@@ -33,6 +33,7 @@ export interface ClassSlot {
   startAt: string; // ISO DateTime string
   endAt: string; // ISO DateTime string
   capacity: number;
+  currentReservation: number; // DEFAULT 0, 현재 예약 인원
   isOpen: boolean;
   createdAt: string; // ISO DateTime string
 }

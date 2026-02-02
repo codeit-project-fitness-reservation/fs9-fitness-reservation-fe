@@ -179,11 +179,11 @@ export default function ClassesPage() {
 
   return (
     <>
-      <div className="mx-auto flex min-h-[calc(100vh-56px)] max-w-[960px] flex-col items-center gap-8 px-8 py-6">
-        <div className="flex w-full flex-col items-start gap-6">
-          <div className="flex w-full flex-col gap-3">
-            <div className="flex w-full items-center gap-4">
-              <div className="flex shrink-0 items-center gap-4">
+      <div className="mx-auto flex min-h-[calc(100vh-56px)] max-w-[960px] flex-col items-center gap-8 px-8 py-6 max-[1200px]:gap-6 max-[1200px]:px-6 max-[768px]:gap-4 max-[768px]:px-4 max-[768px]:py-4">
+        <div className="flex w-full flex-col items-start gap-6 max-[1200px]:gap-5 max-[768px]:gap-4">
+          <div className="flex w-full flex-col gap-3 max-[768px]:gap-2">
+            <div className="flex w-full items-center gap-4 max-[768px]:flex-col max-[768px]:gap-3">
+              <div className="flex shrink-0 items-center gap-4 max-[768px]:w-full max-[768px]:justify-between">
                 <div className="relative" ref={sortDropdownRef}>
                   <button
                     onClick={handleSortClick}
@@ -225,7 +225,7 @@ export default function ClassesPage() {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 onSearch={handleSearch}
-                className="min-w-0 flex-1"
+                className="min-w-0 flex-1 max-[768px]:w-full"
               />
             </div>
             {activeFilters.length > 0 && (
@@ -246,7 +246,7 @@ export default function ClassesPage() {
             )}
           </div>
 
-          <div className="flex w-full flex-col items-start gap-3 rounded-lg bg-gray-50 p-6">
+          <div className="flex w-full flex-col items-start gap-3 rounded-lg bg-gray-50 p-6 max-[1200px]:p-5 max-[768px]:gap-2 max-[768px]:p-4">
             {isLoading ? (
               <div className="flex w-full items-center justify-center py-12">
                 <p className="text-base font-medium text-gray-400">로딩 중...</p>
