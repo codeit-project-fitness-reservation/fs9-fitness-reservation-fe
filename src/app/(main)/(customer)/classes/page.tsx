@@ -10,6 +10,7 @@ import FilterModal, { FilterState } from '@/components/FilterModal';
 import FilterBadge from '@/components/FilterBadge';
 import SortModal, { SortOption } from '@/components/SortModal';
 import { Class } from '@/types/class';
+import { MOCK_CLASS_LIST } from '@/mocks/mockdata';
 import filterLinesIcon from '@/assets/images/filter-lines.svg';
 import filterIcon from '@/assets/images/filter.svg';
 
@@ -92,9 +93,60 @@ export default function ClassesPage() {
       setError(null);
       try {
         // TODO: API 호출 구현
-        // 임시: API 연결 전까지 빈 배열
-        setClasses([]);
-        setTotalCount(0);
+        // 임시: Mock 데이터 사용 + 필터/검색/정렬 로직
+        let filteredClasses = [...MOCK_CLASS_LIST];
+
+        // 검색 필터링
+        if (appliedSearchQuery.trim()) {
+          filteredClasses = filteredClasses.filter((classItem) =>
+            classItem.title.toLowerCase().includes(appliedSearchQuery.toLowerCase()),
+          );
+        }
+
+        // 필터 적용
+        if (filters.programTypes.length > 0) {
+          filteredClasses = filteredClasses.filter((classItem) =>
+            filters.programTypes.includes(classItem.category),
+          );
+        }
+
+        if (filters.difficulty.length > 0) {
+          filteredClasses = filteredClasses.filter((classItem) =>
+            filters.difficulty.includes(classItem.level),
+          );
+        }
+
+        if (filters.reservationStatus === 'available') {
+          filteredClasses = filteredClasses.filter(
+            (classItem) => (classItem.currentReservation || 0) < classItem.capacity,
+          );
+        }
+
+        // 정렬
+        switch (selectedSort) {
+          case 'recommended':
+            // 추천순 (기본값, rating 높은 순)
+            filteredClasses.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            break;
+          case 'distance':
+            // 거리순 (현재는 정렬 없음, 추후 거리 정보 추가 시 구현)
+            // filteredClasses.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+            break;
+          case 'priceLow':
+            // 가격 낮은 순
+            filteredClasses.sort((a, b) => a.pricePoints - b.pricePoints);
+            break;
+          default:
+            break;
+        }
+
+        // 페이지네이션
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedClasses = filteredClasses.slice(startIndex, endIndex);
+
+        setClasses(paginatedClasses);
+        setTotalCount(filteredClasses.length);
       } catch (err) {
         setError(err instanceof Error ? err.message : '클래스를 불러오는데 실패했습니다.');
         setClasses([]);
@@ -179,11 +231,11 @@ export default function ClassesPage() {
 
   return (
     <>
-      <div className="mx-auto flex min-h-[calc(100vh-56px)] max-w-[960px] flex-col items-center gap-8 px-8 py-6">
-        <div className="flex w-full flex-col items-start gap-6">
-          <div className="flex w-full flex-col gap-3">
-            <div className="flex w-full items-center gap-4">
-              <div className="flex shrink-0 items-center gap-4">
+      <div className="mx-auto flex min-h-[calc(100vh-56px)] max-w-[960px] flex-col items-center gap-8 px-8 py-6 max-[1200px]:gap-6 max-[1200px]:px-6 max-[768px]:gap-4 max-[768px]:px-4 max-[768px]:py-4">
+        <div className="flex w-full flex-col items-start gap-6 max-[1200px]:gap-5 max-[768px]:gap-4">
+          <div className="flex w-full flex-col gap-3 max-[768px]:gap-2">
+            <div className="flex w-full items-center gap-4 max-[768px]:flex-col max-[768px]:gap-3">
+              <div className="flex shrink-0 items-center gap-4 max-[768px]:w-full max-[768px]:justify-between">
                 <div className="relative" ref={sortDropdownRef}>
                   <button
                     onClick={handleSortClick}
@@ -225,7 +277,7 @@ export default function ClassesPage() {
                 value={searchQuery}
                 onChange={setSearchQuery}
                 onSearch={handleSearch}
-                className="min-w-0 flex-1"
+                className="min-w-0 flex-1 max-[768px]:w-full"
               />
             </div>
             {activeFilters.length > 0 && (
@@ -246,7 +298,7 @@ export default function ClassesPage() {
             )}
           </div>
 
-          <div className="flex w-full flex-col items-start gap-3 rounded-lg bg-gray-50 p-6">
+          <div className="flex w-full flex-col items-start gap-3 rounded-lg bg-gray-50 p-6 max-[1200px]:p-5 max-[768px]:gap-2 max-[768px]:p-4">
             {isLoading ? (
               <div className="flex w-full items-center justify-center py-12">
                 <p className="text-base font-medium text-gray-400">로딩 중...</p>

@@ -20,19 +20,20 @@ export interface Class {
   imgUrls: string[];
   status: ClassStatus;
   rejectReason: string | null;
-  createdAt: string; // ISO DateTime string
-  updatedAt: string; // ISO DateTime string
-  // UI 표시용 필드 (별도 API에서 가져올 수 있음)
+  createdAt: string;
+  updatedAt: string;
   rating?: number;
   reviewCount?: number;
+  currentReservation?: number;
 }
 
 export interface ClassSlot {
   id: string;
   classId: string;
-  startAt: string; // ISO DateTime string
-  endAt: string; // ISO DateTime string
+  startAt: Date | string; // Prisma DateTime은 Date 객체로 반환, JSON 직렬화 시 string
+  endAt: Date | string; // Prisma DateTime은 Date 객체로 반환, JSON 직렬화 시 string
   capacity: number;
+  currentReservation: number;
   isOpen: boolean;
-  createdAt: string; // ISO DateTime string
+  createdAt: Date | string;
 }
