@@ -122,6 +122,28 @@ export interface Reservation {
   createdAt: Date;
   updatedAt: Date;
   completedAt?: Date;
+
+  // UI 표시용 (조인 데이터 - API 응답에 포함될 경우)
+  user?: {
+    name: string;
+    nickname: string;
+    email: string;
+    phone: string;
+  };
+  class?: {
+    title: string;
+    center?: {
+      name: string;
+    };
+  };
+  slot?: {
+    startAt: Date;
+    endAt: Date;
+    capacity: number;
+    _count: {
+      reservations: number;
+    };
+  };
 }
 
 // --- [7. Point History (NEW)] ---
