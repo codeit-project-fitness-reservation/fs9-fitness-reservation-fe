@@ -1,3 +1,3 @@
-export default function SignupLayout({ children }: { children: React.ReactNode }) {
-  return <section className="signup-container">{children}</section>;
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  return <section className="flex min-h-dvh flex-col bg-white">{children}</section>;
 }

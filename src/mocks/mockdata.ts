@@ -8,6 +8,7 @@ import {
   ClassSales,
   SalesTransaction,
 } from '@/types';
+import { Class, ClassStatus } from '@/types/class';
 
 export const MOCK_ACCOUNTS: Record<string, User> = {
   'user@test.com': {
@@ -221,6 +222,198 @@ export const MOCK_SELLER_SCHEDULES: ScheduleEvent[] = [
     },
   },
 ];
+
+// 클래스 목록용 Mock 데이터
+export const MOCK_CLASS_LIST: Class[] = [
+  {
+    id: 'class-1',
+    centerId: 'center-1',
+    title: '30분 순환 근력 운동',
+    category: '헬스',
+    level: '입문',
+    description:
+      '짧은 시간 안에 전신 근육을 고르게 사용하는 순환형 근력 클래스입니다.\n웨이트와 맨몸 동작을 번갈아 진행해 운동 효율을 높이고 체력과 근력을 동시에 강화할 수 있어요.\n운동 초보자도 따라올 수 있도록 동작 난이도를 조절하며, 바쁜 일상 속에서도 30분으로 확실한 운동 효과를 느낄 수 있습니다.',
+    notice: '운동화와 수건을 지참해주세요.',
+    pricePoints: 24000,
+    capacity: 30,
+    bannerUrl:
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+    imgUrls: [
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+    ],
+    status: ClassStatus.APPROVED,
+    rejectReason: null,
+    createdAt: new Date('2026-01-15').toISOString(),
+    updatedAt: new Date('2026-01-20').toISOString(),
+    rating: 4.5,
+    reviewCount: 18,
+    currentReservation: 5,
+  },
+  {
+    id: 'class-2',
+    centerId: 'center-1',
+    title: '60분 요가 클래스',
+    category: '요가',
+    level: '초급',
+    description: '전신 스트레칭과 호흡법을 통해 몸과 마음을 정화하는 요가 클래스입니다.',
+    notice: '요가 매트를 지참해주세요.',
+    pricePoints: 30000,
+    capacity: 20,
+    bannerUrl:
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    imgUrls: [
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    ],
+    status: ClassStatus.APPROVED,
+    rejectReason: null,
+    createdAt: new Date('2026-01-10').toISOString(),
+    updatedAt: new Date('2026-01-19').toISOString(),
+    rating: 4.8,
+    reviewCount: 32,
+    currentReservation: 12,
+  },
+  {
+    id: 'class-3',
+    centerId: 'center-1',
+    title: '45분 필라테스',
+    category: '필라테스',
+    level: '중급',
+    description: '코어 강화와 자세 교정에 중점을 둔 필라테스 클래스입니다.',
+    notice: '편안한 운동복을 착용해주세요.',
+    pricePoints: 35000,
+    capacity: 15,
+    bannerUrl:
+      'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    imgUrls: [
+      'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    ],
+    status: ClassStatus.APPROVED,
+    rejectReason: null,
+    createdAt: new Date('2026-01-12').toISOString(),
+    updatedAt: new Date('2026-01-18').toISOString(),
+    rating: 4.7,
+    reviewCount: 25,
+    currentReservation: 8,
+  },
+  {
+    id: 'class-4',
+    centerId: 'center-1',
+    title: '90분 하체 집중 운동',
+    category: '헬스',
+    level: '고급',
+    description: '하체 근육을 집중적으로 단련하는 고강도 운동 클래스입니다.',
+    notice: '충분한 수분 섭취를 권장합니다.',
+    pricePoints: 40000,
+    capacity: 12,
+    bannerUrl:
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80',
+    imgUrls: [
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80',
+    ],
+    status: ClassStatus.APPROVED,
+    rejectReason: null,
+    createdAt: new Date('2026-01-08').toISOString(),
+    updatedAt: new Date('2026-01-17').toISOString(),
+    rating: 4.9,
+    reviewCount: 45,
+    currentReservation: 10,
+  },
+  {
+    id: 'class-5',
+    centerId: 'center-1',
+    title: '30분 스트레칭',
+    category: '요가',
+    level: '입문',
+    description: '일상의 피로를 풀어주는 가벼운 스트레칭 클래스입니다.',
+    notice: null,
+    pricePoints: 15000,
+    capacity: 25,
+    bannerUrl:
+      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+    imgUrls: [
+      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+    ],
+    status: ClassStatus.APPROVED,
+    rejectReason: null,
+    createdAt: new Date('2026-01-14').toISOString(),
+    updatedAt: new Date('2026-01-21').toISOString(),
+    rating: 4.3,
+    reviewCount: 12,
+    currentReservation: 3,
+  },
+  {
+    id: 'class-6',
+    centerId: 'center-1',
+    title: '60분 상체 근력 운동',
+    category: '헬스',
+    level: '중급',
+    description: '상체 근육을 균형있게 발달시키는 근력 운동 클래스입니다.',
+    notice: '운동화 필수 지참',
+    pricePoints: 32000,
+    capacity: 18,
+    bannerUrl:
+      'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80',
+    imgUrls: [
+      'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80',
+    ],
+    status: ClassStatus.APPROVED,
+    rejectReason: null,
+    createdAt: new Date('2026-01-11').toISOString(),
+    updatedAt: new Date('2026-01-19').toISOString(),
+    rating: 4.6,
+    reviewCount: 28,
+    currentReservation: 15,
+  },
+  {
+    id: 'class-7',
+    centerId: 'center-1',
+    title: '75분 복합 운동',
+    category: '헬스',
+    level: '고급',
+    description: '유산소와 근력 운동을 결합한 종합 운동 클래스입니다.',
+    notice: '운동 전 2시간 전 식사 권장',
+    pricePoints: 45000,
+    capacity: 10,
+    bannerUrl:
+      'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    imgUrls: [
+      'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    ],
+    status: ClassStatus.APPROVED,
+    rejectReason: null,
+    createdAt: new Date('2026-01-09').toISOString(),
+    updatedAt: new Date('2026-01-16').toISOString(),
+    rating: 4.4,
+    reviewCount: 20,
+    currentReservation: 7,
+  },
+];
+
+// 클래스 상세 페이지용 Mock 데이터
+export const MOCK_CLASS_DETAIL: Class = {
+  id: 'class-1',
+  centerId: 'center-1',
+  title: '30분 순환 근력 운동',
+  category: '헬스',
+  level: '입문',
+  description:
+    '짧은 시간 안에 전신 근육을 고르게 사용하는 순환형 근력 클래스입니다.\n웨이트와 맨몸 동작을 번갈아 진행해 운동 효율을 높이고 체력과 근력을 동시에 강화할 수 있어요.\n운동 초보자도 따라올 수 있도록 동작 난이도를 조절하며, 바쁜 일상 속에서도 30분으로 확실한 운동 효과를 느낄 수 있습니다.',
+  notice: '운동화와 수건을 지참해주세요.',
+  pricePoints: 24000,
+  capacity: 30,
+  bannerUrl:
+    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+  imgUrls: [
+    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+  ],
+  status: ClassStatus.APPROVED,
+  rejectReason: null,
+  createdAt: new Date('2026-01-15').toISOString(),
+  updatedAt: new Date('2026-01-20').toISOString(),
+  rating: 4.5,
+  reviewCount: 18,
+  currentReservation: 5,
+};
 
 // 매출 정산 데이터
 export const MOCK_SALES_SUMMARY: SalesSummary = {
