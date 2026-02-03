@@ -7,16 +7,20 @@ import { usePathname } from 'next/navigation';
 import { BaseButton } from '@/components/common/BaseButton';
 import { NotificationDropdown } from './NotificationDropdown';
 import { MOCK_NOTIFICATIONS } from '@/mocks/mockdata';
-import { User, NotificationItem } from '@/types';
+import { UserRole, NotificationItem } from '@/types';
 import icBell from '@/assets/images/bell.svg';
 import icChevronDown from '@/assets/images/chevron-down.svg';
 import logoImg from '@/assets/images/FITMATCH.svg';
 
+type HeaderUser = {
+  nickname: string;
+  role: UserRole;
+};
+
 const Header = () => {
   const pathname = usePathname();
 
-  // 로그인 테스트: useState<User | null>(MOCK_ACCOUNTS['user@test.com']);/ 비로그인 테스트: useState<User | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<HeaderUser | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -48,6 +52,24 @@ const Header = () => {
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const syncUserFromStorage = () => {
+      const accessToken = localStorage.getItem('accessToken');
+      const storedRole = (localStorage.getItem('userRole') || 'CUSTOMER') as UserRole;
+      const nickname = localStorage.getItem('userNickname') || '회원';
+
+      if (accessToken) {
+        setUser({ nickname, role: storedRole });
+      } else {
+        setUser(null);
+      }
+    };
+
+    syncUserFromStorage();
+    window.addEventListener('storage', syncUserFromStorage);
+    return () => window.removeEventListener('storage', syncUserFromStorage);
   }, []);
 
   if (user?.role === 'ADMIN' || pathname.startsWith('/admin')) return null;
@@ -97,6 +119,11 @@ const Header = () => {
                     </Link>
                     <button
                       onClick={() => {
+                        localStorage.removeItem('accessToken');
+                        localStorage.removeItem('refreshToken');
+                        localStorage.removeItem('userRole');
+                        localStorage.removeItem('userNickname');
+                        localStorage.removeItem('userId');
                         setUser(null);
                         setIsProfileOpen(false);
                       }}

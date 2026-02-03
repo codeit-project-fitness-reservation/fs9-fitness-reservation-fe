@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useId, forwardRef, InputHTMLAttributes } from 'react';
+import { ReactNode, useState, useId, forwardRef, InputHTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
 import Image from 'next/image';
 
@@ -10,53 +10,91 @@ import eyeOff from '@/assets/images/eyeoff.svg';
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
-  className?: string;
   required?: boolean;
+  rightElement?: ReactNode;
+  showPasswordToggle?: boolean;
+  density?: 'md' | 'sm';
+  className?: string;
+  containerClassName?: string;
 }
 
 const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
   (
-    { label, type = 'text', placeholder, error, className = '', required = false, ...props },
+    {
+      label,
+      type = 'text',
+      placeholder,
+      error,
+      className = '',
+      containerClassName = '',
+      required = false,
+      rightElement,
+      showPasswordToggle = true,
+      density = 'md',
+      ...props
+    },
     ref,
   ) => {
     const [showPassword, setShowPassword] = useState(false);
     const generatedId = useId();
     const id = props.id || generatedId;
+    const errorId = `${id}-error`;
+    const isDisabled = Boolean(props.disabled);
+    const ariaDescribedBy =
+      [props['aria-describedby'], error ? errorId : undefined].filter(Boolean).join(' ') ||
+      undefined;
 
     const isPassword = type === 'password';
     const resolvedType = isPassword && showPassword ? 'text' : type;
 
-    const baseClasses = `
-    w-full px-4 py-3 border rounded-lg outline-none transition-colors text-base placeholder-gray-400
-    ${error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500'}
-  `;
+    const inputClasses = twMerge(
+      `w-full flex-1 bg-transparent outline-none text-[16px] leading-6 text-[#181D27] placeholder:text-gray-400 disabled:cursor-not-allowed disabled:text-[#A4A7AE] disabled:placeholder:text-[#A4A7AE]`,
+      className,
+    );
 
-    const combinedClasses = twMerge(baseClasses, className);
+    const paddingClasses =
+      density === 'sm' ? 'px-[14px] py-[8px] min-h-[44px]' : 'px-[16px] py-[12px] min-h-[48px]';
+
+    const wrapperClasses = twMerge(
+      `flex w-full items-center gap-2 rounded-[8px] border bg-white ${paddingClasses} transition-colors focus-within:ring-1`,
+      isDisabled ? 'cursor-not-allowed bg-[#F9FAFB] border-[#E9EAEB] focus-within:ring-0' : '',
+      error
+        ? `border-[#FDA29B] focus-within:ring-[rgba(253,162,155,0.35)]`
+        : `border-[#D5D7DA] focus-within:border-[#2970FF] focus-within:ring-[rgba(41,112,255,0.25)]`,
+      containerClassName,
+    );
 
     return (
-      <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full flex-col gap-[6px]">
         {label && (
-          <label htmlFor={id} className="cursor-pointer text-sm font-medium text-gray-900">
-            {label}
-            {required && <span className="text-blue-500"> *</span>}
+          <label
+            htmlFor={id}
+            className="cursor-pointer text-[14px] leading-5 font-medium text-[#252B37]"
+          >
+            <span>{label}</span>
+            {required && <span className="text-[#2970FF]"> *</span>}
           </label>
         )}
 
-        <div className="relative">
+        <div className={wrapperClasses}>
           <input
             id={id}
             ref={ref}
             type={resolvedType}
             placeholder={placeholder}
-            className={combinedClasses}
+            className={inputClasses}
+            aria-invalid={Boolean(error) || undefined}
+            aria-describedby={ariaDescribedBy}
             {...props}
           />
 
-          {isPassword && (
+          {rightElement}
+
+          {isPassword && showPasswordToggle && !rightElement && (
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute top-1/2 right-4 -translate-y-1/2 p-1"
+              className="shrink-0 p-1"
               aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
             >
               <Image src={showPassword ? eyeOn : eyeOff} alt="" width={24} height={24} />
@@ -64,7 +102,11 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           )}
         </div>
 
-        {error && <p className="pl-1 text-xs text-red-500">{error}</p>}
+        {error && (
+          <p id={errorId} className="text-[14px] leading-5 text-[#D92D20]">
+            {error}
+          </p>
+        )}
       </div>
     );
   },
