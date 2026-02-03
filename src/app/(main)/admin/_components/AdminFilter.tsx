@@ -26,12 +26,15 @@ interface AdminFilterProps {
   configs: FilterConfig[];
   onFilterChange?: (filters: FilterValues) => void;
   initialValues?: FilterValues;
+  /** true면 외부 카드 없이 필터 행만 렌더 (상위 카드 안에 넣을 때 사용) */
+  inline?: boolean;
 }
 
 export default function AdminFilter({
   configs,
   onFilterChange,
   initialValues = {},
+  inline = false,
 }: AdminFilterProps) {
   // 초기값 설정
   const getInitialFilters = () => {
@@ -56,79 +59,89 @@ export default function AdminFilter({
     onFilterChange?.(newFilters);
   };
 
-  return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4">
-      <div className="flex flex-row flex-nowrap items-center gap-4 overflow-x-auto">
-        {configs.map((config) => {
-          if (config.type === 'select') {
-            return (
-              <div key={config.key} className="flex shrink-0 flex-row items-center gap-2">
-                <label
-                  htmlFor={config.key}
-                  className="text-sm font-medium whitespace-nowrap text-gray-700"
-                >
-                  {config.label}
-                </label>
+  const content = (
+    <div className="flex flex-row flex-nowrap items-center gap-4 overflow-x-auto">
+      {configs.map((config) => {
+        if (config.type === 'select') {
+          return (
+            <div key={config.key} className="flex shrink-0 flex-row items-center gap-2">
+              <label
+                htmlFor={config.key}
+                className="text-sm font-medium whitespace-nowrap text-gray-700"
+              >
+                {config.label}
+              </label>
+              <select
+                id={config.key}
+                value={filters[config.key] || ''}
+                onChange={(e) => handleChange(config.key, e.target.value)}
+                className="min-w-[100px] rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+              >
+                {config.options?.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          );
+        }
+
+        if (config.type === 'searchWithType') {
+          const searchTypeKey = `${config.key}Type`;
+          return (
+            <div key={config.key} className="flex min-w-[250px] flex-1 flex-row items-center gap-2">
+              <label
+                htmlFor={config.key}
+                className="text-sm font-medium whitespace-nowrap text-gray-700"
+              >
+                {config.label}
+              </label>
+              {config.searchTypes && (
                 <select
-                  id={config.key}
-                  value={filters[config.key] || ''}
-                  onChange={(e) => handleChange(config.key, e.target.value)}
+                  id={searchTypeKey}
+                  value={filters[searchTypeKey] || ''}
+                  onChange={(e) => handleChange(searchTypeKey, e.target.value)}
                   className="min-w-[100px] rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                 >
-                  {config.options?.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
+                  {config.searchTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
                     </option>
                   ))}
                 </select>
-              </div>
-            );
-          }
-
-          if (config.type === 'searchWithType') {
-            const searchTypeKey = `${config.key}Type`;
-            return (
-              <div
-                key={config.key}
-                className="flex min-w-[250px] flex-1 flex-row items-center gap-2"
-              >
-                <label
-                  htmlFor={config.key}
-                  className="text-sm font-medium whitespace-nowrap text-gray-700"
-                >
-                  {config.label}
-                </label>
-                {config.searchTypes && (
-                  <select
-                    id={searchTypeKey}
-                    value={filters[searchTypeKey] || ''}
-                    onChange={(e) => handleChange(searchTypeKey, e.target.value)}
-                    className="min-w-[100px] rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                  >
-                    {config.searchTypes.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                )}
+              )}
+              <div className="relative flex min-w-[150px] flex-1 items-center">
                 <input
                   type="text"
                   id={config.key}
                   value={filters[config.key] || ''}
                   onChange={(e) => handleChange(config.key, e.target.value)}
-                  placeholder={config.placeholder || '검색어를 입력하세요'}
-                  className="min-w-[150px] flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                  placeholder={config.placeholder || '검색어를 입력해주세요.'}
+                  className="w-full rounded-md border border-gray-300 py-2 pr-9 pl-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                 />
+                <span className="pointer-events-none absolute right-3 text-gray-400" aria-hidden>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </span>
               </div>
-            );
-          }
+            </div>
+          );
+        }
 
-          return null;
-        })}
-      </div>
+        return null;
+      })}
     </div>
   );
+
+  if (inline) return content;
+  return <div className="rounded-lg border border-gray-200 bg-white p-4">{content}</div>;
 }
 
 // 필터 설정
@@ -139,7 +152,7 @@ export const reservationFilterConfigs: FilterConfig[] = [
     type: 'select',
     key: 'period',
     label: '기간',
-    defaultValue: '1일',
+    defaultValue: '전체기간',
     options: [
       { value: '10분', label: '10분' },
       { value: '1시간', label: '1시간' },
@@ -147,6 +160,7 @@ export const reservationFilterConfigs: FilterConfig[] = [
       { value: '1일', label: '1일' },
       { value: '1주일', label: '1주일' },
       { value: '1개월', label: '1개월' },
+      { value: '전체기간', label: '전체기간' },
     ],
   },
   {
@@ -156,20 +170,20 @@ export const reservationFilterConfigs: FilterConfig[] = [
     defaultValue: '전체',
     options: [
       { value: '전체', label: '전체' },
-      { value: '예약', label: '예약' },
-      { value: '취소', label: '취소' },
-      { value: '완료', label: '완료' },
+      { value: 'BOOKED', label: '예약' },
+      { value: 'CANCELED', label: '취소' },
+      { value: 'COMPLETED', label: '완료' },
     ],
   },
   {
     type: 'searchWithType',
     key: 'search',
     label: '검색',
-    placeholder: '검색어를 입력하세요',
+    placeholder: '검색어를 입력해주세요.',
     searchTypes: [
-      { value: 'user', label: '유저' },
-      { value: 'class', label: '클래스' },
-      { value: 'center', label: '센터' },
+      { value: 'User', label: '유저' },
+      { value: 'Class', label: '클래스' },
+      { value: 'Center', label: '센터' },
     ],
   },
 ];
@@ -183,8 +197,8 @@ export const userFilterConfigs: FilterConfig[] = [
     defaultValue: '전체',
     options: [
       { value: '전체', label: '전체' },
-      { value: '고객', label: '고객' },
-      { value: '판매자', label: '판매자' },
+      { value: 'CUSTOMER', label: '고객' },
+      { value: 'SELLER', label: '판매자' },
     ],
   },
   {
@@ -210,9 +224,9 @@ export const classFilterConfigs: FilterConfig[] = [
     defaultValue: '전체',
     options: [
       { value: '전체', label: '전체' },
-      { value: '승인', label: '승인' },
-      { value: '대기중', label: '대기중' },
-      { value: '반려됨', label: '반려됨' },
+      { value: 'APPROVED', label: '승인' },
+      { value: 'PENDING', label: '대기중' },
+      { value: 'REJECTED', label: '반려됨' },
     ],
   },
   {
