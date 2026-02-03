@@ -3,12 +3,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import SearchBar from '@/components/SearchBar';
-import ClassCard from '@/components/ClassCard';
-import Pagination from '@/components/Pagination';
-import FilterModal, { FilterState } from '@/components/FilterModal';
-import FilterBadge from '@/components/FilterBadge';
-import SortModal, { SortOption } from '@/components/SortModal';
+import SearchBar from './_components/SearchBar';
+import ClassCard from './_components/ClassCard';
+import Pagination from './_components/Pagination';
+import FilterModal, { FilterState } from './_components/FilterModal';
+import FilterBadge from './_components/FilterBadge';
+import SortModal, { SortOption } from './_components/SortModal';
 import { Class } from '@/types/class';
 import { MOCK_CLASS_LIST } from '@/mocks/mockdata';
 import filterLinesIcon from '@/assets/images/filter-lines.svg';
