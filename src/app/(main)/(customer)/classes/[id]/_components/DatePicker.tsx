@@ -3,7 +3,6 @@
 import { DayPicker } from 'react-day-picker';
 import { ko } from 'date-fns/locale';
 import 'react-day-picker/dist/style.css';
-import './react-day-picker.css';
 import { formatDateCaption } from '@/lib/utils/date';
 import chevronLeftIcon from '@/assets/images/chevron-left.svg';
 import chevronRightIcon from '@/assets/images/chevron-right.svg';
@@ -95,6 +94,19 @@ export default function DatePicker({ selectedDate, onSelect }: DatePickerProps) 
           background-size: contain;
           background-repeat: no-repeat;
           background-position: center;
+        }
+        /* react-day-picker selected day overrides (moved from react-day-picker.css) */
+        .rdp-selected {
+          font-weight: normal;
+        }
+        .rdp-selected .rdp-day_button {
+          border: none;
+          border-radius: 9999px;
+          background: #2970ff !important;
+          color: #fff !important;
+        }
+        .rdp-selected .rdp-day_button:hover {
+          background: #2970ff !important;
         }
       `}</style>
       <DayPicker
