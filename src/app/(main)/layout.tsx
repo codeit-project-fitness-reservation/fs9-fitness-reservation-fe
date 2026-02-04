@@ -10,20 +10,23 @@ interface MainLayoutProps {
 // SimpleHeader를 사용하는 페이지 경로 목록
 const SIMPLE_HEADER_PAGES = ['/seller/class-register'];
 
+const FULL_WIDTH_PAGES = ['/admin'];
+
 export default function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
   const useSimpleHeader = SIMPLE_HEADER_PAGES.includes(pathname);
+  const useFullWidth = FULL_WIDTH_PAGES.some((p) => pathname.startsWith(p));
+
+  const mainClassName = useSimpleHeader
+    ? ''
+    : useFullWidth
+      ? 'flex-1 w-full min-w-0'
+      : 'mx-auto w-full flex-1 bg-gray-50 px-4 md:max-w-240 md:px-8';
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-200">
       {!useSimpleHeader && <Header />}
-      <main
-        className={`mx-auto w-full flex-1 ${
-          useSimpleHeader ? '' : 'bg-gray-50 px-4 md:max-w-240 md:px-8'
-        }`}
-      >
-        {children}
-      </main>
+      <main className={mainClassName}>{children}</main>
     </div>
   );
 }
