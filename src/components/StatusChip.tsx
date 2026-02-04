@@ -38,7 +38,7 @@ export default function StatusChip({ status, className, label }: StatusChipProps
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium',
+        'inline-flex shrink-0 items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap',
         style,
         className,
       )}

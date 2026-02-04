@@ -1,18 +1,110 @@
 'use client';
 
+import { useEffect, useState, useCallback } from 'react';
 import AdminFilter, { classFilterConfigs, FilterValues } from '../_components/AdminFilter';
+import ClassList from './_components/ClassList';
+import { classApi, ClassStats, ClassItem } from '@/lib/api/class';
 
 export default function AdminClassesPage() {
-  const handleFilterChange = (filters: FilterValues) => {
-    console.log('클래스 필터 변경:', filters);
-    // 차후 데이터 가져오는 로직 추가
+  const [stats, setStats] = useState<ClassStats>({
+    total: 0,
+    approved: 0,
+    pending: 0,
+    rejected: 0,
+  });
+  const [classes, setClasses] = useState<ClassItem[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [filters, setFilters] = useState<FilterValues>({});
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = async () => {
+    try {
+      const response = await classApi.getStats();
+      if (response?.success) {
+        setStats(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    }
+  };
+
+  const fetchClasses = useCallback(async () => {
+    try {
+      setLoading(true);
+      const params = {
+        ...filters,
+        level: filters.difficulty,
+        page: 1,
+        limit: 100,
+      };
+
+      const cleanParams = Object.fromEntries(
+        Object.entries(params).filter(([_, v]) => v != null && String(v) !== '' && v !== '전체'),
+      );
+
+      const response = await classApi.getClasses(cleanParams);
+      if (response?.success) {
+        setClasses(response.data.data);
+        setTotalCount(response.data.total);
+      }
+    } catch (error) {
+      console.error('Failed to fetch classes:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    fetchClasses();
+  }, [fetchClasses]);
+
+  const handleFilterChange = (newFilters: FilterValues) => {
+    setFilters(newFilters);
   };
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">클래스 관리</h1>
-      <AdminFilter configs={classFilterConfigs} onFilterChange={handleFilterChange} />
-      {/* 클래스 목록 테이블 */}
+    <div className="space-y-6">
+      {/* 요약 카드 */}
+      <div className="grid grid-cols-4 gap-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-gray-600">전체</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">{stats.total.toLocaleString()} 건</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-gray-600">승인됨</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">
+            {stats.approved.toLocaleString()} 건
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-gray-600">대기중</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">
+            {stats.pending.toLocaleString()} 건
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-gray-600">반려됨</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">
+            {stats.rejected.toLocaleString()} 건
+          </p>
+        </div>
+      </div>
+
+      {/* 클래스 목록 - Figma: 필터+테이블 통합 카드 */}
+      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-100 px-6 py-4">
+          <h2 className="text-lg font-bold text-gray-900">클래스</h2>
+          <p className="text-sm text-gray-500">총 {totalCount.toLocaleString()}개</p>
+        </div>
+        <div className="px-6 py-4">
+          <AdminFilter configs={classFilterConfigs} onFilterChange={handleFilterChange} inline />
+        </div>
+        <ClassList classes={classes} loading={loading} onRefresh={fetchClasses} noCard />
+      </div>
     </div>
   );
 }
