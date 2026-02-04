@@ -35,6 +35,7 @@ export interface Center {
   address1: string;
   address2?: string;
   introduction?: string;
+  profileImgUrl?: string;
   businessHours?: Record<string, unknown>; // JSON 타입 대응
   lat?: number;
   lng?: number;
