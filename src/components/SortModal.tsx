@@ -1,5 +1,3 @@
-import React from 'react';
-
 export type SortOption = 'recommended' | 'distance' | 'priceLow';
 
 type SortModalProps = {

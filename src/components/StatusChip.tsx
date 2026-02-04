@@ -1,4 +1,3 @@
-import React from 'react';
 import { cn } from '@/lib/utils';
 
 // 예약·승인(파란) | 취소·반려(빨간) | 완료·대기(회색)

@@ -1,4 +1,3 @@
-import React from 'react';
 import Modal from '@/components/Modal';
 import { Reservation } from '@/types';
 import StatusChip from '@/components/StatusChip';
