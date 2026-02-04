@@ -19,7 +19,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       {!useSimpleHeader && <Header />}
       <main
         className={`mx-auto w-full flex-1 ${
-          useSimpleHeader ? '' : 'max-w-7xl bg-gray-50 px-4 md:px-8'
+          useSimpleHeader ? '' : 'bg-gray-50 px-4 md:max-w-240 md:px-8'
         }`}
       >
         {children}

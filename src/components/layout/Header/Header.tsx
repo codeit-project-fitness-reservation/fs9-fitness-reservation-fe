@@ -75,8 +75,8 @@ const Header = () => {
   if (user?.role === 'ADMIN' || pathname.startsWith('/admin')) return null;
 
   return (
-    <header className="sticky top-0 z-50 h-14 w-full border-b border-gray-200 bg-white">
-      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-8">
+    <header className="sticky top-0 z-50 h-14 w-full bg-gray-200">
+      <div className="mx-auto flex h-full w-full items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:max-w-240">
         <Link href="/" className="flex items-center">
           <Image
             src={logoImg}
