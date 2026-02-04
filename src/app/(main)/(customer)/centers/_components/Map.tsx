@@ -27,7 +27,6 @@ export default function KakaoMap() {
   const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
   const [isKakaoScriptLoaded, setIsKakaoScriptLoaded] = useState(false);
   const [isKakaoMapsReady, setIsKakaoMapsReady] = useState(false);
-  const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   const ensureMapReady = useCallback(() => {
     if (!mapRef.current) return null;
@@ -92,7 +91,6 @@ export default function KakaoMap() {
         const locPosition = new window.kakao.maps.LatLng(lat, lon);
         const message = '<div style="padding:5px;">여기에 계신가요?!</div>';
         displayCurrentLocation(locPosition, message);
-        setCurrentCoords({ lat, lng: lon });
       },
       () => {
         const fallbackPosition = new window.kakao.maps.LatLng(33.450701, 126.570667);
@@ -109,7 +107,6 @@ export default function KakaoMap() {
     if (!isKakaoScriptLoaded) return;
     if (!window.kakao?.maps) return;
 
-    // Kakao Maps SDK는 load 이후에 안전하게 사용 가능
     window.kakao.maps.load(() => {
       setIsKakaoMapsReady(true);
       ensureMapReady();
@@ -133,7 +130,6 @@ export default function KakaoMap() {
       <AroundFitness
         ensureMapReady={ensureMapReady}
         isKakaoLoaded={isKakaoMapsReady}
-        currentCoords={currentCoords}
         pinnedCenterId={centerIdFromQuery}
       />
       <div ref={mapRef} className="h-full w-full" />

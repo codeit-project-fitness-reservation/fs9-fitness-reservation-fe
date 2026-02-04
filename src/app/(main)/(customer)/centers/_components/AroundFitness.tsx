@@ -6,34 +6,15 @@ import { useRouter } from 'next/navigation';
 import { MOCK_CENTER_LIST } from '@/mocks/centers';
 import type { Center } from '@/types';
 
-const NEARBY_RADIUS_KM = 8;
-
-function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const R = 6371;
-  const dLat = toRad(b.lat - a.lat);
-  const dLng = toRad(b.lng - a.lng);
-  const lat1 = toRad(a.lat);
-  const lat2 = toRad(b.lat);
-
-  const h =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1) * Math.cos(lat2) * (Math.sin(dLng / 2) * Math.sin(dLng / 2));
-
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
-
 type AroundFitnessProps = {
   ensureMapReady: () => any | null;
   isKakaoLoaded: boolean;
-  currentCoords: { lat: number; lng: number } | null;
   pinnedCenterId?: string | null;
 };
 
 export default function AroundFitness({
   ensureMapReady,
   isKakaoLoaded,
-  currentCoords,
   pinnedCenterId,
 }: AroundFitnessProps) {
   const router = useRouter();
@@ -41,32 +22,6 @@ export default function AroundFitness({
   const centersInfoWindowRef = useRef<any>(null);
   const centerMarkersRef = useRef<globalThis.Map<string, any>>(new globalThis.Map());
   const selectedCenterIdRef = useRef<string | null>(null);
-
-  const getNearbyCenters = useCallback(
-    (coords: { lat: number; lng: number } | null, pinned?: string | null) => {
-      const list = MOCK_CENTER_LIST.filter(
-        (c) => typeof c.lat === 'number' && typeof c.lng === 'number',
-      );
-      const pinnedCenter = pinned ? list.find((c) => c.id === pinned) : undefined;
-
-      if (!coords) {
-        if (pinnedCenter && !list.some((c) => c.id === pinnedCenter.id))
-          return [pinnedCenter, ...list];
-        return list;
-      }
-
-      const nearby = list.filter((c) => {
-        const d = haversineKm(coords, { lat: c.lat as number, lng: c.lng as number });
-        return d <= NEARBY_RADIUS_KM;
-      });
-
-      const base = nearby.length > 0 ? nearby : list;
-      if (pinnedCenter && !base.some((c) => c.id === pinnedCenter.id))
-        return [pinnedCenter, ...base];
-      return base;
-    },
-    [],
-  );
 
   const ensureCenterMarkers = useCallback(
     (centers: Center[]) => {
@@ -187,26 +142,23 @@ export default function AroundFitness({
     if (!isKakaoLoaded) return;
     if (!window.kakao?.maps) return;
 
-    const centers = getNearbyCenters(currentCoords, pinnedCenterId);
+    const centers = MOCK_CENTER_LIST.filter(
+      (c) => typeof c.lat === 'number' && typeof c.lng === 'number',
+    );
     ensureCenterMarkers(centers);
-  }, [currentCoords, ensureCenterMarkers, getNearbyCenters, isKakaoLoaded, pinnedCenterId]);
+  }, [ensureCenterMarkers, isKakaoLoaded]);
 
   useEffect(() => {
     if (!pinnedCenterId) return;
     if (!isKakaoLoaded) return;
     if (!window.kakao?.maps) return;
 
-    const centers = getNearbyCenters(currentCoords, pinnedCenterId);
+    const centers = MOCK_CENTER_LIST.filter(
+      (c) => typeof c.lat === 'number' && typeof c.lng === 'number',
+    );
     ensureCenterMarkers(centers);
     focusCenterById(pinnedCenterId);
-  }, [
-    currentCoords,
-    ensureCenterMarkers,
-    focusCenterById,
-    getNearbyCenters,
-    isKakaoLoaded,
-    pinnedCenterId,
-  ]);
+  }, [ensureCenterMarkers, focusCenterById, isKakaoLoaded, pinnedCenterId]);
 
   return null;
 }
