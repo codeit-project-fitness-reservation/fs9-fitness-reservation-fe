@@ -1,105 +1,142 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
-import { Center } from '@/types';
+import { useSearchParams } from 'next/navigation';
+import CurrentLocationButton from './CurrentLocationButton';
+import AroundFitness from './AroundFitness';
 
 declare global {
   interface Window {
-    kakao: unknown;
+    kakao: any;
   }
 }
 
-type KakaoMap = {
-  setBounds: (bounds: unknown) => void;
-};
+const DEFAULT_CENTER = { lat: 37.499312, lng: 127.036046 };
 
-type KakaoMarker = {
-  getPosition: () => unknown;
-};
+export default function KakaoMap() {
+  const searchParams = useSearchParams();
+  const centerIdFromQuery = searchParams.get('centerId');
 
-type KakaoMaps = {
-  load: (callback: () => void) => void;
-  Map: new (container: HTMLElement, options: { center: unknown; level: number }) => KakaoMap;
-  LatLng: new (lat: number, lng: number) => unknown;
-  LatLngBounds: new () => { extend: (latlng: unknown) => void };
-  Marker: new (options: { map: KakaoMap; position: unknown }) => KakaoMarker;
-  event: {
-    addListener: (target: unknown, type: string, handler: () => void) => void;
-  };
-};
-
-type KakaoGlobal = {
-  maps: KakaoMaps;
-};
-
-type Props = {
-  centers: Center[];
-  onCenterClick?: (center: Center) => void;
-};
-
-export default function Map({ centers, onCenterClick }: Props) {
-  const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
   const mapRef = useRef<HTMLDivElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [map, setMap] = useState<KakaoMap | null>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const currentLocationMarkerRef = useRef<any>(null);
+  const currentLocationInfoWindowRef = useRef<any>(null);
+  const hasAutoLocatedRef = useRef(false);
+  const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
+  const [isKakaoScriptLoaded, setIsKakaoScriptLoaded] = useState(false);
+  const [isKakaoMapsReady, setIsKakaoMapsReady] = useState(false);
+  const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number } | null>(null);
 
-  // 1) 카카오맵 SDK 로드 완료
-  const handleLoad = () => {
-    const kakao = window.kakao as KakaoGlobal;
-    kakao.maps.load(() => setIsLoaded(true));
-  };
+  const ensureMapReady = useCallback(() => {
+    if (!mapRef.current) return null;
+    if (!isKakaoMapsReady) return null;
+    if (!window.kakao?.maps) return null;
+    if (mapInstanceRef.current) return mapInstanceRef.current;
 
-  // 2) 지도 생성 (최초 1회)
-  useEffect(() => {
-    if (!isLoaded || !mapRef.current) return;
-
-    const kakao = window.kakao as KakaoGlobal;
-    const kakaoMap = new kakao.maps.Map(mapRef.current, {
-      center: new kakao.maps.LatLng(37.5012, 127.0396), // 강남
+    const options = {
+      center: new window.kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng),
       level: 5,
-    });
+    };
 
-    setMap(kakaoMap);
-  }, [isLoaded]);
+    mapInstanceRef.current = new window.kakao.maps.Map(mapRef.current, options);
+    return mapInstanceRef.current;
+  }, [isKakaoMapsReady]);
 
-  // 3) 센터 마커 찍기
-  useEffect(() => {
-    if (!map) return;
+  const displayCurrentLocation = useCallback(
+    (locPosition: any, message: string) => {
+      const map = ensureMapReady();
+      if (!map) return;
 
-    const kakao = window.kakao as KakaoGlobal;
-    const bounds = new kakao.maps.LatLngBounds();
+      if (!currentLocationMarkerRef.current) {
+        currentLocationMarkerRef.current = new window.kakao.maps.Marker({
+          map,
+          position: locPosition,
+        });
+      } else {
+        currentLocationMarkerRef.current.setMap(map);
+        currentLocationMarkerRef.current.setPosition(locPosition);
+      }
 
-    centers.forEach((center) => {
-      if (!center.lat || !center.lng) return;
+      if (!currentLocationInfoWindowRef.current) {
+        currentLocationInfoWindowRef.current = new window.kakao.maps.InfoWindow({
+          removable: true,
+        });
+      }
 
-      const marker = new kakao.maps.Marker({
-        map,
-        position: new kakao.maps.LatLng(center.lat, center.lng),
-      });
+      currentLocationInfoWindowRef.current.setContent(message);
+      currentLocationInfoWindowRef.current.open(map, currentLocationMarkerRef.current);
+      map.setCenter(locPosition);
+    },
+    [ensureMapReady],
+  );
 
-      kakao.maps.event.addListener(marker, 'click', () => {
-        onCenterClick?.(center);
-      });
+  const moveToCurrentLocation = useCallback(() => {
+    if (!window.kakao?.maps) return;
 
-      bounds.extend(marker.getPosition());
-    });
-
-    if (centers.length > 0) {
-      map.setBounds(bounds);
+    if (!navigator.geolocation) {
+      const fallbackPosition = new window.kakao.maps.LatLng(33.450701, 126.570667);
+      displayCurrentLocation(
+        fallbackPosition,
+        '<div style="padding:5px;">geolocation을 사용할수 없어요..</div>',
+      );
+      return;
     }
-  }, [map, centers, onCenterClick]);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        const locPosition = new window.kakao.maps.LatLng(lat, lon);
+        const message = '<div style="padding:5px;">여기에 계신가요?!</div>';
+        displayCurrentLocation(locPosition, message);
+        setCurrentCoords({ lat, lng: lon });
+      },
+      () => {
+        const fallbackPosition = new window.kakao.maps.LatLng(33.450701, 126.570667);
+        displayCurrentLocation(
+          fallbackPosition,
+          '<div style="padding:5px;">현재 위치를 가져올 수 없어요..</div>',
+        );
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
+    );
+  }, [displayCurrentLocation]);
+
+  useEffect(() => {
+    if (!isKakaoScriptLoaded) return;
+    if (!window.kakao?.maps) return;
+
+    // Kakao Maps SDK는 load 이후에 안전하게 사용 가능
+    window.kakao.maps.load(() => {
+      setIsKakaoMapsReady(true);
+      ensureMapReady();
+      if (!hasAutoLocatedRef.current) {
+        hasAutoLocatedRef.current = true;
+        if (!centerIdFromQuery) moveToCurrentLocation();
+      }
+    });
+  }, [centerIdFromQuery, ensureMapReady, isKakaoScriptLoaded, moveToCurrentLocation]);
 
   if (!apiKey) return null;
 
   return (
-    <>
+    <div className="relative h-full w-full">
       <Script
         src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`}
         strategy="afterInteractive"
-        onLoad={handleLoad}
+        onLoad={() => setIsKakaoScriptLoaded(true)}
+      />
+      <CurrentLocationButton onClick={moveToCurrentLocation} />
+      <AroundFitness
+        ensureMapReady={ensureMapReady}
+        isKakaoLoaded={isKakaoMapsReady}
+        currentCoords={currentCoords}
+        pinnedCenterId={centerIdFromQuery}
       />
       <div ref={mapRef} className="h-full w-full" />
-    </>
+    </div>
   );
 }

@@ -25,7 +25,7 @@ export default function ClassInfo({ classData, centerData }: ClassInfoProps) {
         <p className="text-base text-gray-700">
           <button
             type="button"
-            onClick={() => router.push('/centers')}
+            onClick={() => router.push(`/centers?centerId=${centerData.id}`)}
             className="hover:text-black-600 font-medium underline underline-offset-2"
           >
             {centerData.name}
