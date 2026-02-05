@@ -20,9 +20,7 @@ export default function AdminClassesPage() {
   const fetchStats = async () => {
     try {
       const response = await classApi.getStats();
-      if (response?.success) {
-        setStats(response.data);
-      }
+      setStats(response);
     } catch (error) {
       console.error('Failed to fetch stats:', error);
     }
@@ -43,10 +41,8 @@ export default function AdminClassesPage() {
       );
 
       const response = await classApi.getClasses(cleanParams);
-      if (response?.success) {
-        setClasses(response.data.data);
-        setTotalCount(response.data.total);
-      }
+      setClasses(response.data);
+      setTotalCount(response.total);
     } catch (error) {
       console.error('Failed to fetch classes:', error);
     } finally {

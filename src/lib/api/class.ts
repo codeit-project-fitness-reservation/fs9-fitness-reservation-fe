@@ -1,4 +1,4 @@
-import { apiClient, QueryParams } from './client';
+import { apiClient, QueryParams } from '../api';
 
 export interface ClassStats {
   total: number;
@@ -32,18 +32,10 @@ export interface ClassListResponse {
 }
 
 export const classApi = {
-  getStats: () =>
-    apiClient.get('/classes/stats') as Promise<{ success: boolean; data: ClassStats }>,
+  getStats: () => apiClient.get<ClassStats>('/api/classes/stats'),
   getClasses: (params?: QueryParams) =>
-    apiClient.get('/classes', { params }) as Promise<{
-      success: boolean;
-      data: ClassListResponse;
-    }>,
-  approveClass: (id: string) =>
-    apiClient.patch(`/classes/${id}/approve`, {}) as Promise<{ success: boolean; data: ClassItem }>,
+    apiClient.get<ClassListResponse>('/api/classes', { params }),
+  approveClass: (id: string) => apiClient.patch<ClassItem>(`/api/classes/${id}/approve`, {}),
   rejectClass: (id: string, reason: string) =>
-    apiClient.patch(`/classes/${id}/reject`, { rejectReason: reason }) as Promise<{
-      success: boolean;
-      data: ClassItem;
-    }>,
+    apiClient.patch<ClassItem>(`/api/classes/${id}/reject`, { rejectReason: reason }),
 };

@@ -29,8 +29,8 @@ export default function AdminReservationsPage() {
   const fetchStats = async () => {
     try {
       const response = await reservationApi.getStats();
-      if (response?.success) {
-        setStats(response.data);
+      if (response) {
+        setStats(response);
       }
     } catch (error) {
       console.error('Failed to fetch stats:', error);
