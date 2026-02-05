@@ -1,7 +1,9 @@
+import Map from './_components/Map';
+
 export default function CentersPage() {
   return (
-    <div>
-      <h1>센터</h1>
+    <div className="relative h-[calc(100vh-56px)] w-full">
+      <Map />
     </div>
   );
 }
