@@ -7,7 +7,6 @@ import logoImg from '@/assets/images/FITMATCH.svg';
 
 const navItems = [
   { href: '/admin', label: '관리자 홈' },
-  { href: '/admin/classes/approval', label: '클래스 승인' },
   { href: '/admin/users', label: '회원 관리' },
   { href: '/admin/classes', label: '클래스 관리' },
   { href: '/admin/reservations', label: '최근 예약' },
