@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import xCloseIcon from '@/assets/images/x-close.svg';
 
 interface InputModalProps {
   onClose: () => void;
@@ -62,14 +64,7 @@ export default function InputModal({
           className="-mr-1 p-1 text-gray-400 transition-colors hover:text-gray-600"
           aria-label="모달 닫기"
         >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <Image src={xCloseIcon} alt="닫기" width={20} height={20} />
         </button>
       </div>
 
