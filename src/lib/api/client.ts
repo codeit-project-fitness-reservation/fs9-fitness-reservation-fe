@@ -1,13 +1,22 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
+export type QueryParams = Record<string, string | number | undefined>;
+
 interface FetchOptions extends RequestInit {
-  params?: Record<string, string>;
+  params?: QueryParams;
+}
+
+function toQueryString(params: QueryParams): string {
+  const entries = Object.entries(params)
+    .filter(([, v]) => v != null)
+    .map(([k, v]) => [k, String(v)] as [string, string]);
+  return entries.length > 0 ? '?' + new URLSearchParams(entries).toString() : '';
 }
 
 async function fetchClient(endpoint: string, options: FetchOptions = {}) {
   const { params, ...init } = options;
 
-  const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+  const queryString = params ? toQueryString(params) : '';
 
   const normalizedBase = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
