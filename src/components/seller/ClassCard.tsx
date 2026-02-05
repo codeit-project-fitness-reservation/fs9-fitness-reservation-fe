@@ -1,9 +1,13 @@
+'use client';
+
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { ClassItem } from '@/types';
 import icUser from '@/assets/images/user-02.svg';
 import StatusBadge from '@/components/common/StatusBadge';
 
 export default function ClassCard({
+  id,
   title,
   bannerUrl,
   imgUrls,
@@ -11,10 +15,18 @@ export default function ClassCard({
   status,
   statusLabel,
 }: ClassItem) {
+  const router = useRouter();
   // 대소문자 모두 처리
   const statusUpper = status.toUpperCase();
   const isInactive = statusUpper === 'PENDING' || statusUpper === 'REJECTED';
+  const isApproved = statusUpper === 'APPROVED';
   const imageUrl = bannerUrl || imgUrls?.[0];
+
+  const handleClick = () => {
+    if (isApproved) {
+      router.push(`/seller/${id}`);
+    }
+  };
 
   // 상태 라벨 결정 (statusLabel이 없으면 status에 따라 한글로 변환)
   const getStatusLabel = () => {
@@ -42,8 +54,13 @@ export default function ClassCard({
 
   return (
     <div
+      onClick={handleClick}
       className={`flex w-full items-center gap-4 rounded-xl border border-gray-200 p-4 text-left ${
         isInactive ? 'bg-gray-100' : 'bg-white'
+      } ${
+        isApproved
+          ? 'cursor-pointer transition-all hover:border-blue-300 hover:shadow-sm'
+          : 'cursor-default'
       }`}
     >
       <div

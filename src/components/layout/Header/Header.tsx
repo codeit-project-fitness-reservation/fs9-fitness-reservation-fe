@@ -111,7 +111,7 @@ const Header = () => {
                 {isProfileOpen && (
                   <div className="absolute top-full right-0 mt-2 w-32 rounded-xl border border-gray-200 bg-white py-2 shadow-lg">
                     <Link
-                      href="/mypage"
+                      href={user.role === 'CUSTOMER' ? '/mypage' : '/seller/mypage'}
                       onClick={() => setIsProfileOpen(false)}
                       className="block px-4 py-2 text-right text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >
