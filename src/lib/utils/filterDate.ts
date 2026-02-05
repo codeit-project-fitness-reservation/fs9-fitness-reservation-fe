@@ -31,11 +31,9 @@ export function calculateDateRange(period: string): { startDate?: string; endDat
       startDate = subDays(now, 1);
   }
 
-  // API 포맷에 맞게 변환 (예: YYYY-MM-DD or ISO)
-  // 여기서는 YYYY-MM-DD 형식 사용 (API 요구사항에 따라 수정 가능)
-  // 시간까지 필요하면 'yyyy-MM-dd HH:mm:ss' 등 사용
+  // API 포맷에 맞게 변환
   return {
-    startDate: format(startDate, 'yyyy-MM-dd'),
-    endDate: format(now, 'yyyy-MM-dd'),
+    startDate: format(startDate, 'yyyy-MM-dd HH:mm:ss'),
+    endDate: format(now, 'yyyy-MM-dd HH:mm:ss'),
   };
 }
