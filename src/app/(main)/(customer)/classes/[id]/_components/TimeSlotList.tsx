@@ -11,7 +11,7 @@ interface TimeSlotListProps {
 
 export default function TimeSlotList({ timeSlots, selectedTimeSlot, onSelect }: TimeSlotListProps) {
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className="flex flex-col gap-3">
       {timeSlots.map((slot) => {
         const isSelected = selectedTimeSlot?.id === slot.id;
         const remaining = slot.capacity - slot.currentReservation;

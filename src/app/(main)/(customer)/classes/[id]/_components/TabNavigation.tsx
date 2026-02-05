@@ -12,47 +12,25 @@ export default function TabNavigation({
   reviewCount = 0,
 }: TabNavigationProps) {
   return (
-    <div className="flex items-center gap-8 border-b border-gray-200">
-      <button
-        onClick={() => onTabChange('intro')}
-        className={`pb-3 text-base font-medium transition-colors ${
-          activeTab === 'intro'
-            ? 'border-b-2 border-blue-500 text-blue-600'
-            : 'text-gray-600 hover:text-gray-900'
-        }`}
-      >
-        소개
-      </button>
-      <button
-        onClick={() => onTabChange('schedule')}
-        className={`pb-3 text-base font-medium transition-colors ${
-          activeTab === 'schedule'
-            ? 'border-b-2 border-blue-500 text-blue-600'
-            : 'text-gray-600 hover:text-gray-900'
-        }`}
-      >
-        시간표
-      </button>
-      <button
-        onClick={() => onTabChange('rules')}
-        className={`pb-3 text-base font-medium transition-colors ${
-          activeTab === 'rules'
-            ? 'border-b-2 border-blue-500 text-blue-600'
-            : 'text-gray-600 hover:text-gray-900'
-        }`}
-      >
-        규정
-      </button>
-      <button
-        onClick={() => onTabChange('reviews')}
-        className={`pb-3 text-base font-medium transition-colors ${
-          activeTab === 'reviews'
-            ? 'border-b-2 border-blue-500 text-blue-600'
-            : 'text-gray-600 hover:text-gray-900'
-        }`}
-      >
-        리뷰({reviewCount})
-      </button>
+    <div className="flex items-center border-b border-gray-200 px-4 pt-4">
+      {[
+        { id: 'intro', label: '소개' },
+        { id: 'schedule', label: '시간표' },
+        { id: 'rules', label: '규정' },
+        { id: 'reviews', label: `리뷰(${reviewCount})` },
+      ].map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => onTabChange(tab.id as TabType)}
+          className={`-mb-px flex-1 pb-4 text-base font-medium transition-colors ${
+            activeTab === tab.id
+              ? 'border-b-2 border-blue-500 text-blue-600'
+              : 'border-b-2 border-transparent text-gray-600 hover:text-gray-900'
+          } `}
+        >
+          {tab.label}
+        </button>
+      ))}
     </div>
   );
 }
