@@ -12,6 +12,15 @@ export interface ReservationSearchParams {
   take?: string;
 }
 
+export interface ReservationStats {
+  totalReservations: number;
+  statusBreakdown: {
+    BOOKED: number;
+    CANCELED: number;
+    COMPLETED: number;
+  };
+}
+
 export const reservationApi = {
   getAdminReservations: async (params?: ReservationSearchParams) => {
     const queryParams: Record<string, string> = {};
@@ -31,10 +40,15 @@ export const reservationApi = {
     return apiClient.delete(`/api/reservations/admin/reservations/${id}`, { cancelNote });
   },
 
-  getStats: async (params?: { startDate?: string; endDate?: string }) => {
+  getStats: async (params?: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<ReservationStats> => {
     const queryParams: Record<string, string> = {};
     if (params?.startDate) queryParams.startDate = params.startDate;
     if (params?.endDate) queryParams.endDate = params.endDate;
-    return apiClient.get('/api/reservations/admin/reservations/stats', { params: queryParams });
+    return apiClient.get<ReservationStats>('/api/reservations/admin/reservations/stats', {
+      params: queryParams,
+    });
   },
 };
