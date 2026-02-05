@@ -97,11 +97,13 @@ export default function AdminClassesPage() {
       {/* 클래스 목록 - Figma: 필터+테이블 통합 카드 */}
       <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-100 px-6 py-4">
-          <h2 className="text-lg font-bold text-gray-900">클래스</h2>
-          <p className="text-sm text-gray-500">총 {totalCount.toLocaleString()}개</p>
-        </div>
-        <div className="px-6 py-4">
-          <AdminFilter configs={classFilterConfigs} onFilterChange={handleFilterChange} inline />
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">클래스</h2>
+              <p className="text-sm text-gray-500">총 {totalCount.toLocaleString()}개</p>
+            </div>
+            <AdminFilter configs={classFilterConfigs} onFilterChange={handleFilterChange} inline />
+          </div>
         </div>
         <ClassList classes={classes} loading={loading} onRefresh={fetchClasses} noCard />
       </div>

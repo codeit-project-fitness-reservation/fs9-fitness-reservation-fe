@@ -91,12 +91,6 @@ export default function AdminFilter({
           const searchTypeKey = `${config.key}Type`;
           return (
             <div key={config.key} className="flex shrink-0 flex-row items-center gap-2">
-              <label
-                htmlFor={config.key}
-                className="text-sm font-medium whitespace-nowrap text-gray-700"
-              >
-                {config.label}
-              </label>
               {config.searchTypes && (
                 <select
                   id={searchTypeKey}

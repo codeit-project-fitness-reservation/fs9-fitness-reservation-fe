@@ -160,9 +160,11 @@ export default function AdminReservationsPage() {
 
       <div>
         <div className="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900">예약 현황 조회</h2>
-          <p className="mt-0.5 text-sm text-gray-500">총 {totalCount.toLocaleString()}개</p>
-          <div className="mt-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">예약 현황 조회</h2>
+              <p className="mt-0.5 text-sm text-gray-500">총 {totalCount.toLocaleString()}개</p>
+            </div>
             <AdminFilter
               inline
               configs={reservationFilterConfigs}
