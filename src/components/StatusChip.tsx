@@ -1,4 +1,3 @@
-import React from 'react';
 import { cn } from '@/lib/utils';
 
 // 예약·승인(파란) | 취소·반려(빨간) | 완료·대기(회색)
@@ -39,7 +38,7 @@ export default function StatusChip({ status, className, label }: StatusChipProps
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium',
+        'inline-flex shrink-0 items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap',
         style,
         className,
       )}

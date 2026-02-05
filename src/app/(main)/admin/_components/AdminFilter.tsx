@@ -60,7 +60,7 @@ export default function AdminFilter({
   };
 
   const content = (
-    <div className="flex flex-row flex-nowrap items-center gap-4 overflow-x-auto">
+    <div className="flex flex-row flex-nowrap items-center justify-end gap-4 overflow-x-auto">
       {configs.map((config) => {
         if (config.type === 'select') {
           return (
@@ -90,13 +90,7 @@ export default function AdminFilter({
         if (config.type === 'searchWithType') {
           const searchTypeKey = `${config.key}Type`;
           return (
-            <div key={config.key} className="flex min-w-[250px] flex-1 flex-row items-center gap-2">
-              <label
-                htmlFor={config.key}
-                className="text-sm font-medium whitespace-nowrap text-gray-700"
-              >
-                {config.label}
-              </label>
+            <div key={config.key} className="flex shrink-0 flex-row items-center gap-2">
               {config.searchTypes && (
                 <select
                   id={searchTypeKey}
@@ -111,7 +105,7 @@ export default function AdminFilter({
                   ))}
                 </select>
               )}
-              <div className="relative flex min-w-[150px] flex-1 items-center">
+              <div className="relative w-[220px] shrink-0">
                 <input
                   type="text"
                   id={config.key}
@@ -120,7 +114,10 @@ export default function AdminFilter({
                   placeholder={config.placeholder || '검색어를 입력해주세요.'}
                   className="w-full rounded-md border border-gray-300 py-2 pr-9 pl-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                 />
-                <span className="pointer-events-none absolute right-3 text-gray-400" aria-hidden>
+                <span
+                  className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-400"
+                  aria-hidden
+                >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -207,7 +204,6 @@ export const userFilterConfigs: FilterConfig[] = [
     label: '검색',
     placeholder: '검색어를 입력하세요',
     searchTypes: [
-      { value: 'id', label: '아이디' },
       { value: 'nickname', label: '닉네임' },
       { value: 'phone', label: '전화번호' },
       { value: 'email', label: '이메일' },
@@ -260,7 +256,7 @@ export const classFilterConfigs: FilterConfig[] = [
     type: 'searchWithType',
     key: 'search',
     label: '검색',
-    placeholder: '클래스명 또는 센터명 검색',
+    placeholder: '검색어를 입력해주세요.',
     searchTypes: [
       { value: 'className', label: '클래스명' },
       { value: 'centerName', label: '센터명' },

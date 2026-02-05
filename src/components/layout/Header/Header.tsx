@@ -72,7 +72,7 @@ const Header = () => {
     return () => window.removeEventListener('storage', syncUserFromStorage);
   }, []);
 
-  if (user?.role === 'ADMIN' || pathname.startsWith('/admin')) return null;
+  if (pathname.startsWith('/admin')) return null;
 
   return (
     <header className="sticky top-0 z-50 h-14 w-full bg-gray-200">

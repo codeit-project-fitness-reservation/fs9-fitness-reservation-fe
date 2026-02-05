@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface EventTagsProps {
   category?: string; //  "헬스", "요가", "필라테스", "복싱", "스쿼시" 등
   level?: string; // "입문", "초급", "중급", "고급"

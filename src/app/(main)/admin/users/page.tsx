@@ -1,6 +1,6 @@
 'use client';
 
-import AdminFilter, { userFilterConfigs, FilterValues } from '../_components/adminFilter';
+import AdminFilter, { userFilterConfigs, FilterValues } from '../_components/AdminFilter';
 
 export default function AdminUsersPage() {
   const handleFilterChange = (filters: FilterValues) => {

@@ -99,3 +99,45 @@ export async function authFetch<T = unknown>(
 
   return { ok: true, data: json.data as T };
 }
+
+export type QueryParams = Record<string, string | number | undefined>;
+
+function toQueryString(params: QueryParams): string {
+  const entries = Object.entries(params)
+    .filter(([, v]) => v != null)
+    .map(([k, v]) => [k, String(v)] as [string, string]);
+  return entries.length > 0 ? '?' + new URLSearchParams(entries).toString() : '';
+}
+
+export const apiClient = {
+  get: async <T = unknown>(endpoint: string, options?: { params?: QueryParams }) => {
+    const queryString = options?.params ? toQueryString(options.params) : '';
+    const result = await authFetch<T>(`${endpoint}${queryString}`, { method: 'GET' });
+    if (!result.ok) throw new Error(result.error);
+    return result.data;
+  },
+
+  post: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
+    const result = await authFetch<T>(endpoint, {
+      method: 'POST',
+      body: body as Record<string, unknown>,
+    });
+    if (!result.ok) throw new Error(result.error);
+    return result.data;
+  },
+
+  patch: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
+    const result = await authFetch<T>(endpoint, {
+      method: 'PATCH',
+      body: body as Record<string, unknown>,
+    });
+    if (!result.ok) throw new Error(result.error);
+    return result.data;
+  },
+
+  delete: async <T = unknown>(endpoint: string, body?: Record<string, unknown>) => {
+    const result = await authFetch<T>(endpoint, { method: 'DELETE', body });
+    if (!result.ok) throw new Error(result.error);
+    return result.data;
+  },
+};
