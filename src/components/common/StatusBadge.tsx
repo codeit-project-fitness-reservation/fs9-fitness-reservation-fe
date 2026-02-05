@@ -1,5 +1,3 @@
-import React from 'react';
-
 export type StatusType = 'PENDING' | 'REJECTED' | 'APPROVED' | 'COMPLETED' | 'REFUNDED';
 
 interface StatusBadgeProps {
