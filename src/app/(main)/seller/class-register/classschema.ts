@@ -45,16 +45,28 @@ export const classFormSchema = z.object({
   pricePoints: z
     .string()
     .min(1, '가격을 입력해주세요.')
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: '올바른 가격을 입력해주세요.',
-    }),
+    .refine(
+      (val) => {
+        const numericValue = val.replace(/[^0-9]/g, '');
+        return !isNaN(Number(numericValue)) && Number(numericValue) > 0;
+      },
+      {
+        message: '올바른 가격을 입력해주세요.',
+      },
+    ),
 
   capacity: z
     .string()
     .min(1, '인원을 입력해주세요.')
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: '올바른 인원을 입력해주세요.',
-    }),
+    .refine(
+      (val) => {
+        const numericValue = val.replace(/[^0-9]/g, '');
+        return !isNaN(Number(numericValue)) && Number(numericValue) > 0;
+      },
+      {
+        message: '올바른 인원을 입력해주세요.',
+      },
+    ),
 
   description: z.string().min(3, '상세 소개를 3글자 이상 입력해주세요.'),
 

@@ -1,58 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+// 1. dynamic 임포트 추가
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { ScheduleCalendar } from '@/components/common';
 import ClassCard from '@/components/seller/ClassCard';
 import QuickActionCard from '@/components/common/QuickActionCard';
-import { MOCK_SELLER_SCHEDULES } from '@/mocks/mockdata';
-import { ScheduleEvent, ClassItem } from '@/types';
+import { MOCK_SELLER_SCHEDULES, MOCK_SELLER_CLASSES } from '@/mocks/mockdata';
+import { ScheduleEvent } from '@/types';
 
 import icPlus from '@/assets/images/plus.svg';
 import icCalendar from '@/assets/images/calendar.svg';
 import icCoins from '@/assets/images/coins-stacked-01.svg';
 
+// 2. ScheduleCalendar를 클라이언트 사이드에서만 로드하도록 설정
+const ScheduleCalendar = dynamic(
+  () => import('@/components/common').then((mod) => mod.ScheduleCalendar),
+  { ssr: false },
+);
+
 export default function SellerPage() {
-  const [classes, setClasses] = useState<ClassItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // mounted 상태가 더 이상 필요하지 않아 제거합니다.
 
-  useEffect(() => {
-    // 로컬 스토리지에서 클래스 목록 불러오기
-    const loadClasses = () => {
-      try {
-        const storedClasses = localStorage.getItem('myClasses');
-
-        if (storedClasses) {
-          const parsedClasses = JSON.parse(storedClasses);
-          setClasses(parsedClasses);
-        } else {
-          setClasses([]);
-        }
-      } catch (error) {
-        console.error('클래스 목록 로드 중 에러:', error);
-        setClasses([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadClasses();
-
-    window.addEventListener('storage', loadClasses);
-    return () => window.removeEventListener('storage', loadClasses);
-  }, []);
+  // Mock 데이터 정렬 로직
+  const sortedClasses = [...MOCK_SELLER_CLASSES].sort((a, b) => {
+    if (a.status === 'APPROVED' && b.status !== 'APPROVED') return -1;
+    if (a.status !== 'APPROVED' && b.status === 'APPROVED') return 1;
+    return 0;
+  });
 
   const handleEventClick = (event: ScheduleEvent) => {
     void event;
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-gray-500">로딩 중...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="py-6">
@@ -78,17 +56,18 @@ export default function SellerPage() {
       <section className="mb-6">
         <h2 className="mb-2 text-base font-semibold text-gray-800">내 클래스 목록</h2>
         <div className="space-y-2">
-          {classes.length === 0 ? (
+          {sortedClasses.length === 0 ? (
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center">
               <p className="text-sm text-gray-500">등록된 클래스가 없습니다.</p>
               <p className="mt-1 text-sm text-gray-400">새 클래스를 등록해보세요!</p>
             </div>
           ) : (
-            classes.map((classItem) => <ClassCard key={classItem.id} {...classItem} />)
+            sortedClasses.map((classItem) => <ClassCard key={classItem.id} {...classItem} />)
           )}
         </div>
       </section>
 
+      {/* 3. mounted 체크 없이 바로 사용 가능 */}
       <section>
         <ScheduleCalendar events={MOCK_SELLER_SCHEDULES} onEventClick={handleEventClick} />
       </section>
