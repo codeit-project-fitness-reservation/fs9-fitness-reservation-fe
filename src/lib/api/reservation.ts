@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient } from '../api';
 
 export interface ReservationSearchParams {
   page?: string;
@@ -20,24 +20,21 @@ export const reservationApi = {
         if (value) queryParams[key] = value;
       });
     }
-    return apiClient.get('/reservations/admin/reservations', { params: queryParams });
+    return apiClient.get('/api/reservations/admin/reservations', { params: queryParams });
   },
 
   getReservationDetail: async (id: string) => {
-    return apiClient.get(`/reservations/${id}`);
+    return apiClient.get(`/api/reservations/${id}`);
   },
 
   cancelReservation: async (id: string, cancelNote: string) => {
-    return apiClient.delete(`/reservations/admin/reservations/${id}`, {
-      body: JSON.stringify({ cancelNote }),
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return apiClient.delete(`/api/reservations/admin/reservations/${id}`, { cancelNote });
   },
 
   getStats: async (params?: { startDate?: string; endDate?: string }) => {
     const queryParams: Record<string, string> = {};
     if (params?.startDate) queryParams.startDate = params.startDate;
     if (params?.endDate) queryParams.endDate = params.endDate;
-    return apiClient.get('/reservations/admin/reservations/stats', { params: queryParams });
+    return apiClient.get('/api/reservations/admin/reservations/stats', { params: queryParams });
   },
 };
