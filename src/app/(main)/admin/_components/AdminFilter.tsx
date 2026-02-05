@@ -204,7 +204,6 @@ export const userFilterConfigs: FilterConfig[] = [
     label: '검색',
     placeholder: '검색어를 입력하세요',
     searchTypes: [
-      { value: 'id', label: '아이디' },
       { value: 'nickname', label: '닉네임' },
       { value: 'phone', label: '전화번호' },
       { value: 'email', label: '이메일' },
