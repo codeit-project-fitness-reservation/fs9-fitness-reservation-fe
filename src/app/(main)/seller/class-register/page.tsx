@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import InputField from '@/components/Field/InputField';
 import TextAreaField from '@/components/Field/TextAreaField';
 import { useClassForm } from './useClassForm';
@@ -12,6 +13,8 @@ import { TimeSlotSelector } from './components/TimeSlotSelector';
 
 export default function RegisterClassPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams();
+  const isEditMode = searchParams.get('id') !== null;
 
   const {
     register,
@@ -24,7 +27,17 @@ export default function RegisterClassPage() {
     isFormValid,
     trigger,
     errors,
+    isLoadingClass,
   } = useClassForm();
+
+  // 로딩 중 표시
+  if (isLoadingClass) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-gray-600">클래스 정보를 불러오는 중...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FAFAFA] pb-24">
@@ -121,7 +134,7 @@ export default function RegisterClassPage() {
                   : 'cursor-not-allowed border border-gray-200 bg-gray-100 text-gray-400'
               }`}
             >
-              신청하기
+              {isEditMode ? '수정하기' : '신청하기'}
             </button>
           </div>
         </form>
