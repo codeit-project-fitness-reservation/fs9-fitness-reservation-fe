@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Class } from '@/types/class';
 import { Center } from '@/types';
 import mapPinIcon from '@/assets/images/map-pin.svg';
@@ -9,6 +12,8 @@ interface ClassInfoProps {
 }
 
 export default function ClassInfo({ classData, centerData }: ClassInfoProps) {
+  const router = useRouter();
+
   return (
     <>
       {/* 클래스 제목 */}
@@ -18,7 +23,14 @@ export default function ClassInfo({ classData, centerData }: ClassInfoProps) {
       <div className="flex items-start gap-2">
         <Image src={mapPinIcon} alt="위치" width={20} height={20} className="mt-0.5 shrink-0" />
         <p className="text-base text-gray-700">
-          {centerData.name} {centerData.address1} {centerData.address2 || ''}
+          <button
+            type="button"
+            onClick={() => router.push(`/centers?centerId=${centerData.id}`)}
+            className="hover:text-black-600 font-medium underline underline-offset-2"
+          >
+            {centerData.name}
+          </button>{' '}
+          {centerData.address1} {centerData.address2 || ''}
         </p>
       </div>
 
