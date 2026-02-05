@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import SearchBar from './_components/SearchBar';
 import ClassCard from './_components/ClassCard';
-import Pagination from './_components/Pagination';
+import Pagination from '@/components/Pagination';
 import FilterModal, { FilterState } from './_components/FilterModal';
 import FilterBadge from './_components/FilterBadge';
 import SortModal, { SortOption } from './_components/SortModal';

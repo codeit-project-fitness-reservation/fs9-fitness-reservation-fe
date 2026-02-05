@@ -32,21 +32,10 @@ export interface ClassListResponse {
 }
 
 export const classApi = {
-  getStats: () =>
-    apiClient.get('/api/classes/stats') as Promise<{ success: boolean; data: ClassStats }>,
+  getStats: () => apiClient.get<ClassStats>('/api/classes/stats'),
   getClasses: (params?: QueryParams) =>
-    apiClient.get('/api/classes', { params }) as Promise<{
-      success: boolean;
-      data: ClassListResponse;
-    }>,
-  approveClass: (id: string) =>
-    apiClient.patch(`/api/classes/${id}/approve`, {}) as Promise<{
-      success: boolean;
-      data: ClassItem;
-    }>,
+    apiClient.get<ClassListResponse>('/api/classes', { params }),
+  approveClass: (id: string) => apiClient.patch<ClassItem>(`/api/classes/${id}/approve`, {}),
   rejectClass: (id: string, reason: string) =>
-    apiClient.patch(`/api/classes/${id}/reject`, { rejectReason: reason }) as Promise<{
-      success: boolean;
-      data: ClassItem;
-    }>,
+    apiClient.patch<ClassItem>(`/api/classes/${id}/reject`, { rejectReason: reason }),
 };

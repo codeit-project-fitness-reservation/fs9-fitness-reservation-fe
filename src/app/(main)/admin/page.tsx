@@ -26,10 +26,8 @@ export default function AdminHomePage() {
         page: 1,
         limit: PREVIEW_LIMIT,
       });
-      if (response?.success) {
-        setPendingClasses(response.data.data);
-        setPendingCount(response.data.total);
-      }
+      setPendingClasses(response.data);
+      setPendingCount(response.total);
     } catch (error) {
       console.error('클래스 조회 실패:', error);
     } finally {
