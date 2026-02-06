@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { classFormSchema, ClassFormInput } from './classschema';
 import { formatWithCommas } from '@/lib/utils/format';
+import { classApi } from '@/lib/api/class';
 
 export function useClassForm() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export function useClassForm() {
 
   const getError = (fieldName: keyof ClassFormInput) => errors[fieldName]?.message;
 
-  const onSubmit = (data: ClassFormInput) => {
+  const onSubmit = async (data: ClassFormInput) => {
     if (selectedImages.length === 0) {
       alert('최소 1개의 이미지를 업로드해주세요.');
       return;
@@ -55,7 +56,7 @@ export function useClassForm() {
     formData.append('pricePoints', data.pricePoints.replace(/[^0-9]/g, ''));
     formData.append('capacity', data.capacity.replace(/[^0-9]/g, ''));
     formData.append('description', data.description);
-    formData.append('precautions', data.precautions);
+    formData.append('notice', data.precautions);
 
     // 이미지 파일 추가
     selectedImages.forEach((file) => {
@@ -66,10 +67,10 @@ export function useClassForm() {
       .filter(([, times]) => times && times.length > 0)
       .reduce(
         (acc, [day, times]) => {
-          if (times && times.length > 0) acc[day] = times;
+          if (times && times.length > 0) acc[day] = times[0];
           return acc;
         },
-        {} as Record<string, string[]>,
+        {} as Record<string, string>,
       );
     formData.append('schedule', JSON.stringify(scheduleData));
 
@@ -86,36 +87,14 @@ export function useClassForm() {
       }
     }
 
-    // TODO: 실제 API 호출 시 사용
-    // const response = await fetch('/api/classes', {
-    //   method: 'POST',
-    //   body: formData, // Content-Type은 자동으로 multipart/form-data로 설정됨
-    // });
-
-    // 임시: 로컬 스토리지 저장 (개발용)
-    const payload = {
-      ...data,
-      id: Date.now().toString(),
-      status: 'PENDING',
-      statusLabel: '대기중',
-      centerId: 'center-1',
-      pricePoints: Number(data.pricePoints.replace(/[^0-9]/g, '')),
-      capacity: Number(data.capacity.replace(/[^0-9]/g, '')),
-      imgUrls: selectedImages.map((file) => URL.createObjectURL(file)), // 임시 미리보기용
-      displayCapacity: `0/${Number(data.capacity.replace(/[^0-9]/g, ''))}`,
-      description: data.description,
-      precautions: data.precautions,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      schedule: scheduleData,
-    };
-
-    const existingClasses = JSON.parse(localStorage.getItem('myClasses') || '[]');
-    const updatedClasses = [payload, ...existingClasses];
-    localStorage.setItem('myClasses', JSON.stringify(updatedClasses));
-
-    alert('클래스가 성공적으로 등록되었습니다!');
-    router.push('/seller');
+    try {
+      await classApi.createClass(formData);
+      alert('클래스가 성공적으로 신청되었습니다!');
+      router.push('/seller');
+    } catch (error) {
+      console.error('클래스 신청 실패:', error);
+      alert('클래스 신청에 실패했습니다.');
+    }
   };
 
   const isFormValid = isValid && selectedImages.length > 0;

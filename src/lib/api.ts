@@ -57,14 +57,14 @@ async function safeJson(res: Response): Promise<unknown> {
 
 export async function authFetch<T = unknown>(
   path: string,
-  options: Omit<RequestInit, 'body'> & { body?: Record<string, unknown> } = {},
+  options: Omit<RequestInit, 'body'> & { body?: Record<string, unknown> | FormData } = {},
 ): Promise<AuthFetchResult<T>> {
   const { body, ...rest } = options;
   const url = resolveUrl(path);
   const accessToken = getAccessToken();
   const headers = toHeaderRecord(options.headers);
 
-  if (!hasHeader(headers, 'Content-Type')) {
+  if (!hasHeader(headers, 'Content-Type') && !(body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
   if (accessToken && !hasHeader(headers, 'Authorization')) {
@@ -76,7 +76,7 @@ export async function authFetch<T = unknown>(
     res = await fetch(url, {
       ...rest,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : '네트워크 오류가 발생했습니다.';
@@ -120,7 +120,7 @@ export const apiClient = {
   post: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
     const result = await authFetch<T>(endpoint, {
       method: 'POST',
-      body: body as Record<string, unknown>,
+      body: body as Record<string, unknown> | FormData,
     });
     if (!result.ok) throw new Error(result.error);
     return result.data;
@@ -129,7 +129,7 @@ export const apiClient = {
   patch: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
     const result = await authFetch<T>(endpoint, {
       method: 'PATCH',
-      body: body as Record<string, unknown>,
+      body: body as Record<string, unknown> | FormData,
     });
     if (!result.ok) throw new Error(result.error);
     return result.data;
