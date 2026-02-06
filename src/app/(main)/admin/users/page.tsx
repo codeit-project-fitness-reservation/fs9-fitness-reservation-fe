@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { MOCK_USERS } from '@/_mock/user';
 import AdminFilter, { userFilterConfigs, FilterValues } from '../_components/AdminFilter';
 import UserList from './_components/UserList';
+import UserStats from './_components/UserStats';
 
 export default function AdminUsersPage() {
   const [filters, setFilters] = useState<FilterValues>({
@@ -40,14 +41,22 @@ export default function AdminUsersPage() {
   });
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">회원 관리</h1>
-      <AdminFilter
-        configs={userFilterConfigs}
-        onFilterChange={handleFilterChange}
-        initialValues={filters}
-      />
-      <UserList users={filteredUsers} />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">회원 관리</h1>
+        <p className="text-gray-500">회원 목록을 조회하고 관리할 수 있습니다.</p>
+      </div>
+
+      <UserStats users={MOCK_USERS} />
+
+      <div className="flex flex-col gap-4">
+        <AdminFilter
+          configs={userFilterConfigs}
+          onFilterChange={handleFilterChange}
+          initialValues={filters}
+        />
+        <UserList users={filteredUsers} />
+      </div>
     </div>
   );
 }

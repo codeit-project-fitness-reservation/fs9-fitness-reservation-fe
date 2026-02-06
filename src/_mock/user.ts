@@ -1,16 +1,4 @@
-export type UserRole = 'CUSTOMER' | 'SELLER' | 'ADMIN';
-
-export interface User {
-  id: string;
-  nickname: string;
-  email: string;
-  phone: string;
-  role: UserRole;
-  pointBalance: number;
-  couponCount: number;
-  createdAt: string;
-  lastLoginAt: string;
-}
+import { User } from '@/types';
 
 export const MOCK_USERS: User[] = [
   {
@@ -21,8 +9,8 @@ export const MOCK_USERS: User[] = [
     role: 'CUSTOMER',
     pointBalance: 40000,
     couponCount: 2,
-    createdAt: '2025-01-15T09:00:00Z',
-    lastLoginAt: '2026-02-04T18:30:00Z',
+    createdAt: new Date('2025-01-15T09:00:00Z'),
+    updatedAt: new Date('2026-02-04T18:30:00Z'),
   },
   {
     id: '2',
@@ -32,8 +20,8 @@ export const MOCK_USERS: User[] = [
     role: 'SELLER',
     pointBalance: 150000,
     couponCount: 0,
-    createdAt: '2024-11-20T10:00:00Z',
-    lastLoginAt: '2026-02-05T09:15:00Z',
+    createdAt: new Date('2024-11-20T10:00:00Z'),
+    updatedAt: new Date('2026-02-05T09:15:00Z'),
   },
   {
     id: '3',
@@ -43,8 +31,8 @@ export const MOCK_USERS: User[] = [
     role: 'ADMIN',
     pointBalance: 0,
     couponCount: 0,
-    createdAt: '2024-01-01T00:00:00Z',
-    lastLoginAt: '2026-02-05T10:00:00Z',
+    createdAt: new Date('2024-01-01T00:00:00Z'),
+    updatedAt: new Date('2026-02-05T10:00:00Z'),
   },
   {
     id: '4',
@@ -54,8 +42,8 @@ export const MOCK_USERS: User[] = [
     role: 'CUSTOMER',
     pointBalance: 5000,
     couponCount: 1,
-    createdAt: '2025-02-01T14:00:00Z',
-    lastLoginAt: '2025-02-01T14:00:00Z',
+    createdAt: new Date('2025-02-01T14:00:00Z'),
+    updatedAt: new Date('2025-02-01T14:00:00Z'),
   },
   {
     id: '5',
@@ -65,8 +53,8 @@ export const MOCK_USERS: User[] = [
     role: 'CUSTOMER',
     pointBalance: 12000,
     couponCount: 3,
-    createdAt: '2024-12-10T11:20:00Z',
-    lastLoginAt: '2025-01-30T16:45:00Z',
+    createdAt: new Date('2024-12-10T11:20:00Z'),
+    updatedAt: new Date('2025-01-30T16:45:00Z'),
   },
   {
     id: '6',
@@ -76,8 +64,8 @@ export const MOCK_USERS: User[] = [
     role: 'SELLER',
     pointBalance: 80000,
     couponCount: 0,
-    createdAt: '2024-10-05T15:30:00Z',
-    lastLoginAt: '2026-02-05T08:00:00Z',
+    createdAt: new Date('2024-10-05T15:30:00Z'),
+    updatedAt: new Date('2026-02-05T08:00:00Z'),
   },
   {
     id: '7',
@@ -87,8 +75,8 @@ export const MOCK_USERS: User[] = [
     role: 'CUSTOMER',
     pointBalance: 25000,
     couponCount: 1,
-    createdAt: '2025-01-20T13:40:00Z',
-    lastLoginAt: '2026-02-03T20:10:00Z',
+    createdAt: new Date('2025-01-20T13:40:00Z'),
+    updatedAt: new Date('2026-02-03T20:10:00Z'),
   },
   {
     id: '8',
@@ -98,7 +86,7 @@ export const MOCK_USERS: User[] = [
     role: 'CUSTOMER',
     pointBalance: 3000,
     couponCount: 5,
-    createdAt: '2025-02-03T09:00:00Z',
-    lastLoginAt: '2026-02-05T12:00:00Z',
+    createdAt: new Date('2025-02-03T09:00:00Z'),
+    updatedAt: new Date('2026-02-05T12:00:00Z'),
   },
 ];
