@@ -35,6 +35,7 @@ export const classApi = {
   getStats: () => apiClient.get<ClassStats>('/api/classes/stats'),
   getClasses: (params?: QueryParams) =>
     apiClient.get<ClassListResponse>('/api/classes', { params }),
+  createClass: (data: FormData) => apiClient.post<void>('/api/classes', data),
   approveClass: (id: string) => apiClient.patch<ClassItem>(`/api/classes/${id}/approve`, {}),
   rejectClass: (id: string, reason: string) =>
     apiClient.patch<ClassItem>(`/api/classes/${id}/reject`, { rejectReason: reason }),
