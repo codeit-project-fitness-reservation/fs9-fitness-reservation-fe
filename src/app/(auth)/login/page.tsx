@@ -94,6 +94,8 @@ export default function LoginPage() {
 
       if (user?.role === 'SELLER') {
         router.push('/seller');
+      } else if (user?.role === 'ADMIN') {
+        router.push('/admin');
       } else {
         router.push('/');
       }
