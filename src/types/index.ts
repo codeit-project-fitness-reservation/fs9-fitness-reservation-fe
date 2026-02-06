@@ -11,6 +11,7 @@ export interface User {
   profileImgUrl?: string | null;
   introduction?: string | null;
   pointBalance: number;
+  couponCount: number;
   createdAt: Date;
   updatedAt: Date;
 }

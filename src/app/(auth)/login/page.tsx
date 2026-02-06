@@ -94,8 +94,10 @@ export default function LoginPage() {
 
       if (user?.role === 'SELLER') {
         router.push('/seller');
+      } else if (user?.role === 'ADMIN') {
+        router.push('/admin');
       } else {
-        router.push('/');
+        router.push('/main');
       }
     } catch {
       setError('root', { message: '네트워크 오류가 발생했습니다. 다시 시도해주세요.' });
