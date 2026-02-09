@@ -1,36 +1,112 @@
 'use client';
 
-// 1. dynamic 임포트 추가
-import dynamic from 'next/dynamic';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import { ScheduleCalendar } from '@/components/common';
 import ClassCard from '@/components/seller/ClassCard';
 import QuickActionCard from '@/components/common/QuickActionCard';
-import { MOCK_SELLER_SCHEDULES, MOCK_SELLER_CLASSES } from '@/mocks/mockdata';
-import { ScheduleEvent } from '@/types';
+import { ScheduleEvent, ClassItem } from '@/types';
+
+import { classApi, ClassItem as ApiClassItem } from '@/lib/api/class';
+import { generateWeekScheduleEvents, parseSchedule } from '@/lib/utils/schedule';
 
 import icPlus from '@/assets/images/plus.svg';
 import icCalendar from '@/assets/images/calendar.svg';
 import icCoins from '@/assets/images/coins-stacked-01.svg';
 
-// 2. ScheduleCalendar를 클라이언트 사이드에서만 로드하도록 설정
-const ScheduleCalendar = dynamic(
-  () => import('@/components/common').then((mod) => mod.ScheduleCalendar),
-  { ssr: false },
-);
-
 export default function SellerPage() {
-  // mounted 상태가 더 이상 필요하지 않아 제거합니다.
+  const [classes, setClasses] = useState<ClassItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  // Mock 데이터 정렬 로직
-  const sortedClasses = [...MOCK_SELLER_CLASSES].sort((a, b) => {
-    if (a.status === 'APPROVED' && b.status !== 'APPROVED') return -1;
-    if (a.status !== 'APPROVED' && b.status === 'APPROVED') return 1;
-    return 0;
-  });
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        setIsLoading(true);
+
+        const responseData = await classApi.getClasses({ limit: 100 });
+        const apiClasses: ApiClassItem[] = responseData?.data || [];
+
+        const uiClasses: ClassItem[] = apiClasses.map((apiClass) => ({
+          id: apiClass.id,
+          centerId: apiClass.center.id,
+          title: apiClass.title,
+          category: apiClass.category || '',
+          level: apiClass.level || '',
+          pricePoints: apiClass.pricePoints,
+          capacity: apiClass.capacity,
+          description: apiClass.description || '',
+          notice: apiClass.notice || '',
+          bannerUrl: apiClass.bannerUrl || undefined,
+          imgUrls: apiClass.imgUrls || [],
+          status: apiClass.status as ClassItem['status'],
+          rejectReason: undefined,
+          schedule: apiClass.schedule,
+          createdAt: new Date(apiClass.createdAt),
+          updatedAt: new Date(apiClass.createdAt),
+          center: apiClass.center,
+          _count: apiClass._count,
+          displayCapacity: undefined,
+          statusLabel: undefined,
+        }));
+
+        const sortedClasses = uiClasses.sort((a, b) => {
+          const statusOrder: Record<string, number> = {
+            APPROVED: 0,
+            PENDING: 1,
+            REJECTED: 2,
+          };
+          const aOrder = statusOrder[a.status.toUpperCase()] ?? 999;
+          const bOrder = statusOrder[b.status.toUpperCase()] ?? 999;
+          return aOrder - bOrder;
+        });
+
+        setClasses(sortedClasses);
+      } catch {
+        setClasses([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchClasses();
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const weekScheduleEvents = useMemo((): ScheduleEvent[] => {
+    if (!mounted) return [];
+    const approvedClasses = classes.filter((c) => c.status.toUpperCase() === 'APPROVED');
+    const allEvents: ScheduleEvent[] = [];
+
+    approvedClasses.forEach((classItem) => {
+      const schedule = (
+        classItem as ClassItem & { schedule?: string | Record<string, string> | null }
+      ).schedule;
+      const parsedSchedule = parseSchedule(schedule);
+
+      if (parsedSchedule) {
+        const events = generateWeekScheduleEvents(classItem, parsedSchedule);
+        allEvents.push(...events);
+      }
+    });
+
+    return allEvents;
+  }, [classes, mounted]);
 
   const handleEventClick = (event: ScheduleEvent) => {
     void event;
   };
+
+  if (!mounted || isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="font-medium text-gray-500">데이터를 불러오는 중입니다...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="py-6">
@@ -52,24 +128,26 @@ export default function SellerPage() {
         />
       </div>
 
-      {/* 내 클래스 목록 */}
       <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold text-gray-800">내 클래스 목록</h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-gray-800">내 클래스 목록</h2>
+          <span className="text-xs text-gray-500">총 {classes.length}개</span>
+        </div>
+
         <div className="space-y-2">
-          {sortedClasses.length === 0 ? (
+          {classes.length === 0 ? (
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center">
               <p className="text-sm text-gray-500">등록된 클래스가 없습니다.</p>
               <p className="mt-1 text-sm text-gray-400">새 클래스를 등록해보세요!</p>
             </div>
           ) : (
-            sortedClasses.map((classItem) => <ClassCard key={classItem.id} {...classItem} />)
+            classes.map((classItem) => <ClassCard key={classItem.id} {...classItem} />)
           )}
         </div>
       </section>
 
-      {/* 3. mounted 체크 없이 바로 사용 가능 */}
       <section>
-        <ScheduleCalendar events={MOCK_SELLER_SCHEDULES} onEventClick={handleEventClick} />
+        <ScheduleCalendar events={weekScheduleEvents} onEventClick={handleEventClick} />
       </section>
     </div>
   );

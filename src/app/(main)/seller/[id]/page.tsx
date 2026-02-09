@@ -3,9 +3,20 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ClassSlot } from '@/types/class';
-import { MOCK_CLASS_LIST, MOCK_SELLER_CENTER, MOCK_SELLER_SCHEDULES } from '@/mocks/mockdata';
-import { getMockClassSlotsForDate } from '@/mocks/classSlots';
+import { classApi, ClassItem as ApiClassItem, SlotItem, SlotItemResponse } from '@/lib/api/class';
+import { ClassItem, Center, ClassSlot } from '@/types';
+import { Class as ClassType } from '@/types/class';
+import {
+  generateTimeSlotsFromSchedule,
+  generateWeekScheduleEvents,
+  formatDateStr,
+  getWeekRange,
+  convertSlotsToSlotItems,
+  convertSlotsToClassSlots,
+  convertSlotsToScheduleEvents,
+  parseSchedule,
+} from '@/lib/utils/schedule';
+
 import TimeSlotList from '@/app/(main)/(customer)/classes/[id]/_components/TimeSlotList';
 import { TabType } from '@/app/(main)/(customer)/classes/[id]/_components/types';
 import ClassImage from '@/app/(main)/(customer)/classes/[id]/_components/ClassImage';
@@ -15,7 +26,6 @@ import DatePicker from '@/app/(main)/(customer)/classes/[id]/_components/DatePic
 import RulesTab from '@/app/(main)/(customer)/classes/[id]/_components/RulesTab';
 import ReviewsTab from '@/app/(main)/(customer)/classes/[id]/_components/ReviewsTab';
 import ReservationBottomBar from '@/app/(main)/(customer)/classes/[id]/_components/ReservationBottomBar';
-
 import EventTags from '@/components/common/EventTags';
 import KebabMenu from '@/components/seller/KebabMenu';
 import ConfirmationModal from '@/components/ConfirmationModal';
@@ -29,48 +39,298 @@ export default function SellerClassDetailPage() {
   const classId = params.id as string;
 
   const [mounted, setMounted] = useState(false);
+  const [classData, setClassData] = useState<ClassItem | null>(null);
+  const [classDataForComponents, setClassDataForComponents] = useState<ClassType | null>(null);
+  const [centerData, setCenterData] = useState<Center | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const [activeTab, setActiveTab] = useState<TabType>('intro');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<ClassSlot | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [slotsData, setSlotsData] = useState<SlotItem[]>([]);
+  const [rawSlotsData, setRawSlotsData] = useState<SlotItemResponse[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [classSchedule, setClassSchedule] = useState<Record<string, string> | null>(null);
 
-  // 클라이언트 마운트 후 초기 날짜 설정 (hydration 에러 방지)
   useEffect(() => {
-    // eslint-disable-next-line
-    setMounted(true);
-    setSelectedDate(new Date());
-  }, []);
+    const fetchClassDetail = async () => {
+      try {
+        setIsLoading(true);
+        if (!classId) return;
 
-  const classData = useMemo(() => {
-    return MOCK_CLASS_LIST.find((item) => item.id === classId) || null;
+        setSlotsData([]);
+        setRawSlotsData([]);
+        setClassSchedule(null);
+        setClassData(null);
+        setClassDataForComponents(null);
+        setCenterData(null);
+
+        let apiDetail: ApiClassItem | undefined;
+        try {
+          apiDetail = await classApi.getClassDetail(classId);
+        } catch {
+          const responseData = await classApi.getClasses({ limit: 100 });
+          apiDetail = responseData?.data?.find((item) => item.id === classId);
+        }
+
+        if (!apiDetail) throw new Error('클래스를 찾을 수 없습니다.');
+
+        const uiClassData: ClassItem = {
+          id: apiDetail.id,
+          centerId: apiDetail.center.id,
+          title: apiDetail.title,
+          category: apiDetail.category || '',
+          level: apiDetail.level || '',
+          pricePoints: apiDetail.pricePoints,
+          capacity: apiDetail.capacity,
+          description: apiDetail.description || undefined,
+          notice: apiDetail.notice || undefined,
+          bannerUrl: apiDetail.bannerUrl || undefined,
+          imgUrls: apiDetail.imgUrls || [],
+          status: apiDetail.status as ClassItem['status'],
+          createdAt: new Date(apiDetail.createdAt),
+          updatedAt: new Date(apiDetail.createdAt),
+          center: apiDetail.center,
+          _count: {
+            reservations: apiDetail._count.reservations,
+            reviews: apiDetail._count.reviews,
+          },
+        };
+
+        const classForComponents: ClassType = {
+          id: apiDetail.id,
+          centerId: apiDetail.center.id,
+          title: apiDetail.title,
+          category: apiDetail.category || '',
+          level: apiDetail.level || '',
+          description: apiDetail.description || null,
+          notice: apiDetail.notice || null,
+          pricePoints: apiDetail.pricePoints,
+          capacity: apiDetail.capacity,
+          bannerUrl: apiDetail.bannerUrl || null,
+          imgUrls: apiDetail.imgUrls || [],
+          status: apiDetail.status as ClassType['status'],
+          rejectReason: null,
+          createdAt: apiDetail.createdAt,
+          updatedAt: apiDetail.createdAt,
+        };
+
+        const uiCenterData: Center = {
+          id: apiDetail.center.id,
+          ownerId: '',
+          name: apiDetail.center.name,
+          address1: apiDetail.center.address1 || '',
+          address2: apiDetail.center.address2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        const parsedSchedule = parseSchedule(apiDetail.schedule);
+
+        setClassData(uiClassData);
+        setClassDataForComponents(classForComponents);
+        setCenterData(uiCenterData);
+        setClassSchedule(parsedSchedule);
+      } catch {
+        // 조회 실패 시 무시
+      } finally {
+        setIsLoading(false);
+        setMounted(true);
+      }
+    };
+
+    fetchClassDetail();
   }, [classId]);
 
-  const centerData = useMemo(() => {
-    return classData ? MOCK_SELLER_CENTER : null;
-  }, [classData]);
-
-  const timeSlots = useMemo(() => {
-    if (selectedDate && classData) {
-      return getMockClassSlotsForDate({ classId: classData.id, date: selectedDate });
+  useEffect(() => {
+    if (mounted && !selectedDate) {
+      setSelectedDate(new Date());
     }
-    return [];
-  }, [selectedDate, classData]);
+  }, [mounted, selectedDate]);
 
-  // 판매자 메인 페이지와 동일한 스케줄 데이터 사용
+  useEffect(() => {
+    const fetchSlots = async () => {
+      if (!classId || !selectedDate) {
+        setSlotsData([]);
+        setRawSlotsData([]);
+        return;
+      }
+
+      try {
+        setIsLoadingSlots(true);
+
+        const { monday, sunday } = getWeekRange(selectedDate);
+        const startDateStr = formatDateStr(monday);
+        const endDateStr = formatDateStr(sunday);
+
+        const slots = await classApi.getSellerSlots({
+          classId,
+          startDate: startDateStr,
+          endDate: endDateStr,
+        });
+
+        const rawSlots: SlotItemResponse[] = Array.isArray(slots) ? slots : [];
+        const convertedSlots = convertSlotsToSlotItems(rawSlots);
+
+        setRawSlotsData(rawSlots);
+        setSlotsData(convertedSlots);
+      } catch {
+        setSlotsData([]);
+        setRawSlotsData([]);
+      } finally {
+        setIsLoadingSlots(false);
+      }
+    };
+
+    fetchSlots();
+  }, [classId, selectedDate]);
+
+  const handleDeleteClass = async () => {
+    if (
+      !confirm(
+        '정말 삭제하시겠습니까?\n삭제 시 이미 예약된 모든 일정이 취소되며 복구할 수 없습니다.',
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      await classApi.deleteClass(classId);
+      alert('클래스가 성공적으로 삭제되었습니다.');
+      router.push('/seller');
+      router.refresh();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      if (
+        errorMessage.includes('jwt') ||
+        errorMessage.includes('expired') ||
+        errorMessage.includes('token') ||
+        errorMessage.includes('Unauthorized')
+      ) {
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+        router.push('/login');
+        return;
+      }
+
+      alert(`클래스 삭제 중 오류가 발생했습니다: ${errorMessage}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleConfirmEdit = () => {
+    router.push(`/seller/class-register?id=${classId}`);
+  };
+
+  const generatedTimeSlots = useMemo((): ClassSlot[] => {
+    if (!selectedDate || !classSchedule || !classData) {
+      return [];
+    }
+
+    return generateTimeSlotsFromSchedule(selectedDate, classSchedule, classData);
+  }, [selectedDate, classSchedule, classData]);
+
+  const timeSlots = useMemo((): ClassSlot[] => {
+    if (!selectedDate || generatedTimeSlots.length === 0) {
+      return [];
+    }
+
+    if (slotsData.length > 0) {
+      const apiSlots = convertSlotsToClassSlots(slotsData, rawSlotsData, selectedDate);
+
+      return generatedTimeSlots.map((generatedSlot) => {
+        const matchingApiSlot = apiSlots.find((apiSlot) => {
+          const generatedStart = new Date(generatedSlot.startAt);
+          const apiStart = new Date(apiSlot.startAt);
+
+          return (
+            generatedStart.getFullYear() === apiStart.getFullYear() &&
+            generatedStart.getMonth() === apiStart.getMonth() &&
+            generatedStart.getDate() === apiStart.getDate() &&
+            generatedStart.getHours() === apiStart.getHours() &&
+            generatedStart.getMinutes() === apiStart.getMinutes()
+          );
+        });
+
+        if (matchingApiSlot) {
+          return {
+            ...generatedSlot,
+            id: matchingApiSlot.id,
+            currentReservation: matchingApiSlot.currentReservation,
+            isOpen: matchingApiSlot.isOpen,
+            createdAt: matchingApiSlot.createdAt,
+          };
+        }
+
+        return generatedSlot;
+      });
+    }
+
+    return generatedTimeSlots;
+  }, [selectedDate, slotsData, rawSlotsData, generatedTimeSlots]);
+
   const scheduleEvents = useMemo((): ScheduleEvent[] => {
-    if (!classData) return [];
-    // 현재 클래스에 해당하는 스케줄만 필터링
-    return MOCK_SELLER_SCHEDULES.filter((event) => event.classId === classData.id);
-  }, [classData]);
+    if (typeof window === 'undefined' || !classData) {
+      return [];
+    }
 
-  // --- 1. Hydration 에러 방지를 위한 마운트 가드 ---
-  // 서버와 클라이언트의 렌더링 결과가 일치하지 않는 것을 원천 차단합니다.
-  if (!mounted) return null;
+    const allEvents: ScheduleEvent[] = [];
+
+    if (classSchedule) {
+      const weekEvents = generateWeekScheduleEvents(classData, classSchedule);
+      allEvents.push(...weekEvents);
+    }
+
+    if (rawSlotsData.length > 0) {
+      const dbEvents = convertSlotsToScheduleEvents(rawSlotsData, classData);
+
+      allEvents.forEach((scheduleEvent) => {
+        const matchingDbEvent = dbEvents.find((dbEvent) => {
+          const scheduleStart = new Date(scheduleEvent.start);
+          const dbStart = new Date(dbEvent.start);
+
+          return (
+            scheduleStart.getFullYear() === dbStart.getFullYear() &&
+            scheduleStart.getMonth() === dbStart.getMonth() &&
+            scheduleStart.getDate() === dbStart.getDate() &&
+            scheduleStart.getHours() === dbStart.getHours() &&
+            scheduleStart.getMinutes() === dbStart.getMinutes()
+          );
+        });
+
+        if (matchingDbEvent) {
+          Object.assign(scheduleEvent, {
+            id: matchingDbEvent.id,
+            slotId: matchingDbEvent.slotId,
+            resource: {
+              ...scheduleEvent.resource,
+              currentReservations: matchingDbEvent.resource?.currentReservations ?? 0,
+              isOpen: matchingDbEvent.resource?.isOpen ?? true,
+            },
+          });
+        }
+      });
+    }
+
+    return allEvents;
+  }, [classData, rawSlotsData, classSchedule]);
+
+  if (!mounted || isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" />
+      </div>
+    );
+  }
 
   if (!classData || !centerData) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white">
-        <p className="text-gray-400">클래스를 찾을 수 없습니다.</p>
+        <p className="text-gray-400">존재하지 않는 클래스입니다.</p>
       </div>
     );
   }
@@ -78,101 +338,133 @@ export default function SellerClassDetailPage() {
   const hasBottomBar = activeTab === 'intro' && selectedDate && selectedTimeSlot;
 
   return (
-    /* --- 2. 최상단 컨테이너 수정: -mx-4 px-4 추가 (모바일용 마이너스 마진) --- */
     <div className="-mx-4 min-h-screen bg-white px-4 md:-mx-8 md:px-8">
+      {isProcessing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-white border-t-blue-500" />
+        </div>
+      )}
+
       <div className={`mx-auto flex max-w-240 flex-col ${hasBottomBar ? 'pb-24' : ''}`}>
-        {/* 이미지 영역: 좌우 끝까지 붙도록 마진 처리 */}
         <div className="-mx-4 overflow-hidden md:-mx-8">
-          <ClassImage classData={classData} />
+          {classDataForComponents && <ClassImage classData={classDataForComponents} />}
         </div>
 
-        {/* 메인 콘텐츠 영역 */}
         <div className="flex flex-col py-6">
-          {/* 상단: 태그와 인원 정보 */}
           <div className="mb-4 flex items-center justify-between">
-            <EventTags category={classData.category} level={classData.level} size="md" />
+            <EventTags
+              category={classData.category || '기타'}
+              level={classData.level || '입문'}
+              size="md"
+            />
             <div className="flex items-center gap-1.5">
               <Image src={userIcon} alt="인원" width={20} height={20} />
               <p className="text-base font-medium text-gray-400">
-                {classData.currentReservation || 0}/{classData.capacity}
+                {classData._count.reservations}/{classData.capacity}
               </p>
             </div>
           </div>
 
-          {/* 제목 영역 */}
           <div className="mb-10 flex items-start justify-between gap-4">
             <div className="flex-1">
-              <ClassInfo classData={classData} centerData={centerData} />
+              {classDataForComponents && (
+                <ClassInfo classData={classDataForComponents} centerData={centerData} />
+              )}
             </div>
             <div className="mt-1">
-              <KebabMenu
-                onEdit={() => setShowEditModal(true)}
-                onDelete={() => router.push('/seller')}
-              />
+              <KebabMenu onEdit={() => setShowEditModal(true)} onDelete={handleDeleteClass} />
             </div>
           </div>
 
-          {/* 탭 네비게이션 */}
           <div className="border-t border-gray-200">
             <TabNavigation
               activeTab={activeTab}
               onTabChange={setActiveTab}
-              reviewCount={classData.reviewCount || 0}
+              reviewCount={classData._count.reviews || 0}
             />
           </div>
 
-          {/* 탭 콘텐츠 */}
           <div className="mt-8 min-h-75">
             {activeTab === 'intro' && (
               <div className="flex flex-col gap-12">
                 <section className="flex flex-col gap-4">
                   <h2 className="text-base font-bold text-gray-900 md:text-lg">클래스 소개</h2>
                   <p className="text-base leading-relaxed whitespace-pre-line text-gray-700">
-                    {classData.description}
+                    {classData.description || '등록된 소개글이 없습니다.'}
                   </p>
                 </section>
 
-                {mounted && (
-                  <div className="flex flex-col gap-10 md:flex-row md:gap-12">
-                    <section className="flex flex-col gap-4 md:w-85.75">
-                      <h2 className="text-lg font-bold text-gray-900">날짜 선택</h2>
-                      <DatePicker selectedDate={selectedDate} onSelect={setSelectedDate} />
-                    </section>
+                <div className="flex flex-col gap-10 md:flex-row md:gap-12">
+                  <section className="flex flex-col gap-4 md:w-85.75">
+                    <h2 className="text-lg font-bold text-gray-900">날짜 선택</h2>
+                    <DatePicker selectedDate={selectedDate} onSelect={setSelectedDate} />
+                  </section>
 
-                    {selectedDate && (
-                      <section className="flex flex-1 flex-col gap-4">
-                        <h2 className="text-lg font-bold text-gray-900">시간 선택</h2>
-                        <div className="max-h-87 overflow-y-auto rounded-xl bg-gray-200 p-5">
+                  {selectedDate && (
+                    <section className="flex flex-1 flex-col gap-4">
+                      <h2 className="text-lg font-bold text-gray-900">시간 선택</h2>
+                      <div className="max-h-87 overflow-y-auto rounded-xl bg-gray-200 p-5">
+                        {isLoadingSlots ? (
+                          <div className="flex items-center justify-center py-8">
+                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-500" />
+                          </div>
+                        ) : timeSlots.length > 0 ? (
                           <TimeSlotList
                             timeSlots={timeSlots}
                             selectedTimeSlot={selectedTimeSlot}
-                            onSelect={setSelectedTimeSlot}
+                            onSelect={(slot) => {
+                              const convertedSlot: ClassSlot = {
+                                id: slot.id,
+                                classId: slot.classId,
+                                startAt:
+                                  slot.startAt instanceof Date
+                                    ? slot.startAt
+                                    : new Date(slot.startAt),
+                                endAt:
+                                  slot.endAt instanceof Date ? slot.endAt : new Date(slot.endAt),
+                                capacity: slot.capacity,
+                                currentReservation: slot.currentReservation,
+                                isOpen: slot.isOpen,
+                                createdAt:
+                                  slot.createdAt instanceof Date
+                                    ? slot.createdAt
+                                    : new Date(slot.createdAt),
+                              };
+                              setSelectedTimeSlot(convertedSlot);
+                            }}
                           />
-                        </div>
-                      </section>
-                    )}
-                  </div>
-                )}
+                        ) : (
+                          <div className="flex items-center justify-center py-8">
+                            <p className="text-gray-400">
+                              선택한 날짜에 예약 가능한 시간이 없습니다.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </section>
+                  )}
+                </div>
               </div>
             )}
 
-            {activeTab === 'schedule' && mounted && (
+            {activeTab === 'schedule' && (
               <ScheduleCalendar
                 events={scheduleEvents}
                 title="스케줄"
                 showViewToggle={false}
                 initialView="timeGridWeek"
-                onEventClick={(event) => console.log('Event clicked:', event)}
+                onEventClick={() => {}}
               />
             )}
 
-            {activeTab === 'rules' && <RulesTab classData={classData} />}
+            {activeTab === 'rules' && classDataForComponents && (
+              <RulesTab classData={classDataForComponents} />
+            )}
             {activeTab === 'reviews' && <ReviewsTab />}
           </div>
         </div>
       </div>
 
-      {/* 하단 예약 바 */}
       {hasBottomBar && (
         <ReservationBottomBar
           selectedDate={selectedDate!}
@@ -181,12 +473,11 @@ export default function SellerClassDetailPage() {
         />
       )}
 
-      {/* 수정 확인 모달 */}
       <ConfirmationModal
         isOpen={showEditModal}
-        message="수정 또는 삭제 시 예약이 모두 취소됩니다.&#10;계속 진행하시겠습니까?"
+        message={'수정 또는 삭제 시 예약이 모두 취소됩니다.\n계속 진행하시겠습니까?'}
         confirmText="수정하기"
-        onConfirm={() => router.push(`/seller/class-register?id=${classId}`)}
+        onConfirm={handleConfirmEdit}
         onClose={() => setShowEditModal(false)}
       />
     </div>

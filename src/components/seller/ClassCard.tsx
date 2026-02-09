@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ClassItem } from '@/types';
@@ -16,11 +17,43 @@ export default function ClassCard({
   statusLabel,
 }: ClassItem) {
   const router = useRouter();
+
+  // 이미지 URL 유효성 검사 및 정규화
+  const normalizeImageUrl = (url: string | undefined): string | null => {
+    if (!url) return null;
+
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
+    // 이미 절대 경로인 경우
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+      // localhost:4000을 localhost:3000으로 변경
+      if (url.includes('localhost:4000')) {
+        return url.replace('localhost:4000', 'localhost:3000');
+      }
+      return url;
+    }
+
+    // 상대 경로인 경우 API 베이스 URL 추가
+    return url.startsWith('/') ? `${apiBase}${url}` : `${apiBase}/${url}`;
+  };
+
+  const isValidImageUrl = (url: string) => {
+    return (
+      url && (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://'))
+    );
+  };
+
   // 대소문자 모두 처리
   const statusUpper = status.toUpperCase();
   const isInactive = statusUpper === 'PENDING' || statusUpper === 'REJECTED';
   const isApproved = statusUpper === 'APPROVED';
-  const imageUrl = bannerUrl || imgUrls?.[0];
+
+  // 이미지 URL 정규화 및 선택
+  const rawImageUrl = bannerUrl || imgUrls?.[0];
+  const imageUrl = normalizeImageUrl(rawImageUrl);
+
+  // 이미지 로드 실패 상태 관리
+  const [imageError, setImageError] = useState(false);
 
   const handleClick = () => {
     if (isApproved) {
@@ -45,13 +78,6 @@ export default function ClassCard({
     }
   };
 
-  // 이미지 URL 유효성 검사 (blob URL은 새로고침 시 무효화되므로 제외, base64와 http(s)는 허용)
-  const isValidImageUrl = (url: string) => {
-    return (
-      url && (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://'))
-    );
-  };
-
   return (
     <div
       onClick={handleClick}
@@ -68,8 +94,17 @@ export default function ClassCard({
           isInactive ? 'bg-gray-200 opacity-40' : 'bg-blue-100'
         }`}
       >
-        {imageUrl && isValidImageUrl(imageUrl) ? (
-          <Image src={imageUrl} alt={title} fill sizes="64px" className="object-cover" />
+        {imageUrl && isValidImageUrl(imageUrl) && !imageError ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt={title}
+            className="h-full w-full object-cover"
+            onError={() => {
+              console.error('이미지 로드 실패:', imageUrl);
+              setImageError(true);
+            }}
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gray-200">
             <svg
