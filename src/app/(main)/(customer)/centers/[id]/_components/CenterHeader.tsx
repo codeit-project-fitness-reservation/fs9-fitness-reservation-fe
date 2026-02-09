@@ -32,7 +32,7 @@ export default function CenterHeader({
   };
 
   return (
-    <header className="sticky top-0 z-50 h-14 w-full bg-gray-200">
+    <header className="sticky top-14 z-40 h-14 w-full bg-gray-200">
       <div className="mx-auto flex h-full w-full items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:max-w-240">
         {showBackButton ? (
           <button
