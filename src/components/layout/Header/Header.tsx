@@ -73,11 +73,11 @@ const Header = () => {
   }, []);
 
   if (pathname.startsWith('/admin')) return null;
-
+  const logoHref = pathname.startsWith('/seller') ? '/seller' : '/';
   return (
     <header className="sticky top-0 z-50 h-14 w-full bg-gray-200">
       <div className="mx-auto flex h-full w-full items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:max-w-240">
-        <Link href="/" className="flex items-center">
+        <Link href={logoHref} className="flex items-center">
           <Image
             src={logoImg}
             alt="Fitmatch 로고"

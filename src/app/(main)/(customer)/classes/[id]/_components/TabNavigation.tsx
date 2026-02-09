@@ -22,7 +22,7 @@ export default function TabNavigation({
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id as TabType)}
-          className={`-mb-px flex-1 pb-4 text-base font-medium transition-colors ${
+          className={`-mb-px flex-1 pb-4 text-base font-medium transition-colors focus:ring-0 focus:outline-none focus-visible:outline-none ${
             activeTab === tab.id
               ? 'border-b-2 border-blue-500 text-blue-600'
               : 'border-b-2 border-transparent text-gray-600 hover:text-gray-900'
