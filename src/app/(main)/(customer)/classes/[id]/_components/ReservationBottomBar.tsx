@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import { BaseButton } from '@/components/common/BaseButton';
 import { ClassSlot } from '@/types/class';
@@ -16,16 +18,22 @@ export default function ReservationBottomBar({
   onReservation,
 }: ReservationBottomBarProps) {
   const startTime = formatTime(selectedTimeSlot.startAt);
+
   return (
-    <div className="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white px-4 py-4 shadow-lg max-[768px]:px-4">
-      <div className="mx-auto flex max-w-[960px] items-center justify-between gap-4 max-[1200px]:max-w-full">
-        <div className="flex items-center gap-2">
-          <Image src={calendarIcon} alt="달력" width={20} height={20} />
-          <p className="text-base font-medium text-gray-900">
+    <div className="fixed bottom-0 left-1/2 z-50 flex w-full max-w-240 -translate-x-1/2 justify-center border-t border-gray-200 bg-white">
+      <div className="flex w-full max-w-240 flex-col px-4 pt-3 pb-4">
+        <div className="mb-2.5 flex h-5 items-center gap-1 md:h-6 md:gap-1.5">
+          <Image src={calendarIcon} alt="달력" width={16} height={16} className="md:h-5 md:w-5" />
+
+          <p
+            suppressHydrationWarning
+            className="text-sm leading-5 font-medium text-gray-900 md:text-base md:leading-6"
+          >
             {formatDateWithDay(selectedDate)} {startTime}
           </p>
         </div>
-        <BaseButton variant="primary" onClick={onReservation} className="min-w-[120px]">
+
+        <BaseButton variant="primary" onClick={onReservation} className="h-12 w-full">
           예약하기
         </BaseButton>
       </div>

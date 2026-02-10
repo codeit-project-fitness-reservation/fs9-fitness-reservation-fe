@@ -1,9 +1,14 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { ClassItem } from '@/types';
 import icUser from '@/assets/images/user-02.svg';
 import StatusBadge from '@/components/common/StatusBadge';
 
 export default function ClassCard({
+  id,
   title,
   bannerUrl,
   imgUrls,
@@ -11,15 +16,25 @@ export default function ClassCard({
   status,
   statusLabel,
 }: ClassItem) {
-  // 대소문자 모두 처리
+  const router = useRouter();
+
   const statusUpper = status.toUpperCase();
   const isInactive = statusUpper === 'PENDING' || statusUpper === 'REJECTED';
+  const isApproved = statusUpper === 'APPROVED';
+
   const imageUrl = bannerUrl || imgUrls?.[0];
 
-  // 상태 라벨 결정 (statusLabel이 없으면 status에 따라 한글로 변환)
+  const [imageError, setImageError] = useState(false);
+
+  const handleClick = () => {
+    if (isApproved) {
+      router.push(`/seller/${id}`);
+    }
+  };
+
   const getStatusLabel = () => {
     if (statusLabel) return statusLabel;
-    // 대소문자 모두 처리
+
     const statusUpper = status.toUpperCase();
     switch (statusUpper) {
       case 'PENDING':
@@ -33,17 +48,15 @@ export default function ClassCard({
     }
   };
 
-  // 이미지 URL 유효성 검사 (blob URL은 새로고침 시 무효화되므로 제외, base64와 http(s)는 허용)
-  const isValidImageUrl = (url: string) => {
-    return (
-      url && (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://'))
-    );
-  };
-
   return (
     <div
+      onClick={handleClick}
       className={`flex w-full items-center gap-4 rounded-xl border border-gray-200 p-4 text-left ${
         isInactive ? 'bg-gray-100' : 'bg-white'
+      } ${
+        isApproved
+          ? 'cursor-pointer transition-all hover:border-blue-300 hover:shadow-sm'
+          : 'cursor-default'
       }`}
     >
       <div
@@ -51,8 +64,17 @@ export default function ClassCard({
           isInactive ? 'bg-gray-200 opacity-40' : 'bg-blue-100'
         }`}
       >
-        {imageUrl && isValidImageUrl(imageUrl) ? (
-          <Image src={imageUrl} alt={title} fill sizes="64px" className="object-cover" />
+        {imageUrl && !imageError ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt={title}
+            className="h-full w-full object-cover"
+            onError={() => {
+              console.error('이미지 로드 실패:', imageUrl);
+              setImageError(true);
+            }}
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gray-200">
             <svg
