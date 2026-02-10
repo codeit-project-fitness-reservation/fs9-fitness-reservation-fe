@@ -149,39 +149,39 @@ export interface Reservation {
 }
 
 // --- [7. Point History (NEW)] ---
-export type PointTransactionType = 'CHARGE' | 'USE' | 'REFUND' | 'ADMIN';
+export type PointUsed = 'CHARGE' | 'USE' | 'REFUND' | 'ADMIN';
 
 export interface PointHistory {
   id: string;
-  userId: string;
-  type: PointTransactionType;
-  amount: number; // 변동량 (+/-)
-  balanceBefore: number;
-  balanceAfter: number;
-  reservationId?: string;
-  orderId?: string; // 결제 주문 ID
-  paymentKey?: string; // PG사 결제 키
-  memo?: string;
+  userId: string; // FK -> User.id
+  type: PointUsed;
+  amount: number; // 변동량 (Int)
+  balanceBefore: number; // 변동 전 잔액 (Int)
+  balanceAfter: number; // 변동 후 잔액 (Int)
+  reservationId?: string; // nullable, 차감/환불된 예약 ID
+  orderId?: string; // nullable, 주문ID
+  paymentKey?: string; // UNIQUE, nullable, 결제키
+  memo?: string; // nullable, 포인트 충전, 이벤트 지급 등 사유 입력
   createdAt: Date;
 }
 
 // --- [8. Coupon (NEW)] ---
 export interface CouponTemplate {
   id: string;
-  centerId?: string; // null이면 전체 플랫폼 쿠폰
-  name: string;
-  discountPoints: number;
-  discountPercentage: number;
-  expiresAt?: Date;
+  centerId?: string; // nullable FK -> Center.id, 해당센터전용, null은 전체 적용
+  name: string; // 쿠폰 이름
+  discountPoints: number; // 할인 포인트 (Int)
+  discountPercentage: number; // 할인 퍼센트 (Int)
+  expiresAt?: Date; // nullable, 만료일
   createdAt: Date;
 }
 
 export interface UserCoupon {
   id: string;
-  userId: string;
-  templateId: string;
-  issuedAt: Date;
-  usedAt?: Date; // null이면 미사용
+  userId: string; // FK -> User.id, 쿠폰 소유자
+  templateId: string; // FK -> CouponTemplate.id, 쿠폰 종류
+  issuedAt: Date; // 발급일
+  usedAt?: Date; // nullable, 사용일(미사용시 null)
 
   // 조인해서 가져올 템플릿 정보 (Optional)
   template?: CouponTemplate;
