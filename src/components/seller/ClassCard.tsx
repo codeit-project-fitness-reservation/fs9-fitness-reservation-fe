@@ -18,41 +18,12 @@ export default function ClassCard({
 }: ClassItem) {
   const router = useRouter();
 
-  // 이미지 URL 유효성 검사 및 정규화
-  const normalizeImageUrl = (url: string | undefined): string | null => {
-    if (!url) return null;
-
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
-    // 이미 절대 경로인 경우
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-      // localhost:4000을 localhost:3000으로 변경
-      if (url.includes('localhost:4000')) {
-        return url.replace('localhost:4000', 'localhost:3000');
-      }
-      return url;
-    }
-
-    // 상대 경로인 경우 API 베이스 URL 추가
-    return url.startsWith('/') ? `${apiBase}${url}` : `${apiBase}/${url}`;
-  };
-
-  const isValidImageUrl = (url: string) => {
-    return (
-      url && (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://'))
-    );
-  };
-
-  // 대소문자 모두 처리
   const statusUpper = status.toUpperCase();
   const isInactive = statusUpper === 'PENDING' || statusUpper === 'REJECTED';
   const isApproved = statusUpper === 'APPROVED';
 
-  // 이미지 URL 정규화 및 선택
-  const rawImageUrl = bannerUrl || imgUrls?.[0];
-  const imageUrl = normalizeImageUrl(rawImageUrl);
+  const imageUrl = bannerUrl || imgUrls?.[0];
 
-  // 이미지 로드 실패 상태 관리
   const [imageError, setImageError] = useState(false);
 
   const handleClick = () => {
@@ -61,10 +32,9 @@ export default function ClassCard({
     }
   };
 
-  // 상태 라벨 결정 (statusLabel이 없으면 status에 따라 한글로 변환)
   const getStatusLabel = () => {
     if (statusLabel) return statusLabel;
-    // 대소문자 모두 처리
+
     const statusUpper = status.toUpperCase();
     switch (statusUpper) {
       case 'PENDING':
@@ -94,7 +64,7 @@ export default function ClassCard({
           isInactive ? 'bg-gray-200 opacity-40' : 'bg-blue-100'
         }`}
       >
-        {imageUrl && isValidImageUrl(imageUrl) && !imageError ? (
+        {imageUrl && !imageError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageUrl}
