@@ -25,7 +25,7 @@ export default function PaymentCoupon({
         <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4">
           <div className="flex items-center gap-2">
             <span className="text-base font-medium text-blue-600">
-              -{selectedCoupon.template?.discountPoints.toLocaleString() || 0}P
+              -{(selectedCoupon.template?.discountPoints ?? 0).toLocaleString()}P
             </span>
             <button
               type="button"

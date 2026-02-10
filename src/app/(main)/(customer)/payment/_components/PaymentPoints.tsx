@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BaseButton } from '@/components/common/BaseButton';
 
@@ -17,43 +17,40 @@ export default function PaymentPoints({
 }: PaymentPointsProps) {
   const router = useRouter();
   const [inputValue, setInputValue] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-
-  useEffect(() => {
-    if (!isEditing && usedPoints > 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setInputValue(String(usedPoints));
-    } else if (!isEditing && usedPoints === 0) {
-      setInputValue('');
-    }
-  }, [usedPoints, isEditing]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
     setInputValue(value);
-    setIsEditing(true);
-
-    const points = value === '' ? 0 : Math.min(Number(value), availablePoints);
-    onPointsChange(points);
   };
 
   const handleBlur = () => {
-    setIsEditing(false);
-    // blur 시 최종 값 동기화
+    // blur 시 표시용 값만 정리 (실제 적용은 '사용' 버튼 클릭 시)
     if (inputValue === '' || Number(inputValue) === 0) {
       setInputValue('');
-      onPointsChange(0);
     } else {
       const points = Math.min(Number(inputValue), availablePoints);
       setInputValue(String(points));
-      onPointsChange(points);
     }
   };
 
-  const handleUseAll = () => {
-    setInputValue(String(availablePoints));
-    setIsEditing(false);
-    onPointsChange(availablePoints);
+  const handleApply = () => {
+    // 아무 것도 입력하지 않으면 적용하지 않음
+    if (inputValue === '') {
+      return;
+    }
+
+    const raw = Number(inputValue);
+    if (Number.isNaN(raw) || raw <= 0) {
+      // 잘못된 값이면 0으로 리셋
+      setInputValue('');
+      onPointsChange(0);
+      return;
+    }
+
+    const points = Math.min(raw, availablePoints);
+
+    setInputValue(String(points));
+    onPointsChange(points);
   };
 
   return (
@@ -75,7 +72,7 @@ export default function PaymentPoints({
         </div>
       </div>
 
-      {usedPoints > 0 && !isEditing ? (
+      {usedPoints > 0 ? (
         <div className="flex items-center gap-2">
           <div className="flex-1 rounded-lg border border-gray-200 bg-white p-4">
             <p className="text-base font-medium text-blue-600">-{usedPoints.toLocaleString()}P</p>
@@ -85,7 +82,6 @@ export default function PaymentPoints({
             variant="secondary"
             onClick={() => {
               setInputValue('');
-              setIsEditing(false);
               onPointsChange(0);
             }}
             className="text-sm"
@@ -103,13 +99,12 @@ export default function PaymentPoints({
               value={inputValue}
               onChange={handleInputChange}
               onBlur={handleBlur}
-              onFocus={() => setIsEditing(true)}
               className="flex-1 bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
             <BaseButton
               type="button"
               variant="primary"
-              onClick={handleUseAll}
+              onClick={handleApply}
               className="shrink-0 text-sm"
             >
               사용

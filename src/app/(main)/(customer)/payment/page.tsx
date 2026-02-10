@@ -15,6 +15,7 @@ import { Center, UserCoupon } from '@/types';
 import { MOCK_CENTER_LIST } from '@/mocks/centers';
 import { MOCK_CLASS_LIST } from '@/mocks/mockdata';
 import { getMockClassSlotsForDate } from '@/mocks/classSlots';
+import { getMockUserCouponsForClass } from '@/mocks/coupons';
 
 export default function PaymentPage() {
   const router = useRouter();
@@ -69,8 +70,9 @@ export default function PaymentPage() {
     setSlotData(slot);
 
     // TODO: 사용 가능한 쿠폰 목록 조회
-
-    setAvailableCoupons([]);
+    const mockCoupons = getMockUserCouponsForClass({ classId, userId: 'user-1' });
+    setAvailableCoupons(mockCoupons);
+    setSelectedCoupon((prev) => (prev && mockCoupons.some((c) => c.id === prev.id) ? prev : null));
 
     setIsLoading(false);
   }, [classId, slotId, router]);
