@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import InputField from '@/components/Field/InputField';
 import TextAreaField from '@/components/Field/TextAreaField';
 import { useClassForm } from './useClassForm';
@@ -12,6 +13,9 @@ import { TimeSlotSelector } from './components/TimeSlotSelector';
 
 export default function RegisterClassPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams();
+  const classId = searchParams.get('id');
+  const isEditMode = classId !== null;
 
   const {
     register,
@@ -24,26 +28,26 @@ export default function RegisterClassPage() {
     isFormValid,
     trigger,
     errors,
-  } = useClassForm();
+  } = useClassForm(classId || undefined);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FAFAFA] pb-24">
-      <div className="w-full px-4">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 pt-4">
-          {/* 클래스명*/}
+    <div className="flex min-h-screen w-full justify-center bg-gray-200/40">
+      <main className="relative flex w-full max-w-240 flex-col bg-[#FAFAFA] shadow-sm">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 px-8 pt-12 pb-32">
+          {/* 클래스명 */}
           <section className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-800">
               클래스명 <span className="text-blue-500">*</span>
             </label>
             <InputField
               placeholder="클래스명을 입력해주세요"
-              error={errors.title?.message}
+              error={errors?.title?.message}
               {...register('title')}
             />
           </section>
 
-          {/* 카테고리 & 난이도 선택 */}
-          <div className="flex flex-col gap-3">
+          {/* 카테고리 & 난이도 */}
+          <div className="flex flex-col gap-8">
             <RadioGroup
               label="카테고리"
               name="category"
@@ -51,7 +55,7 @@ export default function RegisterClassPage() {
               control={control}
               setValue={setValue}
               trigger={trigger}
-              error={errors.category?.message}
+              error={errors?.category?.message}
             />
             <RadioGroup
               label="난이도"
@@ -60,72 +64,76 @@ export default function RegisterClassPage() {
               control={control}
               setValue={setValue}
               trigger={trigger}
-              error={errors.level?.message}
+              error={errors?.level?.message}
             />
           </div>
 
-          {/* 가격 & 인원 입력  */}
-          <div className="flex flex-col gap-6 md:flex-row md:gap-4">
+          {/* 가격 & 인원 */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {numericFields.map((field) => (
               <NumericInputField key={field.name} field={field} control={control} />
             ))}
           </div>
 
-          {/* 대표 이미지 업로드*/}
+          {/* 이미지 업로드 */}
+
           <ImageUpload
             selectedImages={selectedImages}
             fileInputRef={fileInputRef}
             onImageSelect={(file) => {
-              // File 객체를 그대로 저장
-              setSelectedImages([...selectedImages, file]);
+              setSelectedImages((prev: File[]) => [...prev, file]);
             }}
-            onImageRemove={(index) => {
-              setSelectedImages(selectedImages.filter((_, i) => i !== index));
+            onImageRemove={(index: number) => {
+              setSelectedImages((prev: File[]) => prev.filter((_, i) => i !== index));
             }}
           />
 
-          {/* 상세 소개 입력 */}
+          {/* 상세 소개 */}
           <section className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-800">
               상세 소개 <span className="text-blue-500">*</span>
             </label>
             <TextAreaField
+              className="min-h-60"
               placeholder="상세 소개를 입력해주세요."
-              error={errors.description?.message}
+              error={errors?.description?.message}
               {...register('description')}
             />
           </section>
 
-          {/* 주의사항 입력 */}
+          {/* 주의사항 */}
           <section className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-800">
               주의사항 <span className="text-blue-500">*</span>
             </label>
             <TextAreaField
+              className="min-h-35"
               placeholder="주의사항을 입력해주세요."
-              error={errors.precautions?.message}
+              error={errors?.precautions?.message}
               {...register('precautions')}
             />
           </section>
 
-          {/* 시간대 선택 */}
+          {/* 시간 선택 */}
           <TimeSlotSelector control={control} />
 
-          <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-gray-200 bg-white px-4 pt-3 pb-4">
-            <button
-              type="submit"
-              disabled={!isFormValid}
-              className={`w-full rounded-lg py-3 text-base font-semibold transition-all ${
-                isFormValid
-                  ? 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.99]'
-                  : 'cursor-not-allowed border border-gray-200 bg-gray-100 text-gray-400'
-              }`}
-            >
-              신청하기
-            </button>
+          <div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50">
+            <div className="pointer-events-auto mx-auto w-full max-w-240 border-t border-gray-100 bg-white px-8 py-5 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+              <button
+                type="submit"
+                disabled={!isFormValid}
+                className={`w-full rounded-xl py-4 text-[16px] font-bold transition-all ${
+                  isFormValid
+                    ? 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98]'
+                    : 'cursor-not-allowed bg-gray-100 text-gray-400'
+                }`}
+              >
+                {isEditMode ? '수정하기' : '신청하기'}
+              </button>
+            </div>
           </div>
         </form>
-      </div>
+      </main>
     </div>
   );
 }

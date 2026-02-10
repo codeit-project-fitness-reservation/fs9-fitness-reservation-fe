@@ -1,6 +1,4 @@
-import React from 'react';
-
-export type StatusType = 'PENDING' | 'REJECTED' | 'APPROVED';
+export type StatusType = 'PENDING' | 'REJECTED' | 'APPROVED' | 'COMPLETED' | 'REFUNDED';
 
 interface StatusBadgeProps {
   status: StatusType;
@@ -18,6 +16,10 @@ export default function StatusBadge({ status, label, className = '' }: StatusBad
         return 'bg-error-50 text-error-600';
       case 'APPROVED':
         return 'bg-gray-100 text-gray-700';
+      case 'COMPLETED':
+        return 'bg-blue-50 text-blue-600';
+      case 'REFUNDED':
+        return 'bg-error-50 text-error-600';
       default:
         return 'bg-gray-100 text-gray-700';
     }

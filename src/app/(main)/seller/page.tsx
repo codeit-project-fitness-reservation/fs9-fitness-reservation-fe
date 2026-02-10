@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { ScheduleCalendar } from '@/components/common';
 import ClassCard from '@/components/seller/ClassCard';
 import QuickActionCard from '@/components/common/QuickActionCard';
-import { MOCK_SELLER_SCHEDULES } from '@/mocks/mockdata';
 import { ScheduleEvent, ClassItem } from '@/types';
+
+import { classApi, ClassItem as ApiClassItem } from '@/lib/api/class';
+import { generateWeekScheduleEvents, parseSchedule } from '@/lib/utils/schedule';
 
 import icPlus from '@/assets/images/plus.svg';
 import icCalendar from '@/assets/images/calendar.svg';
@@ -15,41 +17,93 @@ import icCoins from '@/assets/images/coins-stacked-01.svg';
 export default function SellerPage() {
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // 로컬 스토리지에서 클래스 목록 불러오기
-    const loadClasses = () => {
+    const fetchClasses = async () => {
       try {
-        const storedClasses = localStorage.getItem('myClasses');
+        setIsLoading(true);
 
-        if (storedClasses) {
-          const parsedClasses = JSON.parse(storedClasses);
-          setClasses(parsedClasses);
-        } else {
-          setClasses([]);
-        }
-      } catch (error) {
-        console.error('클래스 목록 로드 중 에러:', error);
+        const responseData = await classApi.getClasses({ limit: 100 });
+        const apiClasses: ApiClassItem[] = responseData?.data || [];
+
+        const uiClasses: ClassItem[] = apiClasses.map((apiClass) => ({
+          id: apiClass.id,
+          centerId: apiClass.center.id,
+          title: apiClass.title,
+          category: apiClass.category || '',
+          level: apiClass.level || '',
+          pricePoints: apiClass.pricePoints,
+          capacity: apiClass.capacity,
+          description: apiClass.description || '',
+          notice: apiClass.notice || '',
+          bannerUrl: apiClass.bannerUrl || undefined,
+          imgUrls: apiClass.imgUrls || [],
+          status: apiClass.status as ClassItem['status'],
+          rejectReason: undefined,
+          schedule: apiClass.schedule,
+          createdAt: new Date(apiClass.createdAt),
+          updatedAt: new Date(apiClass.createdAt),
+          center: apiClass.center,
+          _count: apiClass._count,
+          displayCapacity: undefined,
+          statusLabel: undefined,
+        }));
+
+        const sortedClasses = uiClasses.sort((a, b) => {
+          const statusOrder: Record<string, number> = {
+            APPROVED: 0,
+            PENDING: 1,
+            REJECTED: 2,
+          };
+          const aOrder = statusOrder[a.status.toUpperCase()] ?? 999;
+          const bOrder = statusOrder[b.status.toUpperCase()] ?? 999;
+          return aOrder - bOrder;
+        });
+
+        setClasses(sortedClasses);
+      } catch {
         setClasses([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadClasses();
-
-    window.addEventListener('storage', loadClasses);
-    return () => window.removeEventListener('storage', loadClasses);
+    fetchClasses();
   }, []);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const weekScheduleEvents = useMemo((): ScheduleEvent[] => {
+    if (!mounted) return [];
+    const approvedClasses = classes.filter((c) => c.status.toUpperCase() === 'APPROVED');
+    const allEvents: ScheduleEvent[] = [];
+
+    approvedClasses.forEach((classItem) => {
+      const schedule = (
+        classItem as ClassItem & { schedule?: string | Record<string, string> | null }
+      ).schedule;
+      const parsedSchedule = parseSchedule(schedule);
+
+      if (parsedSchedule) {
+        const events = generateWeekScheduleEvents(classItem, parsedSchedule);
+        allEvents.push(...events);
+      }
+    });
+
+    return allEvents;
+  }, [classes, mounted]);
 
   const handleEventClick = (event: ScheduleEvent) => {
     void event;
   };
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-gray-500">로딩 중...</p>
+        <p className="font-medium text-gray-500">데이터를 불러오는 중입니다...</p>
       </div>
     );
   }
@@ -69,14 +123,17 @@ export default function SellerPage() {
         />
         <QuickActionCard
           icon={<Image src={icCoins} alt="" width={24} height={24} />}
-          label="마이페이지"
-          href="/seller/mypage"
+          label="매출 정산"
+          href="/seller/sales"
         />
       </div>
 
-      {/* 내 클래스 목록 */}
       <section className="mb-6">
-        <h2 className="mb-2 text-base font-semibold text-gray-800">내 클래스 목록</h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-gray-800">내 클래스 목록</h2>
+          <span className="text-xs text-gray-500">총 {classes.length}개</span>
+        </div>
+
         <div className="space-y-2">
           {classes.length === 0 ? (
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center">
@@ -90,7 +147,7 @@ export default function SellerPage() {
       </section>
 
       <section>
-        <ScheduleCalendar events={MOCK_SELLER_SCHEDULES} onEventClick={handleEventClick} />
+        <ScheduleCalendar events={weekScheduleEvents} onEventClick={handleEventClick} />
       </section>
     </div>
   );

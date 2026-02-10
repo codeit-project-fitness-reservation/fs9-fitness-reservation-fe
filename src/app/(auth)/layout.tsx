@@ -33,19 +33,15 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     const check = async () => {
       const me = await authFetch<{ id: string; role: Role }>('/api/auth/me');
       if (!mounted) return;
-
-      // 비로그인이면 auth 페이지 그대로 노출
       if (!me.ok) {
         setReady(true);
         return;
       }
-
-      // 로그인 상태면 (next가 유효하면) next로, 아니면 role별 기본으로
       if (safeNext && canAccess(me.data.role, safeNext)) {
         router.replace(safeNext);
       } else {
         router.replace(
-          me.data.role === 'SELLER' ? '/seller' : me.data.role === 'ADMIN' ? '/admin' : '/',
+          me.data.role === 'SELLER' ? '/seller' : me.data.role === 'ADMIN' ? '/admin' : '/main',
         );
       }
     };

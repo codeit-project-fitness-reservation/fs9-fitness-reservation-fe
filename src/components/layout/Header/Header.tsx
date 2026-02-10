@@ -77,12 +77,12 @@ const Header = () => {
     };
   }, []);
 
-  if (user?.role === 'ADMIN' || pathname.startsWith('/admin')) return null;
-
+  if (pathname.startsWith('/admin')) return null;
+  const logoHref = pathname.startsWith('/seller') ? '/seller' : '/';
   return (
-    <header className="sticky top-0 z-50 h-14 w-full border-b border-gray-200 bg-white">
-      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-8">
-        <Link href="/" className="flex items-center">
+    <header className="sticky top-0 z-50 h-14 w-full bg-gray-200">
+      <div className="mx-auto flex h-full w-full items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:max-w-240">
+        <Link href={logoHref} className="flex items-center">
           <Image
             src={logoImg}
             alt="Fitmatch 로고"
@@ -116,7 +116,7 @@ const Header = () => {
                 {isProfileOpen && (
                   <div className="absolute top-full right-0 mt-2 w-32 rounded-xl border border-gray-200 bg-white py-2 shadow-lg">
                     <Link
-                      href="/mypage"
+                      href={user.role === 'SELLER' ? '/seller/mypage' : '/mypage'}
                       onClick={() => setIsProfileOpen(false)}
                       className="block px-4 py-2 text-right text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >

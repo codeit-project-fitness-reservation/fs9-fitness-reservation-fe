@@ -1,4 +1,3 @@
-import React from 'react';
 import Image from 'next/image';
 import { Class } from '@/types/class';
 import starBackgroundIcon from '@/assets/images/Star background.svg';

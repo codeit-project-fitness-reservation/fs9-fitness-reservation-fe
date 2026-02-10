@@ -20,10 +20,11 @@ type FilterModalProps = {
 const PROGRAM_TYPES = ['헬스', '요가', '필라테스', '복싱', '스쿼시'];
 const DIFFICULTY_LEVELS = ['입문', '초급', '중급', '고급'];
 
-// 시간대 생성 (09:00 ~ 22:59)
+// 시간대 생성 (09:00 ~ 23:00)
 const TIME_SLOTS = Array.from({ length: 14 }, (_, i) => {
   const hour = i + 9;
-  return `${hour.toString().padStart(2, '0')}:00 ~ ${hour.toString().padStart(2, '0')}:59`;
+  const nextHour = hour + 1;
+  return `${hour.toString().padStart(2, '0')}:00 ~ ${nextHour.toString().padStart(2, '0')}:00`;
 });
 
 export default function FilterModal({

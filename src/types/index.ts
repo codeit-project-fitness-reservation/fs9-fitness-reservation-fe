@@ -11,6 +11,7 @@ export interface User {
   profileImgUrl?: string | null;
   introduction?: string | null;
   pointBalance: number;
+  couponCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,6 +36,7 @@ export interface Center {
   address1: string;
   address2?: string;
   introduction?: string;
+  profileImgUrl?: string;
   businessHours?: Record<string, unknown>; // JSON 타입 대응
   lat?: number;
   lng?: number;
@@ -59,14 +61,24 @@ export interface Class {
   imgUrls: string[];
   status: ClassStatus;
   rejectReason?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
 
 // 판매자/사용자 목록용 확장 타입 (UI 전용)
 export interface ClassItem extends Class {
-  displayCapacity?: string; // "7/10" 형식
-  statusLabel?: string; // "대기중", "반려됨" 등 한글 라벨
+  center: {
+    id: string;
+    name: string;
+  };
+  _count: {
+    reservations: number;
+    reviews?: number;
+  };
+  // UI 전용 가공 필드 (필요시 사용)
+  displayCapacity?: string;
+  statusLabel?: string;
 }
 
 // --- [5. Class Slot (Schedule)] ---
@@ -122,6 +134,28 @@ export interface Reservation {
   createdAt: Date;
   updatedAt: Date;
   completedAt?: Date;
+
+  // UI 표시용 (조인 데이터 - API 응답에 포함될 경우)
+  user?: {
+    name: string;
+    nickname: string;
+    email: string;
+    phone: string;
+  };
+  class?: {
+    title: string;
+    center?: {
+      name: string;
+    };
+  };
+  slot?: {
+    startAt: Date;
+    endAt: Date;
+    capacity: number;
+    _count: {
+      reservations: number;
+    };
+  };
 }
 
 // --- [7. Point History (NEW)] ---
@@ -177,4 +211,31 @@ export interface Review {
   // UI 표시용 (조인 데이터)
   userNickname?: string;
   userProfileImg?: string;
+}
+
+// --- [10. Sales (매출)] ---
+export interface SalesSummary {
+  totalRevenue: number;
+  couponDiscount: number;
+  refundAmount: number;
+  netRevenue: number;
+}
+
+export interface ClassSales {
+  id: string;
+  classId: string;
+  title: string;
+  imageUrl?: string;
+  revenue: number;
+}
+
+export interface SalesTransaction {
+  id: string;
+  classId: string;
+  className: string;
+  status: 'BOOKED' | 'CANCELED';
+  statusLabel: string;
+  dateTime: string;
+  amount: number;
+  createdAt: Date;
 }
