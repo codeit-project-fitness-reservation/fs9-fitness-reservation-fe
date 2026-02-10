@@ -81,7 +81,7 @@ export default function LoginPage() {
         <div className="flex w-full max-w-[400px] flex-col items-center gap-10">
           {/* Logo */}
           <Link href="/" className="flex items-center justify-center">
-            <Image src={fitmatchLogo} alt="FITMATCH" width={120} height={24} priority />
+            <Image src={fitmatchLogo} alt="FITMATCH" width={240} height={64} priority />
           </Link>
 
           {/* Form */}
