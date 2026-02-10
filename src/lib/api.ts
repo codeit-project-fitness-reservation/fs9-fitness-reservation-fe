@@ -16,11 +16,6 @@ type AuthFetchResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; errorDetails?: string };
 
-function getAccessToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return window.localStorage.getItem('accessToken');
-}
-
 function resolveUrl(path: string): string {
   return path.startsWith('/api/') ? path : `${API_BASE}${path}`;
 }
@@ -61,20 +56,17 @@ export async function authFetch<T = unknown>(
 ): Promise<AuthFetchResult<T>> {
   const { body, ...rest } = options;
   const url = resolveUrl(path);
-  const accessToken = getAccessToken();
   const headers = toHeaderRecord(options.headers);
 
   if (!hasHeader(headers, 'Content-Type')) {
     headers['Content-Type'] = 'application/json';
-  }
-  if (accessToken && !hasHeader(headers, 'Authorization')) {
-    headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
   let res: Response;
   try {
     res = await fetch(url, {
       ...rest,
+      credentials: rest.credentials ?? 'include',
       headers,
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });

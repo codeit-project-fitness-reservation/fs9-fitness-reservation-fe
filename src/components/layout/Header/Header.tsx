@@ -8,6 +8,7 @@ import { BaseButton } from '@/components/common/BaseButton';
 import { NotificationDropdown } from './NotificationDropdown';
 import { MOCK_NOTIFICATIONS } from '@/mocks/mockdata';
 import { UserRole, NotificationItem } from '@/types';
+import { authFetch } from '@/lib/api';
 import icBell from '@/assets/images/bell.svg';
 import icChevronDown from '@/assets/images/chevron-down.svg';
 import logoImg from '@/assets/images/FITMATCH.svg';
@@ -55,21 +56,25 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    const syncUserFromStorage = () => {
-      const accessToken = localStorage.getItem('accessToken');
-      const storedRole = (localStorage.getItem('userRole') || 'CUSTOMER') as UserRole;
-      const nickname = localStorage.getItem('userNickname') || '회원';
+    let mounted = true;
 
-      if (accessToken) {
-        setUser({ nickname, role: storedRole });
+    const fetchMe = async () => {
+      const result = await authFetch<{ id: string; role: UserRole; nickname: string }>(
+        '/api/auth/me',
+      );
+      if (!mounted) return;
+
+      if (result.ok) {
+        setUser({ nickname: result.data.nickname, role: result.data.role });
       } else {
         setUser(null);
       }
     };
 
-    syncUserFromStorage();
-    window.addEventListener('storage', syncUserFromStorage);
-    return () => window.removeEventListener('storage', syncUserFromStorage);
+    void fetchMe();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (user?.role === 'ADMIN' || pathname.startsWith('/admin')) return null;
@@ -118,12 +123,8 @@ const Header = () => {
                       마이페이지
                     </Link>
                     <button
-                      onClick={() => {
-                        localStorage.removeItem('accessToken');
-                        localStorage.removeItem('refreshToken');
-                        localStorage.removeItem('userRole');
-                        localStorage.removeItem('userNickname');
-                        localStorage.removeItem('userId');
+                      onClick={async () => {
+                        await authFetch('/api/auth/logout', { method: 'POST' });
                         setUser(null);
                         setIsProfileOpen(false);
                       }}

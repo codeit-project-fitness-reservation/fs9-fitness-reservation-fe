@@ -8,6 +8,7 @@ import Link from 'next/link';
 import SimpleHeader from '@/components/layout/SimpleHeader/SimpleHeader';
 import InputField from '@/components/Field/InputField';
 import { authFetch } from '@/lib/api';
+import { parseValidationErrors } from '@/lib/parseValidationErrors';
 import fitmatchLogo from '@/assets/images/FITMATCH.svg';
 
 type SignupFormInput = {
@@ -42,25 +43,6 @@ export default function SignupPage() {
   });
 
   const password = watch('password');
-
-  const parseValidationErrors = (details: string) => {
-    // 백엔드 검증 오류 형식: "body.email: 올바른 이메일 형식이어야 합니다, body.password: 비밀번호는 8자 이상이어야 합니다"
-    const errorMap: Record<string, string> = {};
-
-    if (!details) return errorMap;
-
-    const errors = details.split(', ');
-    errors.forEach((error) => {
-      const [path, ...messageParts] = error.split(': ');
-      if (path && messageParts.length > 0) {
-        // "body.email" -> "email", "body.password" -> "password"
-        const fieldName = path.replace('body.', '');
-        errorMap[fieldName] = messageParts.join(': ');
-      }
-    });
-
-    return errorMap;
-  };
 
   const onSubmit = async (data: SignupFormInput) => {
     try {

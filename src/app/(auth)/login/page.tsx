@@ -1,7 +1,7 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -9,6 +9,7 @@ import SimpleHeader from '@/components/layout/SimpleHeader/SimpleHeader';
 import InputField from '@/components/Field/InputField';
 import { BaseButton } from '@/components/common/BaseButton';
 import { authFetch } from '@/lib/api';
+import { parseValidationErrors } from '@/lib/parseValidationErrors';
 import fitmatchLogo from '@/assets/images/FITMATCH.svg';
 
 type LoginFormInput = {
@@ -18,6 +19,10 @@ type LoginFormInput = {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextParam = searchParams.get('next');
+  const safeNext =
+    nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : null;
 
   const {
     register,
@@ -32,30 +37,9 @@ export default function LoginPage() {
     },
   });
 
-  const parseValidationErrors = (details: string) => {
-    // 백엔드 검증 오류 형식: "body.email: 올바른 이메일 형식이어야 합니다, body.password: 비밀번호는 8자 이상이어야 합니다"
-    const errorMap: Record<string, string> = {};
-
-    if (!details) return errorMap;
-
-    const errors = details.split(', ');
-    errors.forEach((error) => {
-      const [path, ...messageParts] = error.split(': ');
-      if (path && messageParts.length > 0) {
-        // "body.email" -> "email", "body.password" -> "password"
-        const fieldName = path.replace('body.', '');
-        errorMap[fieldName] = messageParts.join(': ');
-      }
-    });
-
-    return errorMap;
-  };
-
   const onSubmit = async (data: LoginFormInput) => {
     try {
       const result = await authFetch<{
-        accessToken: string;
-        refreshToken: string;
         user: { id: string; role: string; nickname: string };
       }>('/api/auth/login', { method: 'POST', body: data });
 
@@ -75,28 +59,14 @@ export default function LoginPage() {
         return;
       }
 
-      const { accessToken, refreshToken, user } = result.data!;
-      if (accessToken) {
-        localStorage.setItem('accessToken', accessToken);
-      }
-      if (refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
-      }
-      if (user?.role) {
-        localStorage.setItem('userRole', user.role);
-      }
-      if (user?.nickname) {
-        localStorage.setItem('userNickname', user.nickname);
-      }
-      if (user?.id) {
-        localStorage.setItem('userId', user.id);
+      const { user } = result.data!;
+
+      if (safeNext) {
+        router.replace(safeNext);
+        return;
       }
 
-      if (user?.role === 'SELLER') {
-        router.push('/seller');
-      } else {
-        router.push('/');
-      }
+      router.replace(user?.role === 'SELLER' ? '/seller' : '/');
     } catch {
       setError('root', { message: '네트워크 오류가 발생했습니다. 다시 시도해주세요.' });
     }
