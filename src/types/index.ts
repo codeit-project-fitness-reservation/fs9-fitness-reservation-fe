@@ -2,9 +2,9 @@
 export type UserRole = 'CUSTOMER' | 'SELLER' | 'ADMIN';
 
 export interface User {
-  id: string; // ERD: String id PK
+  id: string;
   email: string;
-  password?: string; // 해시된 비밀번호 (보안상 프론트엔드에는 안 넘어올 수 있음)
+  password?: string;
   nickname: string;
   phone: string;
   role: UserRole;
@@ -17,15 +17,14 @@ export interface User {
 }
 
 // --- [2. Notification] ---
-// 앞선 Header 컴포넌트 에러를 해결하기 위해 구조를 맞춤
 export interface NotificationItem {
-  id: string; // ERD에 맞춰 number -> string 변경 (UUID 권장)
+  id: string;
   userId: string;
-  title: string; // 알림 제목 (예: 예약 확정)
-  body?: string; // 알림 내용 (예: 00수업이 예약되었습니다) - UI의 'message' 역할
-  linkUrl?: string; // 클릭 시 이동할 링크
-  isRead: boolean; // ERD엔 없지만 UI 필수 필드 (DB에 추가 권장)
-  createdAt: Date; // UI의 'date' 역할
+  title: string;
+  body?: string;
+  linkUrl?: string;
+  isRead: boolean;
+  createdAt: Date;
 }
 
 // --- [3. Center] ---
@@ -37,7 +36,7 @@ export interface Center {
   address2?: string;
   introduction?: string;
   profileImgUrl?: string;
-  businessHours?: Record<string, unknown>; // JSON 타입 대응
+  businessHours?: Record<string, unknown>;
   lat?: number;
   lng?: number;
   createdAt: Date;
@@ -66,7 +65,6 @@ export interface Class {
   updatedAt: Date;
 }
 
-// 판매자/사용자 목록용 확장 타입 (UI 전용)
 export interface ClassItem extends Class {
   center: {
     id: string;
@@ -76,7 +74,6 @@ export interface ClassItem extends Class {
     reservations: number;
     reviews?: number;
   };
-  // UI 전용 가공 필드 (필요시 사용)
   displayCapacity?: string;
   statusLabel?: string;
 }
@@ -88,12 +85,11 @@ export interface ClassSlot {
   startAt: Date;
   endAt: Date;
   capacity: number;
-  currentReservation: number; // ERD 반영: 현재 예약 인원
+  currentReservation: number;
   isOpen: boolean;
   createdAt: Date;
 }
 
-// 캘린더 라이브러리(FullCalendar)용 이벤트 객체
 export interface ScheduleEvent {
   id: string;
   classId: string;
@@ -101,7 +97,6 @@ export interface ScheduleEvent {
   title: string;
   start: Date;
   end: Date;
-  // FullCalendar의 extendedProps에 들어갈 추가 정보
   resource?: {
     className: string;
     category: string;
@@ -110,7 +105,7 @@ export interface ScheduleEvent {
     currentReservations: number;
     maxCapacity: number;
     isOpen: boolean;
-    instructor?: string; // 강사명 (User 정보 조인 필요 시)
+    instructor?: string;
   };
 }
 
@@ -123,19 +118,18 @@ export interface Reservation {
   classId: string;
   slotId: string;
   status: ReservationStatus;
-  slotStartAt: Date; // 중복 예약 방지용 시간 스냅샷
+  slotStartAt: Date;
   pricePoints: number;
   couponDiscountPoints?: number;
-  paidPoints?: number; // 실제 결제(차감)된 포인트
+  paidPoints?: number;
   userCouponId?: string;
   canceledAt?: Date;
-  canceledBy?: string; // 'USER' | 'SELLER' | 'ADMIN'
+  canceledBy?: string;
   cancelNote?: string;
   createdAt: Date;
   updatedAt: Date;
   completedAt?: Date;
 
-  // UI 표시용 (조인 데이터 - API 응답에 포함될 경우)
   user?: {
     name: string;
     nickname: string;
@@ -163,37 +157,34 @@ export type PointUsed = 'CHARGE' | 'USE' | 'REFUND' | 'ADMIN';
 
 export interface PointHistory {
   id: string;
-  userId: string; // FK -> User.id
+  userId: string;
   type: PointUsed;
-  amount: number; // 변동량 (Int)
-  balanceBefore: number; // 변동 전 잔액 (Int)
-  balanceAfter: number; // 변동 후 잔액 (Int)
-  reservationId?: string; // nullable, 차감/환불된 예약 ID
-  orderId?: string; // nullable, 주문ID
-  paymentKey?: string; // UNIQUE, nullable, 결제키
-  memo?: string; // nullable, 포인트 충전, 이벤트 지급 등 사유 입력
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  reservationId?: string;
+  orderId?: string;
+  paymentKey?: string;
   createdAt: Date;
 }
 
 // --- [8. Coupon (NEW)] ---
 export interface CouponTemplate {
   id: string;
-  centerId?: string; // nullable FK -> Center.id, 해당센터전용, null은 전체 적용
-  name: string; // 쿠폰 이름
-  discountPoints: number; // 할인 포인트 (Int)
-  discountPercentage: number; // 할인 퍼센트 (Int)
-  expiresAt?: Date; // nullable, 만료일
+  centerId?: string;
+  name: string;
+  discountPoints: number;
+  discountPercentage: number;
+  expiresAt?: Date;
   createdAt: Date;
 }
 
 export interface UserCoupon {
   id: string;
-  userId: string; // FK -> User.id, 쿠폰 소유자
-  templateId: string; // FK -> CouponTemplate.id, 쿠폰 종류
-  issuedAt: Date; // 발급일
-  usedAt?: Date; // nullable, 사용일(미사용시 null)
-
-  // 조인해서 가져올 템플릿 정보 (Optional)
+  userId: string;
+  templateId: string;
+  issuedAt: Date;
+  usedAt?: Date;
   template?: CouponTemplate;
 }
 
@@ -203,12 +194,10 @@ export interface Review {
   reservationId: string;
   userId: string;
   classId: string;
-  rating: number; // 1~5
+  rating: number;
   content?: string;
   imgUrls: string[];
   createdAt: Date;
-
-  // UI 표시용 (조인 데이터)
   userNickname?: string;
   userProfileImg?: string;
 }
