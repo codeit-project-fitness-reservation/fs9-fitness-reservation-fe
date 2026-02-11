@@ -73,7 +73,7 @@ export default function CustomerMainPage() {
         <QuickActionCard
           icon={<Image src={icCoins} alt="" width={24} height={24} />}
           label="포인트 충전"
-          href="/payment"
+          href="/point-charge"
         />
       </div>
 
