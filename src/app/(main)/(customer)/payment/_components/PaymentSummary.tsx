@@ -2,7 +2,6 @@ interface PaymentSummaryProps {
   originalPrice: number;
   couponDiscount: number;
   pointsUsed: number;
-  finalAmountOverride?: number;
 }
 
 export default function PaymentSummary({

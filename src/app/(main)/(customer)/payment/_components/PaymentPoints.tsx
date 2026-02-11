@@ -24,7 +24,6 @@ export default function PaymentPoints({
   };
 
   const handleBlur = () => {
-    // blur 시 표시용 값만 정리 (실제 적용은 '사용' 버튼 클릭 시)
     if (inputValue === '' || Number(inputValue) === 0) {
       setInputValue('');
     } else {
@@ -40,7 +39,6 @@ export default function PaymentPoints({
 
     const raw = Number(inputValue);
     if (Number.isNaN(raw) || raw <= 0) {
-      // 잘못된 값이면 0으로 리셋
       setInputValue('');
       onPointsChange(0);
       return;
