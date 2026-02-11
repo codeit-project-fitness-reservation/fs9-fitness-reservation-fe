@@ -34,7 +34,6 @@ export default function PaymentPoints({
   };
 
   const handleApply = () => {
-    // 아무 것도 입력하지 않으면 적용하지 않음
     if (inputValue === '') {
       return;
     }
@@ -59,10 +58,10 @@ export default function PaymentPoints({
         <label className="text-base font-semibold text-gray-900">포인트 결제</label>
         <button
           type="button"
-          onClick={() => router.push('/payment')}
+          onClick={() => router.push('/point-charge')}
           className="text-sm font-medium text-blue-600 hover:text-blue-700"
         >
-          충전하기 &gt;
+          충전하기
         </button>
       </div>
 
