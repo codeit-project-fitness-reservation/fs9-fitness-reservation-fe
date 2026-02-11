@@ -2,7 +2,6 @@ interface PaymentSummaryProps {
   originalPrice: number;
   couponDiscount: number;
   pointsUsed: number;
-  /** 이미 계산된 결제 금액을 부모에서 내려줄 때 사용 (없으면 내부에서 계산) */
   finalAmountOverride?: number;
 }
 

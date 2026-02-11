@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import SimpleHeader from '@/components/layout/SimpleHeader/SimpleHeader';
 import { BaseButton } from '@/components/common/BaseButton';
+import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk';
 import xCloseIcon from '@/assets/images/x-close.svg';
 import naverPayBadge from '@/assets/images/badge_npay.svg';
 import kakaoPayBadge from '@/assets/images/badge_kakao.svg';
@@ -40,11 +41,248 @@ const PAYMENT_METHODS: PaymentMethod[] = [
 ];
 
 export default function PointChargePage() {
-  const [amount, setAmount] = useState(''); // 숫자만 저장 (원 단위)
+  const [amount, setAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethodId>('naverpay');
+  const paymentWidgetsRef = useRef<unknown>(null);
+  const paymentMethodWidgetRef = useRef<unknown>(null);
+  const [isWidgetReady, setIsWidgetReady] = useState(false);
+  const [isWidgetRendered, setIsWidgetRendered] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [widgetId] = useState(() => `payment-method-${Date.now()}`);
+  const [agreementId] = useState(() => `agreement-${Date.now()}`);
 
   const amountNumber = amount === '' ? 0 : Number(amount);
   const formattedAmount = amountNumber > 0 ? amountNumber.toLocaleString() : '';
+
+  const selectPaymentMethodInWidget = useCallback(
+    async (methodId: PaymentMethodId) => {
+      if (!paymentMethodWidgetRef.current) {
+        return;
+      }
+
+      try {
+        const widgetElement = document.getElementById(widgetId);
+        if (!widgetElement) {
+          return;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        const methodTexts: Record<PaymentMethodId, string[]> = {
+          naverpay: ['네이버페이', 'naver pay', 'naverpay', 'n pay', 'npay'],
+          kakaopay: ['카카오페이', 'kakao pay', 'kakaopay'],
+          mobile: ['휴대폰', 'mobile', '핸드폰'],
+          payco: ['페이코', 'payco'],
+          card: ['신용카드', '카드', 'card', 'credit'],
+          smilepay: ['스마일페이', 'smile pay', 'smilepay'],
+        };
+
+        const targetTexts = methodTexts[methodId] || [];
+        let found = false;
+        const buttons = widgetElement.querySelectorAll(
+          'button, [role="button"], a[tabindex], [data-testid], [class*="payment"], [class*="method"]',
+        );
+
+        for (const button of Array.from(buttons)) {
+          const text = (button.textContent || '').toLowerCase().trim();
+          const ariaLabel = (button.getAttribute('aria-label') || '').toLowerCase();
+          const className = (button.className || '').toLowerCase();
+          const id = (button.id || '').toLowerCase();
+
+          const matches = targetTexts.some((targetText) => {
+            const lowerTarget = targetText.toLowerCase();
+            return (
+              text === lowerTarget ||
+              text.includes(lowerTarget) ||
+              ariaLabel === lowerTarget ||
+              ariaLabel.includes(lowerTarget) ||
+              className.includes(lowerTarget) ||
+              id.includes(lowerTarget)
+            );
+          });
+
+          const excludesOtherMethods = targetTexts.every((targetText) => {
+            const lowerTarget = targetText.toLowerCase();
+
+            if (methodId === 'naverpay') {
+              return !text.includes('카카오') && !text.includes('kakao');
+            }
+
+            if (methodId === 'kakaopay') {
+              return !text.includes('네이버') && !text.includes('naver');
+            }
+            return true;
+          });
+
+          if (matches && excludesOtherMethods) {
+            (button as HTMLElement).click();
+            found = true;
+            await new Promise((resolve) => setTimeout(resolve, 300));
+            break;
+          }
+        }
+
+        if (!found) {
+          const allElements = widgetElement.querySelectorAll('*');
+
+          for (const element of Array.from(allElements)) {
+            const text = (element.textContent || '').toLowerCase().trim();
+            const ariaLabel = (element.getAttribute('aria-label') || '').toLowerCase();
+            const className = (element.className || '').toLowerCase();
+            const id = (element.id || '').toLowerCase();
+            const tagName = element.tagName.toLowerCase();
+
+            const isClickable =
+              tagName === 'button' ||
+              tagName === 'a' ||
+              element.getAttribute('role') === 'button' ||
+              element.getAttribute('tabindex') !== null ||
+              className.includes('clickable') ||
+              className.includes('selectable');
+
+            if (!isClickable) continue;
+
+            const matches = targetTexts.some((targetText) => {
+              const lowerTarget = targetText.toLowerCase();
+              return (
+                text === lowerTarget ||
+                text.includes(lowerTarget) ||
+                ariaLabel === lowerTarget ||
+                ariaLabel.includes(lowerTarget) ||
+                className.includes(lowerTarget) ||
+                id.includes(lowerTarget)
+              );
+            });
+
+            const excludesOtherMethods = targetTexts.every(() => {
+              if (methodId === 'naverpay') {
+                return !text.includes('카카오') && !text.includes('kakao');
+              }
+              if (methodId === 'kakaopay') {
+                return !text.includes('네이버') && !text.includes('naver');
+              }
+              return true;
+            });
+
+            if (matches && excludesOtherMethods) {
+              (element as HTMLElement).click();
+              found = true;
+              await new Promise((resolve) => setTimeout(resolve, 300));
+              break;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Payment method selection error:', error);
+        throw error;
+      }
+    },
+    [widgetId],
+  );
+
+  useEffect(() => {
+    const initTossPayments = async () => {
+      try {
+        const clientKey =
+          process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY ||
+          'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm';
+        const tossPayments = await loadTossPayments(clientKey);
+        const widgets = tossPayments.widgets({
+          customerKey: ANONYMOUS,
+        });
+        paymentWidgetsRef.current = widgets;
+        setIsWidgetReady(true);
+      } catch (error) {
+        console.error('Toss Payments initialization error:', error);
+        setIsWidgetReady(true);
+      }
+    };
+
+    initTossPayments();
+  }, []);
+
+  useEffect(() => {
+    const renderWidget = async () => {
+      if (!paymentWidgetsRef.current || !isWidgetReady || amountNumber <= 0) {
+        return;
+      }
+
+      if (paymentMethodWidgetRef.current) {
+        return;
+      }
+
+      try {
+        const widgetElement = document.getElementById(widgetId);
+        const agreementElement = document.getElementById(agreementId);
+
+        if (!widgetElement || !agreementElement) {
+          return;
+        }
+
+        await paymentWidgetsRef.current.setAmount({
+          currency: 'KRW',
+          value: amountNumber,
+        });
+
+        const [paymentMethodWidget] = await Promise.all([
+          paymentWidgetsRef.current.renderPaymentMethods({
+            selector: `#${widgetId}`,
+            variantKey: 'DEFAULT',
+          }),
+          paymentWidgetsRef.current.renderAgreement({
+            selector: `#${agreementId}`,
+            variantKey: 'AGREEMENT',
+          }),
+        ]);
+
+        paymentMethodWidgetRef.current = paymentMethodWidget;
+        setIsWidgetRendered(true);
+
+        setTimeout(() => {
+          selectPaymentMethodInWidget(selectedMethod);
+        }, 300);
+      } catch (error) {
+        console.error('Widget render error:', error);
+        setIsWidgetRendered(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      renderWidget();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isWidgetReady, widgetId, agreementId, selectedMethod, selectPaymentMethodInWidget]);
+
+  useEffect(() => {
+    const updateAmount = async () => {
+      if (!paymentWidgetsRef.current || !paymentMethodWidgetRef.current || amountNumber <= 0) {
+        return;
+      }
+
+      try {
+        await paymentWidgetsRef.current.setAmount({
+          currency: 'KRW',
+          value: amountNumber,
+        });
+      } catch (error) {
+        console.error('Widget amount update error:', error);
+      }
+    };
+
+    if (paymentMethodWidgetRef.current) {
+      updateAmount();
+    }
+  }, [amountNumber]);
+  useEffect(() => {
+    if (!paymentMethodWidgetRef.current || !isWidgetReady) return;
+
+    const timer = setTimeout(() => {
+      selectPaymentMethodInWidget(selectedMethod);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [selectedMethod, isWidgetReady, selectPaymentMethodInWidget]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numbersOnly = e.target.value.replace(/[^0-9]/g, '');
@@ -75,12 +313,97 @@ export default function PointChargePage() {
     setAmount(String(MAX_AMOUNT));
   };
 
-  const handleCharge = () => {
-    if (amountNumber <= 0) return;
-    // TODO: 실제 결제/포인트 충전 API 연동
-    alert(
-      `${amountNumber.toLocaleString()}원을 ${PAYMENT_METHODS.find((m) => m.id === selectedMethod)?.label}로 충전합니다. (목업)`,
-    );
+  const handleCharge = async () => {
+    if (isProcessing) {
+      console.log('Payment is already processing...');
+      return;
+    }
+
+    if (amountNumber <= 0) {
+      alert('충전할 금액을 입력해주세요.');
+      return;
+    }
+
+    if (!paymentWidgetsRef.current || !isWidgetReady) {
+      alert('결제 시스템을 준비 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    if (!paymentMethodWidgetRef.current || !isWidgetRendered) {
+      try {
+        const widgetElement = document.getElementById(widgetId);
+        const agreementElement = document.getElementById(agreementId);
+
+        if (!widgetElement || !agreementElement) {
+          alert('결제 위젯을 준비하는 중입니다. 잠시 후 다시 시도해주세요.');
+          return;
+        }
+
+        await paymentWidgetsRef.current.setAmount({
+          currency: 'KRW',
+          value: amountNumber,
+        });
+
+        const [paymentMethodWidget] = await Promise.all([
+          paymentWidgetsRef.current.renderPaymentMethods({
+            selector: `#${widgetId}`,
+            variantKey: 'DEFAULT',
+          }),
+          paymentWidgetsRef.current.renderAgreement({
+            selector: `#${agreementId}`,
+            variantKey: 'AGREEMENT',
+          }),
+        ]);
+
+        paymentMethodWidgetRef.current = paymentMethodWidget;
+        setIsWidgetRendered(true);
+
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        await selectPaymentMethodInWidget(selectedMethod);
+      } catch (error) {
+        console.error('Widget render error in handleCharge:', error);
+        alert('결제 위젯을 준비하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        setIsProcessing(false);
+        return;
+      }
+    }
+
+    try {
+      const widgets = paymentWidgetsRef.current;
+      const orderId = `point-charge-${Date.now()}`;
+
+      await widgets.setAmount({
+        currency: 'KRW',
+        value: amountNumber,
+      });
+
+      await selectPaymentMethodInWidget(selectedMethod);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      try {
+        await paymentMethodWidgetRef.current?.getSelectedPaymentMethod();
+      } catch (error) {
+        console.error('Payment method check error:', error);
+      }
+
+      await widgets.requestPayment({
+        orderId,
+        orderName: `포인트 충전 ${amountNumber.toLocaleString()}원`,
+        customerName: '홍길동', // TODO: 실제 사용자 이름
+        customerEmail: 'customer@example.com', // TODO: 실제 사용자 이메일
+        successUrl: `${window.location.origin}/payment/success?orderId=${orderId}&amount=${amountNumber}`,
+        failUrl: `${window.location.origin}/payment/fail?orderId=${orderId}`,
+      });
+    } catch (error: unknown) {
+      console.error('Payment request error:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error) || '알 수 없는 오류';
+      alert(`결제 요청 중 오류가 발생했습니다: ${errorMessage}`);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const isChargeDisabled = amountNumber <= 0;
@@ -90,7 +413,6 @@ export default function PointChargePage() {
       <SimpleHeader title="포인트 충전" />
 
       <div className="mx-auto flex w-full max-w-[480px] flex-1 flex-col gap-6 px-4 py-6">
-        {/* 충전 금액 */}
         <section className="rounded-xl border border-gray-200 bg-white p-4">
           <h2 className="mb-3 text-sm font-semibold text-gray-900">충전 금액</h2>
 
@@ -137,12 +459,10 @@ export default function PointChargePage() {
           </div>
         </section>
 
-        {/* 결제 수단 */}
         <section className="rounded-xl border border-gray-200 bg-white p-4">
           <h2 className="mb-3 text-sm font-semibold text-gray-900">결제 수단</h2>
 
           <div className="flex flex-col gap-2">
-            {/* 네이버페이와 카카오페이는 각각 전체 너비 */}
             {PAYMENT_METHODS.filter((m) => m.isLarge).map((method) => {
               const isSelected = method.id === selectedMethod;
 
@@ -171,7 +491,6 @@ export default function PointChargePage() {
               );
             })}
 
-            {/* 나머지 결제 수단은 2열 그리드 */}
             <div className="grid grid-cols-2 gap-2">
               {PAYMENT_METHODS.filter((m) => !m.isLarge).map((method) => {
                 const isSelected = method.id === selectedMethod;
@@ -194,6 +513,21 @@ export default function PointChargePage() {
             </div>
           </div>
         </section>
+
+        {amountNumber > 0 && (
+          <div
+            className="fixed top-0 left-0 z-0 opacity-0"
+            style={{
+              width: '400px',
+              height: '1px',
+              overflow: 'hidden',
+              pointerEvents: 'none',
+            }}
+          >
+            <div id={widgetId} style={{ width: '400px', minHeight: '200px' }} />
+            <div id={agreementId} style={{ width: '400px' }} />
+          </div>
+        )}
       </div>
 
       <div className="sticky bottom-0 z-30 w-full border-t border-gray-200 bg-white p-4">
@@ -201,11 +535,17 @@ export default function PointChargePage() {
           <BaseButton
             type="button"
             variant="primary"
-            disabled={isChargeDisabled}
-            onClick={handleCharge}
+            disabled={isChargeDisabled || isProcessing}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (!isChargeDisabled && !isProcessing) {
+                handleCharge();
+              }
+            }}
             className="w-full py-3 text-base"
           >
-            충전하기
+            {isProcessing ? '처리 중...' : '충전하기'}
           </BaseButton>
         </div>
       </div>

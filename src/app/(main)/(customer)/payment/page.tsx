@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import SimpleHeader from '@/components/layout/SimpleHeader/SimpleHeader';
 import TextAreaField from '@/components/Field/TextAreaField';
@@ -10,6 +10,7 @@ import PaymentCoupon from './_components/PaymentCoupon';
 import PaymentPoints from './_components/PaymentPoints';
 import PaymentSummary from './_components/PaymentSummary';
 import CouponSelectModal from './_components/CouponSelectModal';
+import PaymentWidget from '@/components/payment/PaymentWidget';
 import { Class, ClassSlot } from '@/types/class';
 import { Center, UserCoupon } from '@/types';
 import { MOCK_CENTER_LIST } from '@/mocks/centers';
@@ -33,6 +34,9 @@ export default function PaymentPage() {
   const [availableCoupons, setAvailableCoupons] = useState<UserCoupon[]>([]); // TODO: 실제 쿠폰 목록 조회
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isWidgetReady, setIsWidgetReady] = useState(false);
+  const paymentWidgetsRef = useRef<unknown>(null);
+  const paymentMethodWidgetRef = useRef<unknown>(null);
 
   useEffect(() => {
     if (!classId || !slotId) {
@@ -77,11 +81,39 @@ export default function PaymentPage() {
     setIsLoading(false);
   }, [classId, slotId, router]);
 
-  const handlePayment = () => {
-    if (!classData || !slotData) return;
+  const handlePayment = async () => {
+    if (!classData || !slotData || !paymentWidgetsRef.current) return;
 
-    // TODO: 결제 API 호출
-    alert('결제 기능은 추후 구현 예정입니다.');
+    try {
+      const widgets = paymentWidgetsRef.current;
+      const orderId = `order-${classId}-${slotId}-${Date.now()}`;
+
+      const selectedPaymentMethod =
+        await paymentMethodWidgetRef.current?.getSelectedPaymentMethod();
+      console.log('selectedPaymentMethod: ', selectedPaymentMethod);
+
+      await widgets.requestPayment({
+        orderId,
+        orderName: `${classData.title} - ${slotData.startAt}`,
+        customerName: '홍길동',
+        customerEmail: 'customer@example.com',
+        successUrl: `${window.location.origin}/payment/success${window.location.search}`,
+        failUrl: `${window.location.origin}/payment/fail${window.location.search}`,
+      });
+    } catch (error) {
+      console.error('Payment request error:', error);
+      alert('결제 요청 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handlePaymentWidgetReady = (widgets: unknown, paymentMethodWidget: unknown) => {
+    paymentWidgetsRef.current = widgets;
+    paymentMethodWidgetRef.current = paymentMethodWidget;
+    setIsWidgetReady(true);
+  };
+
+  const handlePaymentMethodSelect = (_paymentMethod: unknown) => {
+    // Payment method selection handled by widget
   };
 
   if (isLoading || !classData || !centerData || !slotData) {
@@ -132,6 +164,18 @@ export default function PaymentPage() {
             pointsUsed={usedPoints}
           />
         </div>
+
+        {finalAmount > 0 && (
+          <div className="rounded-lg bg-white p-4">
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">결제 수단 선택</h2>
+            <PaymentWidget
+              customerKey={`customer-${classId}-${slotId}`}
+              amount={finalAmount}
+              onReady={handlePaymentWidgetReady}
+              onPaymentMethodSelect={handlePaymentMethodSelect}
+            />
+          </div>
+        )}
       </div>
 
       <div className="sticky bottom-0 z-30 w-full border-t border-gray-200 bg-white p-4">
@@ -141,9 +185,9 @@ export default function PaymentPage() {
             variant="primary"
             onClick={handlePayment}
             className="w-full py-4 text-lg"
-            disabled={finalAmount <= 0}
+            disabled={finalAmount <= 0 || !isWidgetReady}
           >
-            결제하기
+            {finalAmount > 0 ? `${finalAmount.toLocaleString()}원 결제하기` : '결제하기'}
           </BaseButton>
         </div>
       </div>
