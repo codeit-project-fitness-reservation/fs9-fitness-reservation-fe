@@ -18,7 +18,7 @@ function decodeJwtPayload(token: string): { role?: Role } | null {
   }
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const accessToken = req.cookies.get('accessToken')?.value;

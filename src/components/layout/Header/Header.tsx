@@ -18,6 +18,15 @@ type HeaderUser = {
   role: UserRole;
 };
 
+type ServerNotification = {
+  id: string;
+  userId: string;
+  title: string;
+  body: string | null;
+  linkUrl: string | null;
+  createdAt: string;
+};
+
 const Header = () => {
   const pathname = usePathname();
 
@@ -28,6 +37,7 @@ const Header = () => {
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notiRef = useRef<HTMLDivElement>(null);
+  const sseRef = useRef<EventSource | null>(null);
 
   const handleReadAll = () => {
     setNotifications(notifications.map((n) => ({ ...n, isRead: true })));
@@ -39,6 +49,7 @@ const Header = () => {
 
   const handleDelete = (id: string) => {
     setNotifications(notifications.filter((n) => n.id !== id));
+    void authFetch(`/api/notifications/${id}`, { method: 'DELETE' });
   };
 
   useEffect(() => {
@@ -76,6 +87,105 @@ const Header = () => {
       mounted = false;
     };
   }, []);
+
+  // 로그인 상태일 때: 알림 목록 로드 + SSE 구독
+  useEffect(() => {
+    // 기존 SSE 연결 정리
+    if (sseRef.current) {
+      sseRef.current.close();
+      sseRef.current = null;
+    }
+
+    if (!user) return;
+
+    let mounted = true;
+
+    const loadInitial = async () => {
+      const result = await authFetch<{
+        items: ServerNotification[];
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      }>('/api/notifications?page=1&limit=20');
+
+      if (!mounted) return;
+
+      if (result.ok) {
+        setNotifications(
+          result.data.items.map((n) => ({
+            id: n.id,
+            userId: n.userId,
+            title: n.title,
+            body: n.body ?? undefined,
+            linkUrl: n.linkUrl ?? undefined,
+            // isRead는 서버에 없어서 클라에서만 관리(기본 미읽음)
+            isRead: false,
+            createdAt: new Date(n.createdAt),
+          })),
+        );
+      }
+    };
+
+    void loadInitial();
+
+    const es = new EventSource('/api/notifications/stream');
+    sseRef.current = es;
+
+    const onCreated = (event: MessageEvent<string>) => {
+      const payload = JSON.parse(event.data) as ServerNotification;
+      setNotifications((prev) => [
+        {
+          id: payload.id,
+          userId: payload.userId,
+          title: payload.title,
+          body: payload.body ?? undefined,
+          linkUrl: payload.linkUrl ?? undefined,
+          isRead: false,
+          createdAt: new Date(payload.createdAt),
+        },
+        ...prev,
+      ]);
+    };
+
+    const onUpdated = (event: MessageEvent<string>) => {
+      const payload = JSON.parse(event.data) as ServerNotification;
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === payload.id
+            ? {
+                ...n,
+                title: payload.title,
+                body: payload.body ?? undefined,
+                linkUrl: payload.linkUrl ?? undefined,
+              }
+            : n,
+        ),
+      );
+    };
+
+    const onDeleted = (event: MessageEvent<string>) => {
+      const payload = JSON.parse(event.data) as { id: string };
+      setNotifications((prev) => prev.filter((n) => n.id !== payload.id));
+    };
+
+    es.addEventListener('notification.created', onCreated as unknown as EventListener);
+    es.addEventListener('notification.updated', onUpdated as unknown as EventListener);
+    es.addEventListener('notification.deleted', onDeleted as unknown as EventListener);
+
+    es.onerror = () => {
+      // EventSource는 기본적으로 자동 재연결합니다.
+    };
+
+    return () => {
+      mounted = false;
+      es.removeEventListener('notification.created', onCreated as unknown as EventListener);
+      es.removeEventListener('notification.updated', onUpdated as unknown as EventListener);
+      es.removeEventListener('notification.deleted', onDeleted as unknown as EventListener);
+      es.close();
+      if (sseRef.current === es) sseRef.current = null;
+    };
+  }, [user]);
 
   if (pathname.startsWith('/admin')) return null;
   const logoHref = pathname.startsWith('/seller') ? '/seller' : '/';
