@@ -48,17 +48,25 @@ export default function PaymentWidget({
       }
 
       try {
-        await widgets.setAmount({
+        const widgetsInstance = widgets as {
+          setAmount: (amount: { currency: string; value: number }) => Promise<void>;
+          renderPaymentMethods: (options: { selector: string; variantKey: string }) => Promise<{
+            on: (event: string, callback: (data: unknown) => void) => void;
+          }>;
+          renderAgreement: (options: { selector: string; variantKey: string }) => Promise<void>;
+        };
+
+        await widgetsInstance.setAmount({
           currency: 'KRW',
           value: amount,
         });
 
         const [paymentMethodWidget] = await Promise.all([
-          widgets.renderPaymentMethods({
+          widgetsInstance.renderPaymentMethods({
             selector: `#${widgetId}`,
             variantKey: 'DEFAULT',
           }),
-          widgets.renderAgreement({
+          widgetsInstance.renderAgreement({
             selector: `#${agreementId}`,
             variantKey: 'AGREEMENT',
           }),
@@ -70,7 +78,7 @@ export default function PaymentWidget({
 
         paymentMethodWidgetRef.current = paymentMethodWidget;
         setReady(true);
-        onReady?.(widgets, paymentMethodWidget);
+        onReady?.(widgetsInstance, paymentMethodWidget);
       } catch (error) {
         console.error('Payment widget rendering error:', error);
       }
@@ -81,7 +89,10 @@ export default function PaymentWidget({
 
   useEffect(() => {
     if (widgets && ready) {
-      widgets.setAmount({
+      const widgetsInstance = widgets as {
+        setAmount: (amount: { currency: string; value: number }) => Promise<void>;
+      };
+      widgetsInstance.setAmount({
         currency: 'KRW',
         value: amount,
       });

@@ -85,11 +85,23 @@ export default function PaymentPage() {
     if (!classData || !slotData || !paymentWidgetsRef.current) return;
 
     try {
-      const widgets = paymentWidgetsRef.current;
+      const widgets = paymentWidgetsRef.current as {
+        requestPayment: (options: {
+          orderId: string;
+          orderName: string;
+          customerName: string;
+          customerEmail: string;
+          successUrl: string;
+          failUrl: string;
+        }) => Promise<void>;
+      };
       const orderId = `order-${classId}-${slotId}-${Date.now()}`;
 
-      const selectedPaymentMethod =
-        await paymentMethodWidgetRef.current?.getSelectedPaymentMethod();
+      const paymentMethodWidget = paymentMethodWidgetRef.current as {
+        getSelectedPaymentMethod: () => Promise<unknown>;
+      } | null;
+
+      const selectedPaymentMethod = await paymentMethodWidget?.getSelectedPaymentMethod();
       console.log('selectedPaymentMethod: ', selectedPaymentMethod);
 
       await widgets.requestPayment({

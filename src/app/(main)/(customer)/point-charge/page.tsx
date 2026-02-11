@@ -219,17 +219,26 @@ export default function PointChargePage() {
           return;
         }
 
-        await paymentWidgetsRef.current.setAmount({
+        const widgets = paymentWidgetsRef.current as {
+          setAmount: (amount: { currency: string; value: number }) => Promise<void>;
+          renderPaymentMethods: (options: {
+            selector: string;
+            variantKey: string;
+          }) => Promise<unknown>;
+          renderAgreement: (options: { selector: string; variantKey: string }) => Promise<void>;
+        };
+
+        await widgets.setAmount({
           currency: 'KRW',
           value: amountNumber,
         });
 
         const [paymentMethodWidget] = await Promise.all([
-          paymentWidgetsRef.current.renderPaymentMethods({
+          widgets.renderPaymentMethods({
             selector: `#${widgetId}`,
             variantKey: 'DEFAULT',
           }),
-          paymentWidgetsRef.current.renderAgreement({
+          widgets.renderAgreement({
             selector: `#${agreementId}`,
             variantKey: 'AGREEMENT',
           }),
@@ -261,7 +270,10 @@ export default function PointChargePage() {
       }
 
       try {
-        await paymentWidgetsRef.current.setAmount({
+        const widgets = paymentWidgetsRef.current as {
+          setAmount: (amount: { currency: string; value: number }) => Promise<void>;
+        };
+        await widgets.setAmount({
           currency: 'KRW',
           value: amountNumber,
         });
@@ -338,20 +350,30 @@ export default function PointChargePage() {
 
         if (!widgetElement || !agreementElement) {
           alert('결제 위젯을 준비하는 중입니다. 잠시 후 다시 시도해주세요.');
+          setIsProcessing(false);
           return;
         }
 
-        await paymentWidgetsRef.current.setAmount({
+        const widgets = paymentWidgetsRef.current as {
+          setAmount: (amount: { currency: string; value: number }) => Promise<void>;
+          renderPaymentMethods: (options: {
+            selector: string;
+            variantKey: string;
+          }) => Promise<unknown>;
+          renderAgreement: (options: { selector: string; variantKey: string }) => Promise<void>;
+        };
+
+        await widgets.setAmount({
           currency: 'KRW',
           value: amountNumber,
         });
 
         const [paymentMethodWidget] = await Promise.all([
-          paymentWidgetsRef.current.renderPaymentMethods({
+          widgets.renderPaymentMethods({
             selector: `#${widgetId}`,
             variantKey: 'DEFAULT',
           }),
-          paymentWidgetsRef.current.renderAgreement({
+          widgets.renderAgreement({
             selector: `#${agreementId}`,
             variantKey: 'AGREEMENT',
           }),
@@ -371,7 +393,17 @@ export default function PointChargePage() {
     }
 
     try {
-      const widgets = paymentWidgetsRef.current;
+      const widgets = paymentWidgetsRef.current as {
+        setAmount: (amount: { currency: string; value: number }) => Promise<void>;
+        requestPayment: (options: {
+          orderId: string;
+          orderName: string;
+          customerName: string;
+          customerEmail: string;
+          successUrl: string;
+          failUrl: string;
+        }) => Promise<void>;
+      };
       const orderId = `point-charge-${Date.now()}`;
 
       await widgets.setAmount({
@@ -383,7 +415,10 @@ export default function PointChargePage() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       try {
-        await paymentMethodWidgetRef.current?.getSelectedPaymentMethod();
+        const paymentMethodWidget = paymentMethodWidgetRef.current as {
+          getSelectedPaymentMethod: () => Promise<unknown>;
+        } | null;
+        await paymentMethodWidget?.getSelectedPaymentMethod();
       } catch (error) {
         console.error('Payment method check error:', error);
       }
