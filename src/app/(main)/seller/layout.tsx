@@ -1,31 +1,45 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { authFetch } from '@/lib/api';
 
 type AllowedRole = 'SELLER';
 
 export default function SellerLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-  const role = (
-    typeof window !== 'undefined' ? (localStorage.getItem('userRole') as AllowedRole | null) : null
-  ) as AllowedRole | null;
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!accessToken) {
-      router.replace('/login');
-      return;
-    }
+    let mounted = true;
 
-    if (role !== 'SELLER') {
-      router.replace('/');
-      return;
-    }
-  }, [router, accessToken, role]);
+    const check = async () => {
+      const me = await authFetch<{ id: string; role: AllowedRole | string }>('/api/auth/me');
+      if (!mounted) return;
 
-  if (!accessToken || role !== 'SELLER') return null;
+      if (!me.ok) {
+        setAuthorized(false);
+        router.replace('/login?next=/seller');
+        return;
+      }
+
+      if (me.data.role !== 'SELLER') {
+        setAuthorized(false);
+        router.replace('/');
+        return;
+      }
+
+      setAuthorized(true);
+    };
+
+    void check();
+    return () => {
+      mounted = false;
+    };
+  }, [router]);
+
+  if (authorized !== true) return null;
 
   return <>{children}</>;
 }

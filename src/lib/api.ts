@@ -16,13 +16,11 @@ type AuthFetchResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; errorDetails?: string };
 
-function getAccessToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return window.localStorage.getItem('accessToken');
-}
-
 function resolveUrl(path: string): string {
-  return path.startsWith('/api/') ? path : `${API_BASE}${path}`;
+  if (path.startsWith('/api/')) {
+    return path;
+  }
+  return `${API_BASE}${path}`;
 }
 
 function toHeaderRecord(headersInit: RequestInit['headers']): Record<string, string> {
@@ -61,20 +59,17 @@ export async function authFetch<T = unknown>(
 ): Promise<AuthFetchResult<T>> {
   const { body, ...rest } = options;
   const url = resolveUrl(path);
-  const accessToken = getAccessToken();
   const headers = toHeaderRecord(options.headers);
 
   if (!hasHeader(headers, 'Content-Type') && !(body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
-  }
-  if (accessToken && !hasHeader(headers, 'Authorization')) {
-    headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
   let res: Response;
   try {
     res = await fetch(url, {
       ...rest,
+      credentials: rest.credentials ?? 'include',
       headers,
       body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
     });
@@ -86,18 +81,28 @@ export async function authFetch<T = unknown>(
   const json = (await safeJson(res)) as {
     success?: boolean;
     data?: T;
+    message?: string;
     error?: { message?: string; details?: string };
   };
 
+  if (res.status === 304) {
+    return { ok: false, error: '캐시된 데이터입니다. 새로고침해주세요.' };
+  }
+
   if (!res.ok) {
+    const errorMsg =
+      json.error?.message || json.error?.details || json.message || `HTTP ${res.status}`;
+
     return {
       ok: false,
-      error: json.error?.message || json.error?.details || `HTTP ${res.status}`,
-      errorDetails: json.error?.details,
+      error: errorMsg,
+      errorDetails:
+        json.error?.details || (typeof json.error === 'string' ? json.error : undefined),
     };
   }
 
-  return { ok: true, data: json.data as T };
+  const responseData = json.data !== undefined ? json.data : (json as unknown as T);
+  return { ok: true, data: responseData };
 }
 
 export type QueryParams = Record<string, string | number | undefined>;
@@ -112,8 +117,11 @@ function toQueryString(params: QueryParams): string {
 export const apiClient = {
   get: async <T = unknown>(endpoint: string, options?: { params?: QueryParams }) => {
     const queryString = options?.params ? toQueryString(options.params) : '';
-    const result = await authFetch<T>(`${endpoint}${queryString}`, { method: 'GET' });
-    if (!result.ok) throw new Error(result.error);
+    const url = `${endpoint}${queryString}`;
+    const result = await authFetch<T>(url, { method: 'GET' });
+    if (!result.ok) {
+      throw new Error(result.error);
+    }
     return result.data;
   },
 

@@ -61,14 +61,24 @@ export interface Class {
   imgUrls: string[];
   status: ClassStatus;
   rejectReason?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
 
 // 판매자/사용자 목록용 확장 타입 (UI 전용)
 export interface ClassItem extends Class {
-  displayCapacity?: string; // "7/10" 형식
-  statusLabel?: string; // "대기중", "반려됨" 등 한글 라벨
+  center: {
+    id: string;
+    name: string;
+  };
+  _count: {
+    reservations: number;
+    reviews?: number;
+  };
+  // UI 전용 가공 필드 (필요시 사용)
+  displayCapacity?: string;
+  statusLabel?: string;
 }
 
 // --- [5. Class Slot (Schedule)] ---

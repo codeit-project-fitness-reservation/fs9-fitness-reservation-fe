@@ -123,6 +123,8 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
     notice: '요가 매트는 센터에서 제공됩니다.',
     pricePoints: 950,
     capacity: 12,
+    bannerUrl:
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
     imgUrls: [
       'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
     ],
