@@ -11,8 +11,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: '필수 파라미터가 누락되었습니다.' }, { status: 400 });
     }
 
-    const secretKey =
-      process.env.TOSS_PAYMENTS_SECRET_KEY || 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6';
+    const secretKey = process.env.TOSS_PAYMENTS_SECRET_KEY;
+    if (!secretKey) {
+      return NextResponse.json(
+        { message: 'TOSS_PAYMENTS_SECRET_KEY is not configured' },
+        { status: 500 },
+      );
+    }
     const encryptedSecretKey = 'Basic ' + Buffer.from(secretKey + ':').toString('base64');
 
     const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
@@ -50,8 +55,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: '필수 파라미터가 누락되었습니다.' }, { status: 400 });
     }
 
-    const secretKey =
-      process.env.TOSS_PAYMENTS_SECRET_KEY || 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6';
+    const secretKey = process.env.TOSS_PAYMENTS_SECRET_KEY;
+    if (!secretKey) {
+      return NextResponse.json(
+        { message: 'TOSS_PAYMENTS_SECRET_KEY is not configured' },
+        { status: 500 },
+      );
+    }
     const encryptedSecretKey = 'Basic ' + Buffer.from(secretKey + ':').toString('base64');
 
     const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {

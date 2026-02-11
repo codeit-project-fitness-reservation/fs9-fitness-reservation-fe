@@ -25,9 +25,10 @@ export default function PaymentWidget({
   useEffect(() => {
     async function fetchPaymentWidgets() {
       try {
-        const clientKey =
-          process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY ||
-          'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm';
+        const clientKey = process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY;
+        if (!clientKey) {
+          throw new Error('NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY is not set');
+        }
         const tossPayments = await loadTossPayments(clientKey);
         const widgetsInstance = tossPayments.widgets({
           customerKey: customerKey || ANONYMOUS,
