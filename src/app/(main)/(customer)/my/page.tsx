@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { MenuListItem } from '@/components/MenuListItem';
@@ -11,6 +11,12 @@ import coinsIcon from '@/assets/images/coins.svg';
 import myfotoIcon from '@/assets/images/myfoto.svg';
 import ticketIcon from '@/assets/images/ticket.svg';
 
+type SvgImport = string | { src: string };
+
+const getSvgSrc = (svg: SvgImport): string => {
+  return typeof svg === 'string' ? svg : svg.src;
+};
+
 interface UserInfo {
   id: string;
   nickname: string;
@@ -20,6 +26,17 @@ interface UserInfo {
 
 export default function MyPage() {
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(true);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const mockUser = MOCK_ACCOUNTS['user@test.com'];
   const userInfo: UserInfo = {
     id: mockUser.id,
@@ -36,31 +53,41 @@ export default function MyPage() {
   ];
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-start gap-8 bg-white px-5 py-10 md:px-0">
+    <div className="relative flex min-h-screen w-full flex-col items-start gap-8 bg-white px-4 py-10 md:px-0 md:py-10">
       {/* 프로필 섹션 */}
-      <section className="flex flex-col items-center gap-4 self-center">
+      <section className="flex w-full flex-col items-center gap-4 self-center">
         <div className="relative h-24 w-24 overflow-hidden rounded-full">
-          <Image src={myfotoIcon} alt="프로필" fill className="object-cover" />
+          <Image
+            src={getSvgSrc(myfotoIcon as SvgImport)}
+            alt="프로필"
+            fill
+            className="object-cover"
+          />
         </div>
         <h2 className="text-xl font-bold text-gray-900">{userInfo.nickname}님</h2>
       </section>
 
-      <div className="-mx-5 h-3 w-full bg-gray-100 md:mx-0" />
+      <div
+        className="h-3 w-screen bg-gray-100 md:mx-0 md:w-full"
+        style={
+          isMobile ? { marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)' } : {}
+        }
+      />
 
       {/* 요약 정보 섹션 */}
-      <section className="flex w-full gap-4">
+      <section className="flex w-full flex-col gap-4 md:flex-row">
         {/* 쿠폰 카드 */}
         <div className="flex flex-1 items-center gap-4 bg-white p-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
-            <Image src={ticketIcon} alt="쿠폰" width={24} height={24} />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50">
+            <Image src={getSvgSrc(ticketIcon as SvgImport)} alt="쿠폰" width={24} height={24} />
           </div>
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-gray-600">쿠폰</p>
             <p className="text-lg font-bold text-blue-600">{userInfo.couponCount}장</p>
           </div>
           <BaseButton
             variant="secondary"
-            className="rounded-md"
+            className="shrink-0 rounded-md"
             onClick={() => router.push('/my/coupons')}
           >
             쿠폰함
@@ -69,10 +96,10 @@ export default function MyPage() {
 
         {/* 포인트 카드 */}
         <div className="flex flex-1 items-center gap-4 bg-white p-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
-            <Image src={coinsIcon} alt="포인트" width={24} height={24} />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50">
+            <Image src={getSvgSrc(coinsIcon as SvgImport)} alt="포인트" width={24} height={24} />
           </div>
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-gray-600">포인트</p>
             <p className="text-lg font-bold text-blue-600">
               {userInfo.pointBalance.toLocaleString()}P
@@ -80,7 +107,7 @@ export default function MyPage() {
           </div>
           <BaseButton
             variant="secondary"
-            className="rounded-md"
+            className="shrink-0 rounded-md"
             onClick={() => router.push('/point-charge')}
           >
             충전하기
@@ -89,8 +116,13 @@ export default function MyPage() {
       </section>
 
       {/* 메뉴 섹션 */}
-      <div className="-mx-5 h-3 w-full bg-gray-100 md:mx-0" />
-      <section className="flex flex-1 flex-col items-start gap-4 self-stretch bg-white px-12 py-8">
+      <div
+        className="h-3 w-screen bg-gray-100 md:mx-0 md:w-full"
+        style={
+          isMobile ? { marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)' } : {}
+        }
+      />
+      <section className="flex flex-1 flex-col items-start gap-4 self-stretch bg-white md:px-12">
         <h3 className="text-base font-semibold text-gray-400">메뉴</h3>
         <div className="flex w-full flex-col gap-4">
           {menuItems.map((item, index) => (
