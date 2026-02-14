@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { MOCK_CENTER_LIST } from '@/mocks/centers';
 import type { Center } from '@/types';
+import markerSvg from '@/assets/images/marker.svg';
 
 type AroundFitnessProps = {
   ensureMapReady: () => any | null;
@@ -33,37 +34,22 @@ export default function AroundFitness({
         centersInfoWindowRef.current = new window.kakao.maps.InfoWindow({ removable: false });
       }
 
-      // sprite marker images (샘플 기반)
-      const markerSize = new window.kakao.maps.Size(33, 36);
-      const overMarkerSize = new window.kakao.maps.Size(40, 42);
-      const markerOffset = new window.kakao.maps.Point(12, 36);
-      const overMarkerOffset = new window.kakao.maps.Point(13, 42);
-      const spriteImageSize = new window.kakao.maps.Size(126, 146);
-      const SPRITE_MARKER_URL =
-        'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markers_sprites2.png';
+      // marker image
+      const markerSize = new window.kakao.maps.Size(30, 30);
+      const overMarkerSize = new window.kakao.maps.Size(36, 36);
+      const markerOffset = new window.kakao.maps.Point(15, 30);
+      const overMarkerOffset = new window.kakao.maps.Point(18, 36);
+      const MARKER_URL = markerSvg.src || markerSvg;
 
-      const createMarkerImage = (size: any, offset: any, spriteOrigin: any) =>
-        new window.kakao.maps.MarkerImage(SPRITE_MARKER_URL, size, {
-          offset,
-          spriteOrigin,
-          spriteSize: spriteImageSize,
-        });
-
-      const normalImage = createMarkerImage(
-        markerSize,
-        markerOffset,
-        new window.kakao.maps.Point(0, 0),
-      );
-      const overImage = createMarkerImage(
-        overMarkerSize,
-        overMarkerOffset,
-        new window.kakao.maps.Point(43, 0),
-      );
-      const clickImage = createMarkerImage(
-        markerSize,
-        markerOffset,
-        new window.kakao.maps.Point(86, 0),
-      );
+      const normalImage = new window.kakao.maps.MarkerImage(MARKER_URL, markerSize, {
+        offset: markerOffset,
+      });
+      const overImage = new window.kakao.maps.MarkerImage(MARKER_URL, overMarkerSize, {
+        offset: overMarkerOffset,
+      });
+      const clickImage = new window.kakao.maps.MarkerImage(MARKER_URL, markerSize, {
+        offset: markerOffset,
+      });
 
       const nextIds = new Set(centers.map((c) => c.id));
 
