@@ -26,16 +26,6 @@ interface UserInfo {
 
 export default function MyPage() {
   const router = useRouter();
-  const [isMobile, setIsMobile] = useState(true);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   const mockUser = MOCK_ACCOUNTS['user@test.com'];
   const userInfo: UserInfo = {
@@ -67,12 +57,7 @@ export default function MyPage() {
         <h2 className="text-xl font-bold text-gray-900">{userInfo.nickname}님</h2>
       </section>
 
-      <div
-        className="h-3 w-screen bg-gray-100 md:mx-0 md:w-full"
-        style={
-          isMobile ? { marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)' } : {}
-        }
-      />
+      <div className="h-3 w-full bg-gray-100" />
 
       {/* 요약 정보 섹션 */}
       <section className="flex w-full flex-col gap-4 md:flex-row">
@@ -116,12 +101,7 @@ export default function MyPage() {
       </section>
 
       {/* 메뉴 섹션 */}
-      <div
-        className="h-3 w-screen bg-gray-100 md:mx-0 md:w-full"
-        style={
-          isMobile ? { marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)' } : {}
-        }
-      />
+      <div className="h-3 w-full bg-gray-100" />
       <section className="flex flex-1 flex-col items-start gap-4 self-stretch bg-white md:px-12">
         <h3 className="text-base font-semibold text-gray-400">메뉴</h3>
         <div className="flex w-full flex-col gap-4">
