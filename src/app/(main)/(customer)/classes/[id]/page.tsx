@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Class, ClassSlot } from '@/types/class';
 import { Center } from '@/types';
@@ -18,6 +18,7 @@ import userIcon from '@/assets/images/user-03.svg';
 export default function ClassDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const classId = params.id as string;
 
   const [classData, setClassData] = useState<Class | null>(null);
@@ -26,6 +27,23 @@ export default function ClassDetailPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<ClassSlot | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFromReservation, setIsFromReservation] = useState(false);
+
+  // 쿼리 파라미터에서 예약 정보 확인
+  useEffect(() => {
+    const slotId = searchParams.get('slotId');
+    const reservationDate = searchParams.get('reservationDate');
+    const fromReservation = searchParams.get('fromReservation') === 'true';
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsFromReservation(fromReservation);
+
+    if (slotId && reservationDate && fromReservation) {
+      const date = new Date(reservationDate);
+
+      setSelectedDate(date);
+    }
+  }, [searchParams]);
 
   // Mock 데이터 로드
   useEffect(() => {
@@ -46,6 +64,14 @@ export default function ClassDetailPage() {
 
     setIsLoading(false);
   }, [classId]);
+
+  // 예약 정보가 있을 때 스케줄 탭으로 자동 이동
+  useEffect(() => {
+    if (isFromReservation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveTab('schedule');
+    }
+  }, [isFromReservation]);
 
   const handleReservation = () => {
     if (!selectedDate || !selectedTimeSlot) {
@@ -99,8 +125,10 @@ export default function ClassDetailPage() {
         onDateSelect={setSelectedDate}
         onTimeSlotSelect={setSelectedTimeSlot}
         selectedTimeSlot={selectedTimeSlot}
+        reservationSlotId={isFromReservation ? searchParams.get('slotId') : null}
+        reservationHour={isFromReservation ? searchParams.get('reservationHour') : null}
       />
-      {selectedDate && selectedTimeSlot && (
+      {selectedDate && selectedTimeSlot && !isFromReservation && (
         <ReservationBottomBar
           selectedDate={selectedDate}
           selectedTimeSlot={selectedTimeSlot}

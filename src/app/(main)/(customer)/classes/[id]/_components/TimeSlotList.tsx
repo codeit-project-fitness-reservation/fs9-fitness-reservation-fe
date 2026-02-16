@@ -23,7 +23,7 @@ export default function TimeSlotList({ timeSlots, selectedTimeSlot, onSelect }: 
           <button
             key={slot.id}
             onClick={() => !isFull && onSelect(slot)}
-            disabled={isFull}
+            disabled={isFull && !isSelected}
             className={`flex items-center justify-between rounded-lg border-2 p-4 text-left transition-colors ${
               isSelected
                 ? 'border-blue-500 bg-blue-50'

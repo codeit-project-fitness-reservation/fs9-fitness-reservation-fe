@@ -12,6 +12,8 @@ interface ScheduleTabProps {
   onDateSelect: (date: Date | undefined) => void;
   onTimeSlotSelect: (slot: ClassSlot) => void;
   selectedTimeSlot: ClassSlot | null;
+  reservationSlotId?: string | null;
+  reservationHour?: string | null;
 }
 
 export default function ScheduleTab({
@@ -20,6 +22,8 @@ export default function ScheduleTab({
   onDateSelect,
   onTimeSlotSelect,
   selectedTimeSlot,
+  reservationSlotId,
+  reservationHour,
 }: ScheduleTabProps) {
   const [timeSlots, setTimeSlots] = useState<ClassSlot[]>([]);
 
@@ -32,8 +36,45 @@ export default function ScheduleTab({
     }
 
     // TODO: API 호출로 대체 - 선택한 날짜의 시간 슬롯 가져오기
-    setTimeSlots(getMockClassSlotsForDate({ classId, date: selectedDate }));
+    const slots = getMockClassSlotsForDate({ classId, date: selectedDate });
+    setTimeSlots(slots);
   }, [classId, selectedDate]);
+
+  // 예약 정보가 있을 때 해당 시간 슬롯 자동 선택 (시간 슬롯이 로드된 후 실행)
+  useEffect(() => {
+    if (timeSlots.length === 0) return;
+
+    let slot: ClassSlot | undefined;
+
+    if (reservationSlotId) {
+      slot = timeSlots.find((s) => s.id === reservationSlotId);
+    }
+
+    if (!slot && reservationHour) {
+      const targetHour = parseInt(reservationHour, 10);
+      slot = timeSlots.find((s) => {
+        const slotHour = new Date(s.startAt).getHours();
+        return slotHour === targetHour;
+      });
+    }
+
+    if (!slot && reservationSlotId) {
+      const hourMatch = reservationSlotId.match(/(\d{2})00$/);
+      if (hourMatch) {
+        const targetHour = parseInt(hourMatch[1], 10);
+        slot = timeSlots.find((s) => {
+          const slotHour = new Date(s.startAt).getHours();
+          return slotHour === targetHour;
+        });
+      }
+    }
+
+    if (slot) {
+      if (!selectedTimeSlot || selectedTimeSlot.id !== slot.id) {
+        onTimeSlotSelect(slot);
+      }
+    }
+  }, [timeSlots, reservationSlotId, reservationHour, selectedTimeSlot, onTimeSlotSelect]);
 
   return (
     <div className="flex flex-col gap-6">

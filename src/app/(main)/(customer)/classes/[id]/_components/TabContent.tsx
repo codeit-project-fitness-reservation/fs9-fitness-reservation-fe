@@ -12,6 +12,8 @@ interface TabContentProps {
   onDateSelect: (date: Date | undefined) => void;
   onTimeSlotSelect: (slot: ClassSlot) => void;
   selectedTimeSlot: ClassSlot | null;
+  reservationSlotId?: string | null;
+  reservationHour?: string | null;
 }
 
 export default function TabContent({
@@ -21,6 +23,8 @@ export default function TabContent({
   onDateSelect,
   onTimeSlotSelect,
   selectedTimeSlot,
+  reservationSlotId,
+  reservationHour,
 }: TabContentProps) {
   return (
     <div className="min-h-[200px]">
@@ -32,6 +36,8 @@ export default function TabContent({
           onDateSelect={onDateSelect}
           onTimeSlotSelect={onTimeSlotSelect}
           selectedTimeSlot={selectedTimeSlot}
+          reservationSlotId={reservationSlotId}
+          reservationHour={reservationHour}
         />
       )}
       {activeTab === 'rules' && <RulesTab classData={classData} />}
