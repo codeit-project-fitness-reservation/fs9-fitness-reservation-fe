@@ -30,7 +30,6 @@ export default function ScheduleTab({
   // 선택한 날짜에 따른 시간 슬롯 로드
   useEffect(() => {
     if (!selectedDate) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTimeSlots([]);
       return;
     }
@@ -40,12 +39,19 @@ export default function ScheduleTab({
     setTimeSlots(slots);
   }, [classId, selectedDate]);
 
-  // 예약 정보가 있을 때 해당 시간 슬롯 자동 선택 (시간 슬롯이 로드된 후 실행)
   useEffect(() => {
     if (timeSlots.length === 0) return;
+    if (!reservationSlotId && !reservationHour) return;
+    if (selectedTimeSlot) {
+      const isCorrectSlot = reservationSlotId
+        ? selectedTimeSlot.id === reservationSlotId
+        : reservationHour
+          ? new Date(selectedTimeSlot.startAt).getHours() === parseInt(reservationHour, 10)
+          : false;
+      if (isCorrectSlot) return;
+    }
 
     let slot: ClassSlot | undefined;
-
     if (reservationSlotId) {
       slot = timeSlots.find((s) => s.id === reservationSlotId);
     }
@@ -57,7 +63,6 @@ export default function ScheduleTab({
         return slotHour === targetHour;
       });
     }
-
     if (!slot && reservationSlotId) {
       const hourMatch = reservationSlotId.match(/(\d{2})00$/);
       if (hourMatch) {
@@ -70,11 +75,10 @@ export default function ScheduleTab({
     }
 
     if (slot) {
-      if (!selectedTimeSlot || selectedTimeSlot.id !== slot.id) {
-        onTimeSlotSelect(slot);
-      }
+      onTimeSlotSelect(slot);
     }
-  }, [timeSlots, reservationSlotId, reservationHour, selectedTimeSlot, onTimeSlotSelect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeSlots, reservationSlotId, reservationHour]);
 
   return (
     <div className="flex flex-col gap-6">

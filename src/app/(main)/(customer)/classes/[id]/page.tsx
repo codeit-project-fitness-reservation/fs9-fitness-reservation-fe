@@ -31,17 +31,12 @@ export default function ClassDetailPage() {
 
   // 쿼리 파라미터에서 예약 정보 확인
   useEffect(() => {
-    const slotId = searchParams.get('slotId');
-    const reservationDate = searchParams.get('reservationDate');
     const fromReservation = searchParams.get('fromReservation') === 'true';
-
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsFromReservation(fromReservation);
 
-    if (slotId && reservationDate && fromReservation) {
-      const date = new Date(reservationDate);
-
-      setSelectedDate(date);
+    if (fromReservation) {
+      setActiveTab('schedule');
     }
   }, [searchParams]);
 
@@ -64,14 +59,6 @@ export default function ClassDetailPage() {
 
     setIsLoading(false);
   }, [classId]);
-
-  // 예약 정보가 있을 때 스케줄 탭으로 자동 이동
-  useEffect(() => {
-    if (isFromReservation) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setActiveTab('schedule');
-    }
-  }, [isFromReservation]);
 
   const handleReservation = () => {
     if (!selectedDate || !selectedTimeSlot) {

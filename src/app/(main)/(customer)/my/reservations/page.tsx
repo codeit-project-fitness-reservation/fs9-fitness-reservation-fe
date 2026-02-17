@@ -11,6 +11,7 @@ import { Reservation } from '@/types';
 import mapPinIcon from '@/assets/images/map-pin.svg';
 import clockIcon from '@/assets/images/clock.svg';
 import chevronDownIcon from '@/assets/images/chevron-down.svg';
+import emptyStateIcon from '@/assets/images/Empty State.svg';
 
 type SvgImport = string | { src: string };
 
@@ -138,7 +139,8 @@ const MOCK_RESERVATIONS: Reservation[] = [
 
 export default function ReservationsPage() {
   const router = useRouter();
-  const [reservations, setReservations] = useState<Reservation[]>(MOCK_RESERVATIONS);
+  // TODO: 실제 예약 데이터로 교체
+  const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancelReservationId, setCancelReservationId] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
@@ -236,91 +238,111 @@ export default function ReservationsPage() {
       <SimpleHeader title="내 예약" />
 
       <div className="mx-auto flex w-full flex-col gap-4 bg-gray-50 px-4 py-6 md:max-w-240">
-        {/* 예약 리스트 */}
-        <div className="flex flex-col gap-3">
-          {reservations.map((reservation) => (
-            <div
-              key={reservation.id}
-              className="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-sm"
-              style={{
-                boxShadow: '0 1px 8px 0 rgba(0, 0, 0, 0.06)',
-              }}
-            >
-              {/* 제목 */}
-              <h3 className="text-base font-bold text-gray-900">
-                {reservation.class?.title || '클래스'}
-              </h3>
+        {/* 예약 리스트 또는 빈 상태 */}
+        {reservations.length > 0 ? (
+          <>
+            <div className="flex flex-col gap-3">
+              {reservations.map((reservation) => (
+                <div
+                  key={reservation.id}
+                  className="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-sm"
+                  style={{
+                    boxShadow: '0 1px 8px 0 rgba(0, 0, 0, 0.06)',
+                  }}
+                >
+                  {/* 제목 */}
+                  <h3 className="text-base font-bold text-gray-900">
+                    {reservation.class?.title || '클래스'}
+                  </h3>
 
-              {/* 위치 */}
-              <div className="flex items-center gap-1.5">
+                  {/* 위치 */}
+                  <div className="flex items-center gap-1.5">
+                    <Image
+                      src={getSvgSrc(mapPinIcon as SvgImport)}
+                      alt="위치"
+                      width={16}
+                      height={16}
+                      className="shrink-0"
+                    />
+                    <p className="text-sm text-gray-500">경기 성남시 분당구 123-869 1층</p>
+                  </div>
+
+                  {/* 날짜/시간 */}
+                  {reservation.slot && (
+                    <div className="flex items-center gap-1.5">
+                      <Image
+                        src={getSvgSrc(clockIcon as SvgImport)}
+                        alt="시간"
+                        width={16}
+                        height={16}
+                        className="shrink-0"
+                      />
+                      <p className="text-sm text-gray-500">
+                        {formatDateTime(reservation.slot.startAt, reservation.slot.endAt)}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* 가격 */}
+                  <p className="text-base font-bold text-gray-900">
+                    {reservation.pricePoints.toLocaleString()}원
+                  </p>
+
+                  {/* 버튼 */}
+                  <div className="flex gap-2">
+                    <BaseButton
+                      variant="secondary"
+                      className="flex-1 rounded-md border-gray-300"
+                      onClick={() => handleViewDetails(reservation)}
+                    >
+                      상세보기
+                    </BaseButton>
+                    {reservation.status === 'BOOKED' && (
+                      <BaseButton
+                        variant="secondary"
+                        className="flex-1 rounded-md border-gray-300"
+                        onClick={() => handleCancelClick(reservation.id)}
+                      >
+                        취소
+                      </BaseButton>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 더보기 버튼 */}
+            {hasMore && (
+              <button
+                onClick={handleLoadMore}
+                className="flex items-center justify-center gap-1 py-4 text-sm font-medium text-blue-600"
+              >
+                더보기
                 <Image
-                  src={getSvgSrc(mapPinIcon as SvgImport)}
-                  alt="위치"
+                  src={getSvgSrc(chevronDownIcon as SvgImport)}
+                  alt="더보기"
                   width={16}
                   height={16}
-                  className="shrink-0"
                 />
-                <p className="text-sm text-gray-500">경기 성남시 분당구 123-869 1층</p>
-              </div>
-
-              {/* 날짜/시간 */}
-              {reservation.slot && (
-                <div className="flex items-center gap-1.5">
-                  <Image
-                    src={getSvgSrc(clockIcon as SvgImport)}
-                    alt="시간"
-                    width={16}
-                    height={16}
-                    className="shrink-0"
-                  />
-                  <p className="text-sm text-gray-500">
-                    {formatDateTime(reservation.slot.startAt, reservation.slot.endAt)}
-                  </p>
-                </div>
-              )}
-
-              {/* 가격 */}
-              <p className="text-base font-bold text-gray-900">
-                {reservation.pricePoints.toLocaleString()}원
-              </p>
-
-              {/* 버튼 */}
-              <div className="flex gap-2">
-                <BaseButton
-                  variant="secondary"
-                  className="flex-1 rounded-md border-gray-300"
-                  onClick={() => handleViewDetails(reservation)}
-                >
-                  상세보기
-                </BaseButton>
-                {reservation.status === 'BOOKED' && (
-                  <BaseButton
-                    variant="secondary"
-                    className="flex-1 rounded-md border-gray-300"
-                    onClick={() => handleCancelClick(reservation.id)}
-                  >
-                    취소
-                  </BaseButton>
-                )}
-              </div>
+              </button>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="mb-6">
+              <Image
+                src={getSvgSrc(emptyStateIcon as SvgImport)}
+                alt="빈 예약 내역"
+                width={228}
+                height={207}
+              />
             </div>
-          ))}
-        </div>
-
-        {/* 더보기 버튼 */}
-        {hasMore && (
-          <button
-            onClick={handleLoadMore}
-            className="flex items-center justify-center gap-1 py-4 text-sm font-medium text-blue-600"
-          >
-            더보기
-            <Image
-              src={getSvgSrc(chevronDownIcon as SvgImport)}
-              alt="더보기"
-              width={16}
-              height={16}
-            />
-          </button>
+            <p className="mb-1 text-base text-gray-900">예약 내역이 없어요.</p>
+            <p className="mb-8 text-sm text-gray-500">마음에 드는 클래스를 예약해보세요.</p>
+            <BaseButton variant="primary" onClick={() => router.push('/classes')}>
+              클래스 보러가기
+            </BaseButton>
+          </div>
         )}
       </div>
 
