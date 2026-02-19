@@ -27,7 +27,7 @@ export default function StatusBadge({ status, label, className = '' }: StatusBad
 
   return (
     <span
-      className={`rounded px-1.5 py-0.5 text-[10px] leading-none font-medium whitespace-nowrap ${getStyle(
+      className={`rounded px-2.5 py-1 text-[10px] leading-none font-medium whitespace-nowrap ${getStyle(
         status,
       )} ${className}`}
     >
