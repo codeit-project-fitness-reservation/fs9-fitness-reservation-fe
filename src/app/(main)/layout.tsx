@@ -7,7 +7,6 @@ interface MainLayoutProps {
   children: React.ReactNode;
 }
 
-// SimpleHeader를 사용하는 페이지 경로 목록
 const SIMPLE_HEADER_PAGES = ['/seller/class-register', '/seller/profile/edit'];
 
 const FULL_WIDTH_PAGES = ['/admin'];

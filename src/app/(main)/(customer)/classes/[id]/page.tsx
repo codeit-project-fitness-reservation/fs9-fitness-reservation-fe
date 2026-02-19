@@ -84,7 +84,6 @@ export default function ClassDetailPage() {
       className={`mx-auto flex min-h-[calc(100vh-56px)] max-w-[960px] flex-col gap-8 px-4 py-8 max-[1200px]:px-6 max-[768px]:gap-6 max-[768px]:px-4 max-[768px]:py-6 md:px-8 ${hasBottomBar ? 'pb-24' : ''}`}
     >
       <ClassImage classData={classData} />
-      {/* EventTags와 예약 인원 */}
       <div className="flex items-center justify-between">
         <EventTags
           category={classData.category}

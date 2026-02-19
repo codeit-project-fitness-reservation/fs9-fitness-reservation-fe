@@ -34,7 +34,6 @@ export default function AroundFitness({
         centersInfoWindowRef.current = new window.kakao.maps.InfoWindow({ removable: false });
       }
 
-      // marker image
       const markerSize = new window.kakao.maps.Size(30, 30);
       const overMarkerSize = new window.kakao.maps.Size(36, 36);
       const markerOffset = new window.kakao.maps.Point(15, 30);

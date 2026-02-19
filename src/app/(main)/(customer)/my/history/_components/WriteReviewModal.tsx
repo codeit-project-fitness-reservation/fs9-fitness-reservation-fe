@@ -102,7 +102,6 @@ export default function WriteReviewModal({
         className="relative mx-4 max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
         style={{ width: '560px' }}
       >
-        {/* 헤더 */}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">리뷰 쓰기</h2>
           <button
@@ -114,7 +113,6 @@ export default function WriteReviewModal({
           </button>
         </div>
 
-        {/* 별점 선택 */}
         <div className="mb-6">
           <div className="flex gap-2">
             {[0, 1, 2, 3, 4].map((index) => (
@@ -137,7 +135,6 @@ export default function WriteReviewModal({
           </div>
         </div>
 
-        {/* 내용 입력 */}
         <div className="mb-6">
           <label className="mb-2 block text-sm font-medium text-gray-900">
             내용 <span className="text-red-500">*</span>
@@ -151,11 +148,9 @@ export default function WriteReviewModal({
           />
         </div>
 
-        {/* 이미지 업로드 */}
         <div className="mb-6">
           <label className="mb-2 block text-sm font-medium text-gray-900">이미지</label>
           <div className="flex flex-wrap gap-3">
-            {/* 이미지 미리보기 */}
             {imagePreviews.map((preview, index) => (
               <div key={index} className="relative">
                 <div className="relative h-20 w-20 overflow-hidden rounded-lg border border-gray-200">
@@ -172,7 +167,6 @@ export default function WriteReviewModal({
               </div>
             ))}
 
-            {/* 이미지 추가 버튼 */}
             {images.length < 3 && (
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -193,8 +187,6 @@ export default function WriteReviewModal({
             className="hidden"
           />
         </div>
-
-        {/* 버튼 영역 */}
         <div className="flex gap-2">
           <button
             onClick={handleClose}
