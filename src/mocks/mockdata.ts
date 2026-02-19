@@ -17,6 +17,7 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     role: 'CUSTOMER',
     password: 'password123',
     pointBalance: 5000,
+    couponCount: 0,
     createdAt: new Date('2026-01-01'),
     updatedAt: new Date('2026-01-20'),
   },
@@ -28,6 +29,7 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     role: 'SELLER',
     password: 'sellerpassword',
     pointBalance: 0,
+    couponCount: 0,
     createdAt: new Date('2026-01-01'),
     updatedAt: new Date('2026-01-20'),
   },
@@ -39,6 +41,7 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     role: 'ADMIN',
     password: 'adminpassword',
     pointBalance: 0,
+    couponCount: 0,
     createdAt: new Date('2026-01-01'),
     updatedAt: new Date('2026-01-20'),
   },
@@ -105,6 +108,14 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
     ],
     status: 'APPROVED',
     displayCapacity: '7/10',
+    center: {
+      id: 'center-1',
+      name: '강남 피트니스 센터',
+    },
+    _count: {
+      reservations: 7,
+      reviews: 12,
+    },
     createdAt: new Date('2026-01-10'),
     updatedAt: new Date('2026-01-15'),
   },
@@ -126,6 +137,14 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
     status: 'PENDING',
     statusLabel: '대기중',
     displayCapacity: '0/12',
+    center: {
+      id: 'center-1',
+      name: '강남 피트니스 센터',
+    },
+    _count: {
+      reservations: 0,
+      reviews: 0,
+    },
     createdAt: new Date('2026-01-18'),
     updatedAt: new Date('2026-01-18'),
   },
@@ -146,6 +165,14 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
     rejectReason:
       '이미지 해상도가 기준에 미달합니다. 최소 1920x1080 이상의 이미지를 업로드해주세요.',
     displayCapacity: '0/8',
+    center: {
+      id: 'center-1',
+      name: '강남 피트니스 센터',
+    },
+    _count: {
+      reservations: 0,
+      reviews: 0,
+    },
     createdAt: new Date('2026-01-17'),
     updatedAt: new Date('2026-01-19'),
   },

@@ -48,12 +48,12 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     const resolvedType = isPassword && showPassword ? 'text' : type;
 
     const inputClasses = twMerge(
-      `w-full flex-1 bg-transparent outline-none text-[16px] leading-6 text-[#181D27] placeholder:text-gray-400 disabled:cursor-not-allowed disabled:text-[#A4A7AE] disabled:placeholder:text-[#A4A7AE]`,
+      `w-full flex-1 bg-transparent outline-none text-[16px] font-normal leading-6 text-[#181D27] placeholder:text-gray-400 disabled:cursor-not-allowed disabled:text-[#A4A7AE] disabled:placeholder:text-[#A4A7AE]`,
       className,
     );
 
     const paddingClasses =
-      density === 'sm' ? 'px-[14px] py-[8px] min-h-[44px]' : 'px-[16px] py-[12px] min-h-[48px]';
+      density === 'sm' ? 'px-[12px] py-[6px] min-h-[38px]' : 'px-[12px] py-[10px] min-h-[46px]';
 
     const wrapperClasses = twMerge(
       `flex w-full items-center gap-2 rounded-[8px] border bg-white ${paddingClasses} transition-colors focus-within:ring-1`,
@@ -65,7 +65,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     );
 
     return (
-      <div className="flex w-full flex-col gap-[6px]">
+      <div className="flex w-full flex-col gap-1.5">
         {label && (
           <label
             htmlFor={id}
@@ -75,7 +75,6 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             {required && <span className="text-[#2970FF]"> *</span>}
           </label>
         )}
-
         <div className={wrapperClasses}>
           <input
             id={id}
@@ -101,7 +100,6 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             </button>
           )}
         </div>
-
         {error && (
           <p id={errorId} className="text-[14px] leading-5 text-[#D92D20]">
             {error}
