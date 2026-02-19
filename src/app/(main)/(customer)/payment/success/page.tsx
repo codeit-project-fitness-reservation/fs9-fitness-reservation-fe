@@ -75,7 +75,7 @@ export default function PaymentSuccessPage() {
     <div className="flex min-h-[calc(100vh-56px)] flex-col bg-gray-50">
       <SimpleHeader title="결제 완료" />
 
-      <div className="mx-auto flex w-full max-w-[540px] flex-col items-center justify-center gap-6 px-6 py-12">
+      <div className="mx-auto flex w-full max-w-[540px] flex-col items-center justify-center gap-6 px-4 py-8 max-[640px]:px-4 max-[640px]:py-6 md:px-6 md:py-12">
         {isConfirmed ? (
           <div className="flex w-full flex-col items-center">
             <img
@@ -83,28 +83,35 @@ export default function PaymentSuccessPage() {
               width={120}
               height={120}
               alt="결제 완료"
+              className="max-[640px]:h-20 max-[640px]:w-20"
             />
-            <h2 className="mt-8 mb-0 text-center text-2xl font-bold text-[#191f28]">
+            <h2 className="mt-8 mb-0 text-center text-2xl font-bold text-[#191f28] max-[640px]:mt-6 max-[640px]:text-xl">
               결제를 완료했어요
             </h2>
             {paymentInfo && (
-              <div className="mt-[60px] flex w-full flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-[17px] font-semibold text-[#333d48]">결제 금액</span>
-                  <span className="pl-4 text-right text-[17px] font-medium wrap-break-word text-[#4e5968]">
+              <div className="mt-[60px] flex w-full flex-col gap-4 max-[640px]:mt-8 max-[640px]:gap-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[17px] font-semibold text-[#333d48] max-[640px]:text-sm">
+                    결제 금액
+                  </span>
+                  <span className="pl-4 text-right text-[17px] font-medium wrap-break-word text-[#4e5968] max-[640px]:pl-2 max-[640px]:text-sm">
                     {paymentInfo.amount?.toLocaleString()}원
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[17px] font-semibold text-[#333d48]">주문번호</span>
-                  <span className="pl-4 text-right text-[17px] font-medium wrap-break-word text-[#4e5968]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[17px] font-semibold text-[#333d48] max-[640px]:text-sm">
+                    주문번호
+                  </span>
+                  <span className="pl-4 text-right text-[17px] font-medium wrap-break-word text-[#4e5968] max-[640px]:pl-2 max-[640px]:text-xs">
                     {paymentInfo.orderId}
                   </span>
                 </div>
                 {paymentInfo.paymentKey && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[17px] font-semibold text-[#333d48]">paymentKey</span>
-                    <span className="pl-4 text-right text-[17px] font-medium break-all text-[#4e5968]">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-[17px] font-semibold text-[#333d48] max-[640px]:text-sm">
+                      paymentKey
+                    </span>
+                    <span className="pl-4 text-right text-[17px] font-medium break-all text-[#4e5968] max-[640px]:pl-2 max-[640px]:text-xs">
                       {paymentInfo.paymentKey}
                     </span>
                   </div>
@@ -112,12 +119,12 @@ export default function PaymentSuccessPage() {
               </div>
             )}
 
-            <div className="mt-8 flex w-full flex-col gap-4">
+            <div className="mt-8 flex w-full flex-col gap-4 max-[640px]:mt-6 max-[640px]:gap-3">
               <BaseButton
                 type="button"
                 variant="primary"
                 onClick={handleGoToReservations}
-                className="w-full py-[11px] text-[17px] font-semibold"
+                className="w-full py-[11px] text-[17px] font-semibold max-[640px]:py-3 max-[640px]:text-base"
               >
                 예약 내역 보기
               </BaseButton>
@@ -125,52 +132,57 @@ export default function PaymentSuccessPage() {
                 type="button"
                 variant="secondary"
                 onClick={handleGoHome}
-                className="w-full py-[11px] text-[17px] font-semibold"
+                className="w-full py-[11px] text-[17px] font-semibold max-[640px]:py-3 max-[640px]:text-base"
               >
                 홈으로 가기
               </BaseButton>
             </div>
           </div>
         ) : (
-          <div className="mt-[72px] flex h-[400px] w-full flex-col items-center justify-between">
+          <div className="mt-[72px] flex h-[400px] w-full flex-col items-center justify-between max-[640px]:mt-8 max-[640px]:h-auto max-[640px]:gap-6">
             <div className="flex flex-col items-center">
               <img
                 src="https://static.toss.im/lotties/loading-spot-apng.png"
                 width={120}
                 height={120}
                 alt="로딩"
+                className="max-[640px]:h-20 max-[640px]:w-20"
               />
-              <h2 className="mt-8 mb-0 text-center text-2xl font-bold text-[#191f28]">
+              <h2 className="mt-8 mb-0 text-center text-2xl font-bold text-[#191f28] max-[640px]:mt-6 max-[640px]:text-xl">
                 결제 요청까지 성공했어요.
               </h2>
-              <h4 className="mt-2 text-center text-[17px] font-medium text-[#4e5968]">
+              <h4 className="mt-2 text-center text-[17px] font-medium text-[#4e5968] max-[640px]:text-sm">
                 결제 승인하고 완료해보세요.
               </h4>
             </div>
             {paymentInfo && (
-              <div className="w-full space-y-4 rounded-lg bg-white p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-[17px] font-semibold text-[#333d48]">주문번호</span>
-                  <span className="pl-4 text-right text-[17px] font-medium wrap-break-word text-[#4e5968]">
+              <div className="w-full space-y-4 rounded-lg bg-white p-4 max-[640px]:space-y-3 max-[640px]:p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[17px] font-semibold text-[#333d48] max-[640px]:text-sm">
+                    주문번호
+                  </span>
+                  <span className="pl-4 text-right text-[17px] font-medium wrap-break-word text-[#4e5968] max-[640px]:pl-2 max-[640px]:text-xs">
                     {paymentInfo.orderId}
                   </span>
                 </div>
                 {paymentInfo.amount && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[17px] font-semibold text-[#333d48]">결제 금액</span>
-                    <span className="pl-4 text-right text-[17px] font-medium wrap-break-word text-[#4e5968]">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[17px] font-semibold text-[#333d48] max-[640px]:text-sm">
+                      결제 금액
+                    </span>
+                    <span className="pl-4 text-right text-[17px] font-medium wrap-break-word text-[#4e5968] max-[640px]:pl-2 max-[640px]:text-sm">
                       {paymentInfo.amount.toLocaleString()}원
                     </span>
                   </div>
                 )}
               </div>
             )}
-            <div className="w-full px-6">
+            <div className="w-full px-6 max-[640px]:px-0">
               <BaseButton
                 type="button"
                 variant="primary"
                 onClick={confirmPayment}
-                className="w-full py-[11px] text-[17px] font-semibold"
+                className="w-full py-[11px] text-[17px] font-semibold max-[640px]:py-3 max-[640px]:text-base"
                 disabled={!paymentInfo?.paymentKey || !paymentInfo?.orderId || !paymentInfo?.amount}
               >
                 결제 승인하기
