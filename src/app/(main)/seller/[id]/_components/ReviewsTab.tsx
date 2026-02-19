@@ -88,7 +88,7 @@ export default function ReviewsTab({ classId, centerId, onReviewCountChange }: R
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4 bg-gray-50 p-1 md:p-1">
+      <div className="flex flex-col gap-4 bg-white p-1 md:p-1">
         <h2 className="text-[20px] font-bold text-gray-800">리뷰</h2>
         <div className="flex items-center justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" />
@@ -99,7 +99,7 @@ export default function ReviewsTab({ classId, centerId, onReviewCountChange }: R
 
   if (error) {
     return (
-      <div className="flex flex-col gap-4 bg-gray-50 p-1 md:p-1">
+      <div className="flex flex-col gap-4 bg-white p-1 md:p-1">
         <h2 className="text-[20px] font-bold text-gray-800">리뷰</h2>
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
           <p className="py-20 text-center text-sm text-red-500">{error}</p>
@@ -110,7 +110,7 @@ export default function ReviewsTab({ classId, centerId, onReviewCountChange }: R
 
   return (
     <div className="flex flex-col gap-4 bg-gray-50 p-1 md:p-1">
-      <h2 className="text-[20px] font-bold text-gray-800">리뷰</h2>
+      <h2 className="text-[18px] font-semibold text-gray-900">리뷰</h2>
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
         {reviews.length === 0 ? (

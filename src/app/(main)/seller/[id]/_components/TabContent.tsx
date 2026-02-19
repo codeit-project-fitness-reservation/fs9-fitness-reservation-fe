@@ -1,8 +1,8 @@
 import { Class, ClassSlot } from '@/types/class';
-import { TabType } from './types';
-import IntroTab from './IntroTab';
-import ScheduleTab from './ScheduleTab';
-import RulesTab from './RulesTab';
+import { TabType } from '@/app/(main)/(customer)/classes/[id]/_components/types';
+import IntroTab from '@/app/(main)/(customer)/classes/[id]/_components/IntroTab';
+import ScheduleTab from '@/app/(main)/(customer)/classes/[id]/_components/ScheduleTab';
+import RulesTab from '@/app/(main)/(customer)/classes/[id]/_components/RulesTab';
 import ReviewsTab from './ReviewsTab';
 
 interface TabContentProps {
@@ -12,6 +12,7 @@ interface TabContentProps {
   onDateSelect: (date: Date | undefined) => void;
   onTimeSlotSelect: (slot: ClassSlot) => void;
   selectedTimeSlot: ClassSlot | null;
+  onReviewCountChange?: (count: number) => void;
 }
 
 export default function TabContent({
@@ -21,6 +22,7 @@ export default function TabContent({
   onDateSelect,
   onTimeSlotSelect,
   selectedTimeSlot,
+  onReviewCountChange,
 }: TabContentProps) {
   return (
     <div className="min-h-50">
@@ -35,7 +37,13 @@ export default function TabContent({
         />
       )}
       {activeTab === 'rules' && <RulesTab classData={classData} />}
-      {activeTab === 'reviews' && <ReviewsTab />}
+      {activeTab === 'reviews' && classData?.id && (
+        <ReviewsTab
+          classId={classData.id}
+          centerId={classData.centerId}
+          onReviewCountChange={onReviewCountChange}
+        />
+      )}
     </div>
   );
 }

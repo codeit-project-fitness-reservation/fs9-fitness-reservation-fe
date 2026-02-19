@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { ScheduleCalendar } from '@/components/common';
 import ClassCard from '@/components/seller/ClassCard';
-import ReviewsTab from '@/components/ReviewsTab';
+import ReviewsTab from '../[id]/_components/ReviewsTab';
 import ClassDetailModal from '@/components/seller/ClassDetailModal';
 import { useModal } from '@/providers/ModalProvider';
 import { ScheduleEvent, ClassItem } from '@/types';
