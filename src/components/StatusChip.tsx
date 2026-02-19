@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 // 예약·승인(파란) | 취소·반려(빨간) | 완료·대기(회색)
 const CHIP_STYLE = {
   blue: 'bg-blue-50 text-blue-600',
-  red: 'bg-white text-red-600 border border-red-200',
+  red: 'bg-red-50 text-red-600 border border-red-200',
   gray: 'bg-gray-100 text-gray-700 border border-gray-200',
 } as const;
 
@@ -38,7 +38,7 @@ export default function StatusChip({ status, className, label }: StatusChipProps
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap',
+        'inline-flex shrink-0 items-center justify-center rounded px-2.5 py-1 text-xs font-medium whitespace-nowrap',
         style,
         className,
       )}
