@@ -11,6 +11,8 @@ import SortModal, { HistorySortOption } from './_components/SortModal';
 import HistoryDetailModal from './_components/HistoryDetailModal';
 import { Reservation } from '@/types';
 import { MOCK_HISTORY } from '@/mocks/reservations';
+import { MOCK_REVIEWS } from '@/mocks/reviews';
+import { MOCK_ACCOUNTS } from '@/mocks/mockdata';
 
 import mapPinIcon from '@/assets/images/map-pin.svg';
 import clockIcon from '@/assets/images/clock.svg';
@@ -65,25 +67,45 @@ export default function HistoryPage() {
 
     setIsSubmittingReview(true);
     try {
-      const formData = new FormData();
-      formData.append('reservationId', selectedReservation.id);
-      formData.append('rating', data.rating.toString());
-      formData.append('content', data.content);
+      const mockUser = MOCK_ACCOUNTS['user@test.com'];
+      const newReview = {
+        id: `review-${Date.now()}`,
+        reservationId: selectedReservation.id,
+        userId: mockUser.id,
+        classId: selectedReservation.classId,
+        rating: data.rating,
+        content: data.content,
+        imgUrls: [],
+        createdAt: new Date(),
+        userNickname: mockUser.nickname,
+        userProfileImg: undefined,
+      };
 
-      data.images.forEach((image, index) => {
-        formData.append(`images`, image);
-      });
+      // MOCK_REVIEWS에 추가 (실제로는 API 응답으로 처리)
+      MOCK_REVIEWS.unshift(newReview);
 
       console.log('Review submitted:', {
         reservationId: selectedReservation.id,
+        classId: selectedReservation.classId,
         rating: data.rating,
         content: data.content,
         imageCount: data.images.length,
+        newReview,
+        totalReviews: MOCK_REVIEWS.length,
+        reviewsForClass: MOCK_REVIEWS.filter((r) => r.classId === selectedReservation.classId),
       });
 
       alert('리뷰가 등록되었습니다.');
       setIsReviewModalOpen(false);
+
+      // 리뷰 작성 후 해당 클래스 페이지로 이동하여 리뷰 확인
+      const classId = selectedReservation.classId;
       setSelectedReservation(null);
+
+      // 약간의 지연 후 페이지 이동 (모달 닫힘 처리 후)
+      setTimeout(() => {
+        router.push(`/classes/${classId}`);
+      }, 100);
     } catch (error) {
       console.error('Review submission error:', error);
       alert('리뷰 등록에 실패했습니다. 다시 시도해주세요.');

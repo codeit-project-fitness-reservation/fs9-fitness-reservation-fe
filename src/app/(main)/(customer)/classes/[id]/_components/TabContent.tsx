@@ -41,7 +41,7 @@ export default function TabContent({
         />
       )}
       {activeTab === 'rules' && <RulesTab classData={classData} />}
-      {activeTab === 'reviews' && <ReviewsTab />}
+      {activeTab === 'reviews' && <ReviewsTab classId={classData.id} />}
     </div>
   );
 }

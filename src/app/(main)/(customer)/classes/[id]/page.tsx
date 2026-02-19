@@ -32,11 +32,14 @@ export default function ClassDetailPage() {
   // 쿼리 파라미터에서 예약 정보 확인
   useEffect(() => {
     const fromReservation = searchParams.get('fromReservation') === 'true';
+    const tab = searchParams.get('tab') as TabType | null;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsFromReservation(fromReservation);
 
     if (fromReservation) {
       setActiveTab('schedule');
+    } else if (tab && ['intro', 'schedule', 'rules', 'reviews'].includes(tab)) {
+      setActiveTab(tab);
     }
   }, [searchParams]);
 

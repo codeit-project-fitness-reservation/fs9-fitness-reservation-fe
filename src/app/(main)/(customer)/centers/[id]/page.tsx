@@ -70,7 +70,7 @@ export default function CenterDetailPage() {
         <CenterClasses classes={centerClasses} />
 
         {/* 리뷰 섹션 */}
-        <CenterReviews />
+        <CenterReviews centerId={centerId} />
       </div>
     </div>
   );
