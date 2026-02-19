@@ -100,12 +100,12 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-56px)] flex-col bg-gray-50">
+    <div className="flex min-h-[calc(100vh-56px)] flex-col bg-gray-50 max-[640px]:bg-white">
       <SimpleHeader title="회원 정보 수정" />
 
       <form
         onSubmit={handleSubmit}
-        className="mx-auto flex w-full max-w-[540px] flex-col gap-6 px-4 py-6 max-[640px]:gap-4 max-[640px]:px-4 max-[640px]:py-4 md:px-6 md:py-8"
+        className="mx-auto flex w-full max-w-[540px] flex-col gap-6 px-4 py-6 max-[640px]:max-w-full max-[640px]:gap-4 max-[640px]:px-4 max-[640px]:py-4 md:px-6 md:py-8"
       >
         <div className="flex flex-col items-center gap-4 max-[640px]:gap-3">
           <div className="relative">
@@ -123,9 +123,15 @@ export default function EditProfilePage() {
             </div>
             <label
               htmlFor="profile-image"
-              className="absolute right-0 bottom-0 flex cursor-pointer items-center justify-center"
+              className="absolute right-0 bottom-0 flex cursor-pointer items-center justify-center max-[640px]:right-[-2px] max-[640px]:bottom-[-2px]"
             >
-              <Image src={getSvgSrc(editpenIcon as SvgImport)} alt="편집" width={32} height={32} />
+              <Image
+                src={getSvgSrc(editpenIcon as SvgImport)}
+                alt="편집"
+                width={32}
+                height={32}
+                className="max-[640px]:h-7 max-[640px]:w-7"
+              />
               <input
                 id="profile-image"
                 type="file"
@@ -137,7 +143,7 @@ export default function EditProfilePage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 max-[640px]:gap-1.5">
           <InputField
             label="닉네임"
             required
@@ -148,7 +154,7 @@ export default function EditProfilePage() {
           />
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 max-[640px]:gap-1.5">
           <InputField
             label="연락처"
             required
@@ -159,7 +165,7 @@ export default function EditProfilePage() {
           />
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 max-[640px]:gap-1.5">
           <InputField
             label="비밀번호"
             required
@@ -170,7 +176,7 @@ export default function EditProfilePage() {
           />
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 max-[640px]:gap-1.5">
           <InputField
             label="비밀번호 확인"
             required
