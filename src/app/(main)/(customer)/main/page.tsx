@@ -6,51 +6,12 @@ import { ScheduleCalendar } from '@/components/common';
 import { ScheduleEvent } from '@/types';
 import Map from '../centers/_components/Map';
 import QuickActionCard from '@/components/common/QuickActionCard';
+import { MOCK_SCHEDULES, MOCK_NEARBY_CENTERS } from '@/mocks/schedules';
 
 import icMarkerPin from '@/assets/images/marker-pin.svg';
 import icCalendar from '@/assets/images/calendar.svg';
 import icCoins from '@/assets/images/coins-stacked-01.svg';
 import Fitmatch from '@/assets/images/FITMATCH.svg';
-
-const MOCK_SCHEDULES: ScheduleEvent[] = [
-  {
-    id: '1',
-    classId: 'class-1',
-    slotId: 'slot-1',
-    title: '필라테스 기초',
-    start: new Date(new Date().setHours(10, 0, 0, 0)),
-    end: new Date(new Date().setHours(11, 0, 0, 0)),
-  },
-  {
-    id: '2',
-    classId: 'class-2',
-    slotId: 'slot-2',
-    title: '요가 중급',
-    start: new Date(new Date().setDate(new Date().getDate() + 1)),
-    end: new Date(new Date().setDate(new Date().getDate() + 1)),
-  },
-];
-
-const MOCK_NEARBY_CENTERS = [
-  {
-    id: '1',
-    name: '에이원 필라테스',
-    address: '경기 성남시 분당구 123-869',
-    distance: '0.5km',
-  },
-  {
-    id: '2',
-    name: '울룰루 요가',
-    address: '경기 성남시 분당구 123-869',
-    distance: '1.3km',
-  },
-  {
-    id: '3',
-    name: '파워 짐 성남',
-    address: '경기 성남시 분당구 123-869',
-    distance: '1.2km',
-  },
-];
 
 export default function CustomerMainPage() {
   const handleEventClick = (event: ScheduleEvent) => {

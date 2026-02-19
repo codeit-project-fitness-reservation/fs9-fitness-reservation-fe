@@ -10,6 +10,7 @@ import WriteReviewModal from './_components/WriteReviewModal';
 import SortModal, { HistorySortOption } from './_components/SortModal';
 import HistoryDetailModal from './_components/HistoryDetailModal';
 import { Reservation } from '@/types';
+import { MOCK_HISTORY } from '@/mocks/reservations';
 
 import mapPinIcon from '@/assets/images/map-pin.svg';
 import clockIcon from '@/assets/images/clock.svg';
@@ -23,7 +24,6 @@ const getSvgSrc = (svg: SvgImport): string => {
   return typeof svg === 'string' ? svg : svg.src;
 };
 
-// 날짜/시간 포맷팅 함수
 const formatDateTime = (startAt: Date | string, endAt: Date | string): string => {
   const start = new Date(startAt);
   const end = new Date(endAt);
@@ -37,144 +37,9 @@ const formatDateTime = (startAt: Date | string, endAt: Date | string): string =>
   return `${year}.${month}.${day}. ${startHour}:${startMin}-${endHour}:${endMin}`;
 };
 
-// Mock 수강 내역 데이터 (완료된 예약) - 정렬 테스트를 위해 다양한 날짜와 가격으로 구성
-const MOCK_HISTORY: Reservation[] = [
-  {
-    id: '1',
-    userId: 'user-1',
-    classId: 'class-1',
-    slotId: 'slot-1',
-    status: 'COMPLETED',
-    slotStartAt: new Date('2026-01-20T10:00:00'),
-    pricePoints: 3000,
-    createdAt: new Date('2026-01-15'),
-    updatedAt: new Date('2026-01-20'),
-    completedAt: new Date('2026-01-20T11:00:00'), // 오래된 날짜
-    class: {
-      title: '30분 순환 근력 운동',
-      center: {
-        name: '에이원 필라테스',
-      },
-    },
-    slot: {
-      startAt: new Date('2026-01-20T10:00:00'),
-      endAt: new Date('2026-01-20T11:00:00'),
-      capacity: 10,
-      _count: {
-        reservations: 5,
-      },
-    },
-  },
-  {
-    id: '2',
-    userId: 'user-1',
-    classId: 'class-2',
-    slotId: 'slot-2',
-    status: 'COMPLETED',
-    slotStartAt: new Date('2026-01-24T12:00:00'),
-    pricePoints: 5000,
-    createdAt: new Date('2026-01-20'),
-    updatedAt: new Date('2026-01-24'),
-    completedAt: new Date('2026-01-24T13:00:00'), // 중간 날짜
-    class: {
-      title: '요가 클래스',
-      center: {
-        name: '요가 스튜디오',
-      },
-    },
-    slot: {
-      startAt: new Date('2026-01-24T12:00:00'),
-      endAt: new Date('2026-01-24T13:00:00'),
-      capacity: 10,
-      _count: {
-        reservations: 5,
-      },
-    },
-  },
-  {
-    id: '3',
-    userId: 'user-1',
-    classId: 'class-3',
-    slotId: 'slot-3',
-    status: 'COMPLETED',
-    slotStartAt: new Date('2026-01-28T14:00:00'),
-    pricePoints: 8000,
-    createdAt: new Date('2026-01-25'),
-    updatedAt: new Date('2026-01-28'),
-    completedAt: new Date('2026-01-28T15:00:00'), // 최신 날짜
-    class: {
-      title: '필라테스 클래스',
-      center: {
-        name: '필라테스 센터',
-      },
-    },
-    slot: {
-      startAt: new Date('2026-01-28T14:00:00'),
-      endAt: new Date('2026-01-28T15:00:00'),
-      capacity: 10,
-      _count: {
-        reservations: 5,
-      },
-    },
-  },
-  {
-    id: '4',
-    userId: 'user-1',
-    classId: 'class-4',
-    slotId: 'slot-4',
-    status: 'COMPLETED',
-    slotStartAt: new Date('2026-01-22T16:00:00'),
-    pricePoints: 10000,
-    createdAt: new Date('2026-01-18'),
-    updatedAt: new Date('2026-01-22'),
-    completedAt: new Date('2026-01-22T17:00:00'), // 중간 날짜, 높은 가격
-    class: {
-      title: '크로스핏 클래스',
-      center: {
-        name: '크로스핏 짐',
-      },
-    },
-    slot: {
-      startAt: new Date('2026-01-22T16:00:00'),
-      endAt: new Date('2026-01-22T17:00:00'),
-      capacity: 10,
-      _count: {
-        reservations: 5,
-      },
-    },
-  },
-  {
-    id: '5',
-    userId: 'user-1',
-    classId: 'class-5',
-    slotId: 'slot-5',
-    status: 'COMPLETED',
-    slotStartAt: new Date('2026-01-26T09:00:00'),
-    pricePoints: 2000,
-    createdAt: new Date('2026-01-22'),
-    updatedAt: new Date('2026-01-26'),
-    completedAt: new Date('2026-01-26T10:00:00'), // 최신 날짜, 낮은 가격
-    class: {
-      title: '스트레칭 클래스',
-      center: {
-        name: '웰니스 센터',
-      },
-    },
-    slot: {
-      startAt: new Date('2026-01-26T09:00:00'),
-      endAt: new Date('2026-01-26T10:00:00'),
-      capacity: 10,
-      _count: {
-        reservations: 5,
-      },
-    },
-  },
-];
-
 export default function HistoryPage() {
   const router = useRouter();
   const sortDropdownRef = useRef<HTMLDivElement>(null);
-  // TODO: 실제 수강 내역 데이터로 교체
   const [history, setHistory] = useState<Reservation[]>(MOCK_HISTORY);
   const [searchQuery, setSearchQuery] = useState('');
   const [hasMore, setHasMore] = useState(true);
@@ -200,26 +65,15 @@ export default function HistoryPage() {
 
     setIsSubmittingReview(true);
     try {
-      // TODO: 실제 API 호출로 교체
-      // FormData 생성
       const formData = new FormData();
       formData.append('reservationId', selectedReservation.id);
       formData.append('rating', data.rating.toString());
       formData.append('content', data.content);
 
-      // 이미지 파일 추가
       data.images.forEach((image, index) => {
         formData.append(`images`, image);
       });
 
-      // API 호출 예시
-      // const response = await fetch('/api/reviews', {
-      //   method: 'POST',
-      //   body: formData,
-      // });
-      // if (!response.ok) throw new Error('리뷰 등록에 실패했습니다.');
-
-      // 임시: 성공 처리
       console.log('Review submitted:', {
         reservationId: selectedReservation.id,
         rating: data.rating,
@@ -239,7 +93,6 @@ export default function HistoryPage() {
   };
 
   const handleLoadMore = () => {
-    // TODO: 실제 API 호출로 교체
     if (hasMore) {
       const moreHistory: Reservation[] = [
         {
@@ -272,14 +125,12 @@ export default function HistoryPage() {
 
       setHistory((prev) => [...prev, ...moreHistory]);
 
-      // Mock: 10개 이상이면 더보기 비활성화
       if (history.length + moreHistory.length >= 10) {
         setHasMore(false);
       }
     }
   };
 
-  // 정렬 모달 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
@@ -298,7 +149,6 @@ export default function HistoryPage() {
 
   const handleFilterClick = () => {
     setIsSortOpen(false);
-    // TODO: 필터 모달 열기
     console.log('Filter click');
   };
 
@@ -314,29 +164,22 @@ export default function HistoryPage() {
     setSearchQuery(query);
   };
 
-  // 검색어로 필터링
   let filteredHistory = searchQuery
     ? history.filter((item) => item.class?.title?.toLowerCase().includes(searchQuery.toLowerCase()))
     : history;
-
-  // 정렬 적용
   filteredHistory = [...filteredHistory].sort((a, b) => {
     switch (selectedSort) {
       case 'latest':
-        // 최신순 (completedAt 기준 내림차순)
         const aDate = a.completedAt ? new Date(a.completedAt).getTime() : 0;
         const bDate = b.completedAt ? new Date(b.completedAt).getTime() : 0;
         return bDate - aDate;
       case 'oldest':
-        // 오래된순 (completedAt 기준 오름차순)
         const aDateOld = a.completedAt ? new Date(a.completedAt).getTime() : 0;
         const bDateOld = b.completedAt ? new Date(b.completedAt).getTime() : 0;
         return aDateOld - bDateOld;
       case 'priceHigh':
-        // 가격 높은순
         return b.pricePoints - a.pricePoints;
       case 'priceLow':
-        // 가격 낮은순
         return a.pricePoints - b.pricePoints;
       default:
         return 0;
@@ -348,9 +191,7 @@ export default function HistoryPage() {
       <SimpleHeader title="수강 내역" />
 
       <div className="mx-auto flex w-full flex-col gap-4 bg-gray-50 px-4 py-6 md:max-w-240">
-        {/* 검색 및 필터 바 */}
         <div className="flex items-start gap-2">
-          {/* 왼쪽: 필터 버튼 (정렬 모달 포함) */}
           <div className="relative" ref={sortDropdownRef}>
             <button
               onClick={handleSortClick}
@@ -371,7 +212,6 @@ export default function HistoryPage() {
               onSelect={handleSortSelect}
             />
           </div>
-          {/* 오른쪽: 검색바 */}
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
@@ -381,7 +221,6 @@ export default function HistoryPage() {
           />
         </div>
 
-        {/* 수강 내역 리스트 또는 빈 상태 */}
         {filteredHistory.length > 0 ? (
           <>
             <div className="flex flex-col gap-3">
@@ -397,12 +236,10 @@ export default function HistoryPage() {
                       boxShadow: '0 1px 8px 0 rgba(0, 0, 0, 0.06)',
                     }}
                   >
-                    {/* 제목 */}
                     <h3 className="text-base font-bold text-gray-900">
                       {reservation.class?.title || '클래스'}
                     </h3>
 
-                    {/* 위치 */}
                     <div className="flex items-center gap-1.5">
                       <Image
                         src={getSvgSrc(mapPinIcon as SvgImport)}
@@ -414,7 +251,6 @@ export default function HistoryPage() {
                       <p className="text-sm text-gray-500">경기 성남시 분당구 123-869 1층</p>
                     </div>
 
-                    {/* 날짜/시간 */}
                     {reservation.slot && (
                       <div className="flex items-center gap-1.5">
                         <Image
@@ -459,7 +295,6 @@ export default function HistoryPage() {
               })}
             </div>
 
-            {/* 더보기 버튼 */}
             {hasMore && (
               <button
                 onClick={handleLoadMore}
@@ -494,7 +329,6 @@ export default function HistoryPage() {
         )}
       </div>
 
-      {/* 리뷰 작성 모달 */}
       <WriteReviewModal
         isOpen={isReviewModalOpen}
         onClose={() => {
@@ -505,7 +339,6 @@ export default function HistoryPage() {
         isLoading={isSubmittingReview}
       />
 
-      {/* 수강 내역 상세 모달 */}
       <HistoryDetailModal
         reservation={selectedReservation}
         isOpen={isDetailModalOpen}
