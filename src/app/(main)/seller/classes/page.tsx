@@ -1,20 +1,17 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import Image from 'next/image';
 import { ScheduleCalendar } from '@/components/common';
 import ClassCard from '@/components/seller/ClassCard';
-import QuickActionCard from '@/components/common/QuickActionCard';
+import ReviewsTab from '../[id]/_components/ReviewsTab';
+import ClassDetailModal from '@/components/seller/ClassDetailModal';
+import { useModal } from '@/providers/ModalProvider';
 import { ScheduleEvent, ClassItem } from '@/types';
-
 import { classApi, ClassItem as ApiClassItem } from '@/lib/api/class';
 import { generateWeekScheduleEvents, parseSchedule } from '@/lib/utils/schedule';
 
-import icPlus from '@/assets/images/plus.svg';
-import icCalendar from '@/assets/images/calendar.svg';
-import icCoins from '@/assets/images/coins-stacked-01.svg';
-
-export default function SellerPage() {
+export default function SellerClassesPage() {
+  const { openModal, closeModal } = useModal();
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -97,7 +94,16 @@ export default function SellerPage() {
   }, [classes, mounted]);
 
   const handleEventClick = (event: ScheduleEvent) => {
-    void event;
+    // 이벤트 클릭 시 해당 클래스의 모달 표시
+    const classItem = classes.find((c) => c.id === event.classId);
+    if (classItem && classItem.status.toUpperCase() === 'APPROVED') {
+      openModal(ClassDetailModal, {
+        classItem,
+        slotStartAt: new Date(event.start),
+        slotEndAt: new Date(event.end),
+        onClose: closeModal,
+      });
+    }
   };
 
   if (!mounted || isLoading) {
@@ -110,24 +116,7 @@ export default function SellerPage() {
 
   return (
     <div className="py-6">
-      <div className="mb-6 grid grid-cols-3 gap-2">
-        <QuickActionCard
-          icon={<Image src={icPlus} alt="" width={24} height={24} />}
-          label="새 클래스 등록"
-          href="/seller/class-register"
-        />
-        <QuickActionCard
-          icon={<Image src={icCalendar} alt="" width={24} height={24} />}
-          label="내 클래스 관리"
-          href="/seller/classes"
-        />
-        <QuickActionCard
-          icon={<Image src={icCoins} alt="" width={24} height={24} />}
-          label="매출 정산"
-          href="/seller/sales"
-        />
-      </div>
-
+      {/* 내 클래스 목록 */}
       <section className="mb-6">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-gray-800">내 클래스 목록</h2>
@@ -146,9 +135,23 @@ export default function SellerPage() {
         </div>
       </section>
 
-      <section>
-        <ScheduleCalendar events={weekScheduleEvents} onEventClick={handleEventClick} />
+      {/* 주간 일정표 */}
+      <section className="mb-6">
+        <ScheduleCalendar
+          events={weekScheduleEvents}
+          onEventClick={handleEventClick}
+          title="주간 일정표"
+          initialView="timeGridWeek"
+          showViewToggle={false}
+        />
       </section>
+
+      {/* 리뷰 */}
+      {classes.length > 0 && (
+        <section>
+          <ReviewsTab centerId={classes[0].centerId} />
+        </section>
+      )}
     </div>
   );
 }
