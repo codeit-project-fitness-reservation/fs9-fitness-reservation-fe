@@ -56,6 +56,7 @@ export default function InputModal({
     <div
       className="relative rounded-lg border border-gray-200 bg-white shadow-xl"
       style={{ width: '496px' }}
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between px-6 pt-6 pb-5">
         <h2 className="text-lg font-semibold text-gray-900">{title}</h2>

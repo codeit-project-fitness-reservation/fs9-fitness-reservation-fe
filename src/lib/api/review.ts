@@ -38,4 +38,7 @@ export const reviewApi = {
   },
 
   deleteReview: (reviewId: string) => apiClient.delete(`/api/reviews/${reviewId}`),
+  getCenterReviews: async (centerId: string, params?: { skip?: number; take?: number }) => {
+    return apiClient.get<Review[]>(`/api/reviews/center/${centerId}`, { params });
+  },
 };

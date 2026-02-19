@@ -42,6 +42,7 @@ export default function ClassDetailPage() {
       setActiveTab(tab);
     }
   }, [searchParams]);
+  const [reviewCount, setReviewCount] = useState<number>(0);
 
   // Mock 데이터 로드
   useEffect(() => {
@@ -105,7 +106,7 @@ export default function ClassDetailPage() {
       <TabNavigation
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        reviewCount={classData.reviewCount || 0}
+        reviewCount={reviewCount || classData.reviewCount || 0}
       />
       <TabContent
         activeTab={activeTab}
@@ -116,6 +117,7 @@ export default function ClassDetailPage() {
         selectedTimeSlot={selectedTimeSlot}
         reservationSlotId={isFromReservation ? searchParams.get('slotId') : null}
         reservationHour={isFromReservation ? searchParams.get('reservationHour') : null}
+        onReviewCountChange={setReviewCount}
       />
       {selectedDate && selectedTimeSlot && !isFromReservation && (
         <ReservationBottomBar

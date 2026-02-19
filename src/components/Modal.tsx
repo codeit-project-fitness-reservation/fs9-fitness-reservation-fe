@@ -6,9 +6,10 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
+  zIndex?: number;
 }
 
-export default function Modal({ isOpen, onClose, children }: ModalProps) {
+export default function Modal({ isOpen, onClose, children, zIndex = 1000 }: ModalProps) {
   if (!isOpen) return null;
 
   const handleBackdropClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -19,7 +20,8 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 flex items-center justify-center"
+      style={{ zIndex }}
       role="dialog"
       aria-modal="true"
     >
