@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Class, ClassSlot } from '@/types/class';
 import { Center } from '@/types';
@@ -18,6 +18,7 @@ import userIcon from '@/assets/images/user-03.svg';
 export default function ClassDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const classId = params.id as string;
 
   const [classData, setClassData] = useState<Class | null>(null);
@@ -26,6 +27,21 @@ export default function ClassDetailPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<ClassSlot | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFromReservation, setIsFromReservation] = useState(false);
+
+  // 쿼리 파라미터에서 예약 정보 확인
+  useEffect(() => {
+    const fromReservation = searchParams.get('fromReservation') === 'true';
+    const tab = searchParams.get('tab') as TabType | null;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsFromReservation(fromReservation);
+
+    if (fromReservation) {
+      setActiveTab('schedule');
+    } else if (tab && ['intro', 'schedule', 'rules', 'reviews'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
   const [reviewCount, setReviewCount] = useState<number>(0);
 
   // Mock 데이터 로드
@@ -72,7 +88,6 @@ export default function ClassDetailPage() {
       className={`mx-auto flex min-h-[calc(100vh-56px)] max-w-[960px] flex-col gap-8 px-4 py-8 max-[1200px]:px-6 max-[768px]:gap-6 max-[768px]:px-4 max-[768px]:py-6 md:px-8 ${hasBottomBar ? 'pb-24' : ''}`}
     >
       <ClassImage classData={classData} />
-      {/* EventTags와 예약 인원 */}
       <div className="flex items-center justify-between">
         <EventTags
           category={classData.category}
@@ -100,9 +115,11 @@ export default function ClassDetailPage() {
         onDateSelect={setSelectedDate}
         onTimeSlotSelect={setSelectedTimeSlot}
         selectedTimeSlot={selectedTimeSlot}
+        reservationSlotId={isFromReservation ? searchParams.get('slotId') : null}
+        reservationHour={isFromReservation ? searchParams.get('reservationHour') : null}
         onReviewCountChange={setReviewCount}
       />
-      {selectedDate && selectedTimeSlot && (
+      {selectedDate && selectedTimeSlot && !isFromReservation && (
         <ReservationBottomBar
           selectedDate={selectedDate}
           selectedTimeSlot={selectedTimeSlot}

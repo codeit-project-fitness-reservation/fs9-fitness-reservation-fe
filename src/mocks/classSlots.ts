@@ -23,6 +23,16 @@ export function getMockClassSlotsForDate(params: { classId: string; date: Date }
 
   return [
     {
+      id: `slot-${classId}-${dateKey}-1200`,
+      classId,
+      startAt: atTime(date, 12, 0),
+      endAt: atTime(date, 13, 0),
+      capacity: 10,
+      currentReservation: 5,
+      isOpen: true,
+      createdAt: new Date(),
+    },
+    {
       id: `slot-${classId}-${dateKey}-1300`,
       classId,
       startAt: atTime(date, 13, 0),

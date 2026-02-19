@@ -1,19 +1,43 @@
 import { apiClient } from '../api';
+import { Review } from '@/types';
 
-export interface Review {
-  id: string;
+export interface CreateReviewData {
   reservationId: string;
-  userId: string;
-  classId: string;
   rating: number;
-  content?: string;
-  imgUrls: string[];
-  createdAt: string;
-  user?: { nickname: string; profileImgUrl?: string };
-  class?: { title: string; category: string };
+  content: string;
+  images?: File[];
+}
+
+export interface ReviewListResponse {
+  reviews: Review[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 export const reviewApi = {
+  getReviewsByClass: (classId: string, params?: { page?: number; limit?: number }) =>
+    apiClient.get<ReviewListResponse>(`/api/classes/${classId}/reviews`, { params }),
+
+  getMyReviews: (params?: { page?: number; limit?: number }) =>
+    apiClient.get<ReviewListResponse>('/api/reviews/me', { params }),
+
+  createReview: (data: CreateReviewData) => {
+    const formData = new FormData();
+    formData.append('reservationId', data.reservationId);
+    formData.append('rating', data.rating.toString());
+    formData.append('content', data.content);
+
+    if (data.images) {
+      data.images.forEach((image) => {
+        formData.append('images', image);
+      });
+    }
+
+    return apiClient.post<Review>('/api/reviews', formData);
+  },
+
+  deleteReview: (reviewId: string) => apiClient.delete(`/api/reviews/${reviewId}`),
   getCenterReviews: async (centerId: string, params?: { skip?: number; take?: number }) => {
     return apiClient.get<Review[]>(`/api/reviews/center/${centerId}`, { params });
   },
