@@ -24,11 +24,12 @@ import ClassInfo from '@/app/(main)/(customer)/classes/[id]/_components/ClassInf
 import TabNavigation from '@/app/(main)/(customer)/classes/[id]/_components/TabNavigation';
 import DatePicker from '@/app/(main)/(customer)/classes/[id]/_components/DatePicker';
 import RulesTab from '@/app/(main)/(customer)/classes/[id]/_components/RulesTab';
-import ReviewsTab from '@/app/(main)/(customer)/classes/[id]/_components/ReviewsTab';
+import ReviewsTab from '@/components/ReviewsTab';
 import ReservationBottomBar from '@/app/(main)/(customer)/classes/[id]/_components/ReservationBottomBar';
 import EventTags from '@/components/common/EventTags';
 import KebabMenu from '@/components/seller/KebabMenu';
 import ConfirmationModal from '@/components/ConfirmationModal';
+import { useModal } from '@/providers/ModalProvider';
 import { ScheduleCalendar } from '@/components/common';
 import { ScheduleEvent } from '@/types';
 import userIcon from '@/assets/images/user-03.svg';
@@ -36,6 +37,7 @@ import userIcon from '@/assets/images/user-03.svg';
 export default function SellerClassDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { openModal, closeModal } = useModal();
   const classId = params.id as string;
 
   const [mounted, setMounted] = useState(false);
@@ -48,7 +50,7 @@ export default function SellerClassDetailPage() {
   const [activeTab, setActiveTab] = useState<TabType>('intro');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<ClassSlot | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [reviewCount, setReviewCount] = useState<number>(0);
   const [slotsData, setSlotsData] = useState<SlotItem[]>([]);
   const [rawSlotsData, setRawSlotsData] = useState<SlotItemResponse[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
@@ -133,6 +135,7 @@ export default function SellerClassDetailPage() {
         setClassDataForComponents(classForComponents);
         setCenterData(uiCenterData);
         setClassSchedule(parsedSchedule);
+        setReviewCount(apiDetail._count.reviews || 0);
       } catch {
         // 조회 실패 시 무시
       } finally {
@@ -223,7 +226,17 @@ export default function SellerClassDetailPage() {
   };
 
   const handleConfirmEdit = () => {
+    closeModal();
     router.push(`/seller/class-register?id=${classId}`);
+  };
+
+  const handleEditClick = () => {
+    openModal(ConfirmationModal, {
+      message: '수정 또는 삭제 시 예약이 모두 취소됩니다.\n계속 진행하시겠습니까?',
+      confirmText: '수정하기',
+      onConfirm: handleConfirmEdit,
+      onClose: closeModal,
+    });
   };
 
   const generatedTimeSlots = useMemo((): ClassSlot[] => {
@@ -372,7 +385,7 @@ export default function SellerClassDetailPage() {
               )}
             </div>
             <div className="mt-1">
-              <KebabMenu onEdit={() => setShowEditModal(true)} onDelete={handleDeleteClass} />
+              <KebabMenu onEdit={handleEditClick} onDelete={handleDeleteClass} />
             </div>
           </div>
 
@@ -380,7 +393,7 @@ export default function SellerClassDetailPage() {
             <TabNavigation
               activeTab={activeTab}
               onTabChange={setActiveTab}
-              reviewCount={classData._count.reviews || 0}
+              reviewCount={reviewCount}
             />
           </div>
 
@@ -460,7 +473,13 @@ export default function SellerClassDetailPage() {
             {activeTab === 'rules' && classDataForComponents && (
               <RulesTab classData={classDataForComponents} />
             )}
-            {activeTab === 'reviews' && <ReviewsTab />}
+            {activeTab === 'reviews' && classData && (
+              <ReviewsTab
+                classId={classId}
+                centerId={classData.centerId}
+                onReviewCountChange={setReviewCount}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -472,14 +491,6 @@ export default function SellerClassDetailPage() {
           onReservation={() => {}}
         />
       )}
-
-      <ConfirmationModal
-        isOpen={showEditModal}
-        message={'수정 또는 삭제 시 예약이 모두 취소됩니다.\n계속 진행하시겠습니까?'}
-        confirmText="수정하기"
-        onConfirm={handleConfirmEdit}
-        onClose={() => setShowEditModal(false)}
-      />
     </div>
   );
 }

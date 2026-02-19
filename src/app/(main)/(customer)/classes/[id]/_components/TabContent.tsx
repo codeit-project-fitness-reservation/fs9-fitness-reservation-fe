@@ -3,7 +3,7 @@ import { TabType } from './types';
 import IntroTab from './IntroTab';
 import ScheduleTab from './ScheduleTab';
 import RulesTab from './RulesTab';
-import ReviewsTab from './ReviewsTab';
+import ReviewsTab from '@/components/ReviewsTab';
 
 interface TabContentProps {
   activeTab: TabType;
@@ -12,6 +12,7 @@ interface TabContentProps {
   onDateSelect: (date: Date | undefined) => void;
   onTimeSlotSelect: (slot: ClassSlot) => void;
   selectedTimeSlot: ClassSlot | null;
+  onReviewCountChange?: (count: number) => void;
 }
 
 export default function TabContent({
@@ -21,9 +22,10 @@ export default function TabContent({
   onDateSelect,
   onTimeSlotSelect,
   selectedTimeSlot,
+  onReviewCountChange,
 }: TabContentProps) {
   return (
-    <div className="min-h-[200px]">
+    <div className="min-h-50">
       {activeTab === 'intro' && <IntroTab classData={classData} />}
       {activeTab === 'schedule' && (
         <ScheduleTab
@@ -35,7 +37,13 @@ export default function TabContent({
         />
       )}
       {activeTab === 'rules' && <RulesTab classData={classData} />}
-      {activeTab === 'reviews' && <ReviewsTab />}
+      {activeTab === 'reviews' && classData?.id && (
+        <ReviewsTab
+          classId={classData.id}
+          centerId={classData.centerId}
+          onReviewCountChange={onReviewCountChange}
+        />
+      )}
     </div>
   );
 }

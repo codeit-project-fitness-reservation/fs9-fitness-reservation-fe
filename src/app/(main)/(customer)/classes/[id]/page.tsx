@@ -26,6 +26,7 @@ export default function ClassDetailPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<ClassSlot | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [reviewCount, setReviewCount] = useState<number>(0);
 
   // Mock 데이터 로드
   useEffect(() => {
@@ -90,7 +91,7 @@ export default function ClassDetailPage() {
       <TabNavigation
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        reviewCount={classData.reviewCount || 0}
+        reviewCount={reviewCount || classData.reviewCount || 0}
       />
       <TabContent
         activeTab={activeTab}
@@ -99,6 +100,7 @@ export default function ClassDetailPage() {
         onDateSelect={setSelectedDate}
         onTimeSlotSelect={setSelectedTimeSlot}
         selectedTimeSlot={selectedTimeSlot}
+        onReviewCountChange={setReviewCount}
       />
       {selectedDate && selectedTimeSlot && (
         <ReservationBottomBar
