@@ -29,9 +29,16 @@ export function proxy(req: NextRequest) {
   const needsAuth =
     pathname.startsWith('/mypage') ||
     pathname.startsWith('/seller') ||
-    pathname.startsWith('/admin');
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/my') ||
+    pathname.startsWith('/payment') ||
+    pathname.startsWith('/point-charge');
   const needsSeller = pathname.startsWith('/seller');
   const needsAdmin = pathname.startsWith('/admin');
+  const needsCustomer =
+    pathname.startsWith('/my') ||
+    pathname.startsWith('/payment') ||
+    pathname.startsWith('/point-charge');
 
   // 이미 로그인한 사용자가 로그인/회원가입 페이지로 접근하면 홈으로 보냄
   if ((pathname === '/login' || pathname === '/signup') && accessToken) {
@@ -58,10 +65,24 @@ export function proxy(req: NextRequest) {
     url.pathname = '/';
     return NextResponse.redirect(url);
   }
+  if (needsCustomer && role && role !== 'CUSTOMER') {
+    const url = req.nextUrl.clone();
+    url.pathname = role === 'SELLER' ? '/seller' : role === 'ADMIN' ? '/admin' : '/';
+    return NextResponse.redirect(url);
+  }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/seller/:path*', '/admin/:path*', '/mypage/:path*', '/login', '/signup'],
+  matcher: [
+    '/seller/:path*',
+    '/admin/:path*',
+    '/mypage/:path*',
+    '/my/:path*',
+    '/payment/:path*',
+    '/point-charge/:path*',
+    '/login',
+    '/signup',
+  ],
 };
