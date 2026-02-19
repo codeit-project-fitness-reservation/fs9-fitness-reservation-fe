@@ -20,8 +20,20 @@ export interface CenterItem {
   };
 }
 
+export interface CenterListResponse {
+  data: CenterItem[];
+  total: number;
+  page?: number;
+  limit?: number;
+}
+
 export const centerApi = {
   getMyCenter: () => apiClient.get<CenterItem>('/api/centers/me'),
+
+  getCenters: (params?: { page?: number; limit?: number; search?: string }) =>
+    apiClient.get<CenterListResponse>('/api/centers', { params }),
+
+  getCenterDetail: (id: string) => apiClient.get<CenterItem>(`/api/centers/${id}`),
 
   updateCenter: (id: string, data: FormData | Record<string, string>) =>
     apiClient.patch<CenterItem>(`/api/centers/${id}`, data),

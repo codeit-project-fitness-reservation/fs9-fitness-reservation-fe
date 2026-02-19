@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Review } from '@/types';
-import { MOCK_REVIEWS } from '@/mocks/reviews';
+import { reviewApi } from '@/lib/api/review';
 import starIcon from '@/assets/images/Star.svg';
 import starBackgroundIcon from '@/assets/images/Star background.svg';
 import personalfotoIcon from '@/assets/images/personalfoto.svg';
@@ -18,39 +18,54 @@ const getSvgSrc = (svg: SvgImport): string => {
 
 interface ReviewsTabProps {
   classId: string;
+  onReviewCountChange?: (count: number) => void;
 }
 
-export default function ReviewsTab({ classId }: ReviewsTabProps) {
+export default function ReviewsTab({ classId, onReviewCountChange }: ReviewsTabProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: 실제 API 호출로 대체
-    const fetchReviews = () => {
+    const fetchReviews = async () => {
       setIsLoading(true);
       try {
-        // MOCK_REVIEWS를 직접 필터링하여 항상 최신 데이터 반영
-        const mockReviews = MOCK_REVIEWS.filter((review) => review.classId === classId);
-        console.log('리뷰 조회:', {
-          classId,
-          totalReviews: MOCK_REVIEWS.length,
-          filteredReviews: mockReviews.length,
-          reviews: mockReviews,
-        });
-        setReviews(mockReviews);
+        // 백엔드에 클래스별 리뷰 조회 API가 없을 수 있으므로, 일단 centerId로 조회하거나
+        // 클래스 상세 조회에 리뷰가 포함될 수 있음
+        // 임시로 reviewApi.getReviewsByClass 사용 (백엔드 구현 여부 확인 필요)
+        const response = await reviewApi.getReviewsByClass(classId);
+
+        const mappedReviews: Review[] = response.reviews.map((review) => ({
+          id: review.id,
+          reservationId: review.reservationId,
+          userId: review.userId,
+          classId: review.classId,
+          rating: review.rating,
+          content: review.content ?? undefined,
+          imgUrls: review.imgUrls || [],
+          createdAt:
+            review.createdAt instanceof Date ? review.createdAt : new Date(review.createdAt),
+          userNickname: review.userNickname,
+          userProfileImg: review.userProfileImg,
+        }));
+
+        setReviews(mappedReviews);
+        if (onReviewCountChange) {
+          onReviewCountChange(mappedReviews.length);
+        }
       } catch (error) {
         console.error('리뷰 조회 실패:', error);
+        // API가 없을 경우 빈 배열로 처리
+        setReviews([]);
+        if (onReviewCountChange) {
+          onReviewCountChange(0);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchReviews();
-
-    const interval = setInterval(fetchReviews, 2000);
-
-    return () => clearInterval(interval);
-  }, [classId]);
+    void fetchReviews();
+  }, [classId, onReviewCountChange]);
 
   if (isLoading) {
     return (

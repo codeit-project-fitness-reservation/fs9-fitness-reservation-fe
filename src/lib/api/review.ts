@@ -38,7 +38,9 @@ export const reviewApi = {
   },
 
   deleteReview: (reviewId: string) => apiClient.delete(`/api/reviews/${reviewId}`),
-  getCenterReviews: async (centerId: string, params?: { skip?: number; take?: number }) => {
-    return apiClient.get<Review[]>(`/api/reviews/center/${centerId}`, { params });
-  },
+  getCenterReviews: (centerId: string, params?: { page?: number; limit?: number }) =>
+    apiClient.get<ReviewListResponse>(`/api/reviews/center/${centerId}`, { params }),
+
+  // 클래스별 리뷰 조회 (백엔드에 명시되지 않았지만 필요시 사용)
+  // 백엔드에서 클래스별 리뷰를 제공하지 않으면, centerId로 필터링하거나 다른 방법 사용
 };

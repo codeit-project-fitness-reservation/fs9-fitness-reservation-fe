@@ -14,6 +14,7 @@ interface TabContentProps {
   selectedTimeSlot: ClassSlot | null;
   reservationSlotId?: string | null;
   reservationHour?: string | null;
+  onReviewCountChange?: (count: number) => void;
 }
 
 export default function TabContent({
@@ -25,6 +26,7 @@ export default function TabContent({
   selectedTimeSlot,
   reservationSlotId,
   reservationHour,
+  onReviewCountChange,
 }: TabContentProps) {
   return (
     <div className="min-h-50">
@@ -41,7 +43,9 @@ export default function TabContent({
         />
       )}
       {activeTab === 'rules' && <RulesTab classData={classData} />}
-      {activeTab === 'reviews' && <ReviewsTab classId={classData.id} />}
+      {activeTab === 'reviews' && (
+        <ReviewsTab classId={classData.id} onReviewCountChange={onReviewCountChange} />
+      )}
     </div>
   );
 }

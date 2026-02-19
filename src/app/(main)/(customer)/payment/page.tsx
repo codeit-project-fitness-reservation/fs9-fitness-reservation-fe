@@ -13,9 +13,8 @@ import CouponSelectModal from './_components/CouponSelectModal';
 import PaymentWidget from '@/components/payment/PaymentWidget';
 import { Class, ClassSlot } from '@/types/class';
 import { Center, UserCoupon } from '@/types';
-import { MOCK_CENTER_LIST } from '@/mocks/centers';
-import { MOCK_CLASS_LIST } from '@/mocks/mockdata';
-import { getMockClassSlotsForDate } from '@/mocks/classSlots';
+import { classApi } from '@/lib/api/class';
+import { centerApi } from '@/lib/api/center';
 import { getMockUserCouponsForClass } from '@/mocks/coupons';
 
 export default function PaymentPage() {
@@ -44,41 +43,107 @@ export default function PaymentPage() {
       return;
     }
 
-    // TODO: API 호출로 대체
-    const mockClass = MOCK_CLASS_LIST.find((c) => c.id === classId);
-    if (!mockClass) {
-      router.push('/classes');
-      return;
-    }
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [classResponse, coupons] = await Promise.all([
+          classApi.getClassDetail(classId),
+          Promise.resolve(getMockUserCouponsForClass({ classId, userId: 'user-1' })), // TODO: 쿠폰 API 구현 후 교체
+        ]);
 
-    const mockCenter = MOCK_CENTER_LIST.find((c) => c.id === mockClass.centerId);
-    if (!mockCenter) {
-      router.push('/classes');
-      return;
-    }
+        // 클래스 데이터 매핑
+        const mappedClass: Class = {
+          id: classResponse.id,
+          centerId: classResponse.center.id,
+          title: classResponse.title,
+          category: classResponse.category,
+          level: classResponse.level,
+          description: classResponse.description ?? null,
+          notice: classResponse.notice ?? null,
+          pricePoints: classResponse.pricePoints,
+          capacity: classResponse.capacity,
+          bannerUrl: classResponse.bannerUrl ?? null,
+          imgUrls: classResponse.imgUrls || [],
+          status: classResponse.status as Class['status'],
+          rejectReason: null,
+          createdAt: classResponse.createdAt,
+          updatedAt: classResponse.createdAt,
+          currentReservation: 0,
+          rating: 0,
+          reviewCount: classResponse._count.reviews || 0,
+        };
 
-    // 슬롯 데이터 찾기
-    const slots = getMockClassSlotsForDate({ classId, date: new Date() });
-    const slot = slots.find((s) => s.id === slotId);
+        setClassData(mappedClass);
 
-    if (!slot) {
-      router.push('/classes');
-      return;
-    }
+        // 센터 정보 조회
+        try {
+          const centerResponse = await centerApi.getCenterDetail(classResponse.center.id);
+          const mappedCenter: Center = {
+            id: centerResponse.id,
+            ownerId: centerResponse.ownerId,
+            name: centerResponse.name,
+            address1: centerResponse.address1,
+            address2: centerResponse.address2 ?? undefined,
+            introduction: centerResponse.introduction ?? undefined,
+            businessHours: (centerResponse.businessHours as Record<string, unknown>) ?? undefined,
+            lat: centerResponse.lat ?? undefined,
+            lng: centerResponse.lng ?? undefined,
+            createdAt: new Date(centerResponse.createdAt),
+            updatedAt: new Date(centerResponse.updatedAt),
+          };
+          setCenterData(mappedCenter);
+        } catch (centerError) {
+          console.error('센터 정보 조회 실패:', centerError);
+          // 클래스 정보에서 센터 이름만 사용
+          const fallbackCenter: Center = {
+            id: classResponse.center.id,
+            ownerId: '',
+            name: classResponse.center.name,
+            address1: classResponse.center.address1 || '',
+            address2: classResponse.center.address2 ?? undefined,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          setCenterData(fallbackCenter);
+        }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setClassData(mockClass);
+        // 슬롯 데이터 찾기
+        if (classResponse.slots) {
+          const slot = classResponse.slots.find((s) => s.id === slotId);
+          if (slot) {
+            const mappedSlot: ClassSlot = {
+              id: slot.id,
+              classId: classId,
+              startAt: new Date(slot.startAt),
+              endAt: new Date(slot.endAt),
+              capacity: slot.capacity,
+              currentReservation: slot.currentReservation ?? slot.currentReservations ?? 0,
+              isOpen: slot.isOpen ?? true,
+              createdAt: slot.createdAt ? new Date(slot.createdAt) : new Date(),
+            };
+            setSlotData(mappedSlot);
+          } else {
+            router.push('/classes');
+            return;
+          }
+        } else {
+          router.push('/classes');
+          return;
+        }
 
-    setCenterData(mockCenter);
+        // 쿠폰 목록 설정
+        setAvailableCoupons(coupons);
+        setSelectedCoupon((prev) => (prev && coupons.some((c) => c.id === prev.id) ? prev : null));
+      } catch (error) {
+        console.error('데이터 로드 실패:', error);
+        alert('데이터를 불러오는데 실패했습니다.');
+        router.push('/classes');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    setSlotData(slot);
-
-    // TODO: 사용 가능한 쿠폰 목록 조회
-    const mockCoupons = getMockUserCouponsForClass({ classId, userId: 'user-1' });
-    setAvailableCoupons(mockCoupons);
-    setSelectedCoupon((prev) => (prev && mockCoupons.some((c) => c.id === prev.id) ? prev : null));
-
-    setIsLoading(false);
+    void fetchData();
   }, [classId, slotId, router]);
 
   const handlePayment = async () => {
@@ -124,7 +189,7 @@ export default function PaymentPage() {
     setIsWidgetReady(true);
   };
 
-  const handlePaymentMethodSelect = (_paymentMethod: unknown) => {
+  const handlePaymentMethodSelect = () => {
     // Payment method selection handled by widget
   };
 
