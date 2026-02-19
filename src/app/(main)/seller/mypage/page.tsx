@@ -22,10 +22,9 @@ export default function SellerMyPage() {
 
   const menuItems = [
     { title: '회원 정보 수정', href: '/seller/profile/edit' },
-    { title: '클래스 관리', href: '/seller' },
-    { title: '예약 관리', href: '/seller/reservations' },
+    { title: '클래스 관리', href: '/seller/classes' },
+
     { title: '정산', href: '/seller/settlement' },
-    { title: '쿠폰 생성', href: '/seller/coupons' },
   ];
 
   return (

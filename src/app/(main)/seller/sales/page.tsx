@@ -1,8 +1,14 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { MOCK_SALES_TRANSACTIONS, MOCK_SELLER_CLASSES } from '@/mocks/mockdata';
-import { ClassItem } from '@/types';
+import { useState, useEffect, useCallback } from 'react';
+import {
+  classApi,
+  SellerSettlementResponse,
+  SellerTransactionResponse,
+  SettlementTransactionItem,
+  SettlementByClass,
+} from '@/lib/api/class';
+import { SalesTransaction } from '@/types';
 import DateFilter from './components/DateFilter';
 import SalesSummaryCard from './components/SalesSummaryCard';
 import ClassSalesSection from './components/ClassSalesSection';
@@ -14,103 +20,90 @@ export default function SalesPage() {
 
   const [selectedYear, setSelectedYear] = useState(currentYear.toString());
   const [selectedMonth, setSelectedMonth] = useState(currentMonth.toString());
-  const [classes, setClasses] = useState<ClassItem[]>(MOCK_SELLER_CLASSES);
 
-  useEffect(() => {
-    const loadClasses = () => {
-      try {
-        const storedClasses = localStorage.getItem('myClasses');
-        if (storedClasses) {
-          const parsedClasses = JSON.parse(storedClasses);
-          setClasses([...MOCK_SELLER_CLASSES, ...parsedClasses]);
-        }
-      } catch (error) {
-        console.error('클래스 목록 로드 중 에러:', error);
-      }
-    };
+  const [settlementData, setSettlementData] = useState<SellerSettlementResponse | null>(null);
+  const [transactions, setTransactions] = useState<SalesTransaction[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-    loadClasses();
-    window.addEventListener('storage', loadClasses);
-    return () => window.removeEventListener('storage', loadClasses);
-  }, []);
+  const fetchSalesData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const year = parseInt(selectedYear);
+      const month = parseInt(selectedMonth);
 
-  // 거래 내역 필터링
-  const filteredTransactions = useMemo(() => {
-    return MOCK_SALES_TRANSACTIONS.filter((transaction) => {
-      const transactionDate = transaction.createdAt;
-      return (
-        transactionDate.getFullYear() === parseInt(selectedYear) &&
-        transactionDate.getMonth() + 1 === parseInt(selectedMonth)
+      const [settlementRes, transactionRes] = await Promise.all([
+        classApi.getSellerSettlement({ year, month }),
+        classApi.getSellerTransactions({ year, month, page: 1, limit: 100 }),
+      ]);
+
+      setSettlementData(settlementRes);
+
+      const transactionResponse = transactionRes as SellerTransactionResponse;
+      const transactionItems: SettlementTransactionItem[] = transactionResponse?.data || [];
+
+      const convertedTransactions: SalesTransaction[] = transactionItems.map(
+        (item: SettlementTransactionItem) => {
+          const date = new Date(item.createdAt);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          const hours = String(date.getHours()).padStart(2, '0');
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+
+          const isUse = item.type === 'USE';
+
+          return {
+            id: item.id,
+            classId: item.reservation.class.id,
+            className: item.reservation.class.title,
+            status: isUse ? 'BOOKED' : 'CANCELED',
+            statusLabel: isUse ? '완료' : '환불',
+            dateTime: `${year}.${month}.${day}. ${hours}:${minutes}`,
+            amount: isUse ? item.amount : -item.amount,
+            createdAt: new Date(item.createdAt),
+          };
+        },
       );
-    });
+
+      setTransactions(convertedTransactions);
+    } catch (error) {
+      console.error('매출 데이터를 가져오는데 실패했습니다:', error);
+      alert('데이터 로드 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   }, [selectedYear, selectedMonth]);
 
-  // 클래스별 매출 계산
-  const classSales = useMemo(() => {
-    const salesByClass: Record<string, { title: string; revenue: number; imgUrl?: string }> = {};
+  // 3. 날짜 변경 시마다 API 재호출
+  useEffect(() => {
+    fetchSalesData();
+  }, [fetchSalesData]);
 
-    // 초기화
-    classes.forEach((classItem) => {
-      salesByClass[classItem.id] = {
-        title: classItem.title,
-        revenue: 0,
-        imgUrl: classItem.imgUrls?.[0],
-      };
-    });
-
-    // 합산
-    filteredTransactions.forEach((transaction) => {
-      if (salesByClass[transaction.classId]) {
-        salesByClass[transaction.classId].revenue += transaction.amount;
-      } else {
-        const classItem = classes.find((c) => c.id === transaction.classId);
-        salesByClass[transaction.classId] = {
-          title: transaction.className,
-          revenue: transaction.amount,
-          imgUrl: classItem?.imgUrls?.[0],
-        };
-      }
-    });
-
-    return Object.entries(salesByClass)
-      .map(([classId, data]) => ({
-        id: classId,
-        classId,
-        title: data.title,
-        revenue: data.revenue,
-        imgUrl: data.imgUrl,
-      }))
-      .filter((item) => item.revenue !== 0);
-  }, [filteredTransactions, classes]);
-
-  // 총 매출 요약 계산
-  const salesSummary = useMemo(() => {
-    const totalRevenue = filteredTransactions
-      .filter((t) => t.amount > 0)
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const refundAmount = Math.abs(
-      filteredTransactions.filter((t) => t.amount < 0).reduce((sum, t) => sum + t.amount, 0),
-    );
-
-    const hasTransactions = filteredTransactions.length > 0;
-    const couponDiscount = hasTransactions ? 10000 : 0;
-    const netRevenue = totalRevenue - refundAmount - couponDiscount;
-
-    return {
-      totalRevenue,
-      couponDiscount,
-      refundAmount,
-      netRevenue,
-    };
-  }, [filteredTransactions]);
+  if (!settlementData && isLoading)
+    return <div className="py-10 text-center">데이터를 불러오는 중...</div>;
 
   return (
     <div className="py-6">
       <DateFilter onYearChange={setSelectedYear} onMonthChange={setSelectedMonth} />
-      <SalesSummaryCard summary={salesSummary} />
-      <ClassSalesSection classSales={classSales} />
-      <TransactionList transactions={filteredTransactions} />
+
+      {settlementData && (
+        <>
+          {/* 요약 카드 (총 매출, 쿠폰, 환불, 순매출) */}
+          <SalesSummaryCard summary={settlementData.summary} />
+
+          <ClassSalesSection
+            classSales={settlementData.byClass.map((item: SettlementByClass) => ({
+              id: item.classId,
+              title: item.classTitle,
+              revenue: item.totalRevenue,
+              imgUrl: item.bannerUrl || '',
+            }))}
+          />
+        </>
+      )}
+
+      {/* 상세 거래 내역 리스트 */}
+      <TransactionList transactions={transactions} />
     </div>
   );
 }

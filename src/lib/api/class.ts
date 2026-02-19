@@ -49,6 +49,10 @@ export interface SlotItemResponse {
   capacity: number; // 총 정원
   currentReservations?: number;
   currentReservation?: number;
+
+  _count?: {
+    reservations: number;
+  };
   isAvailable?: boolean;
   isOpen?: boolean;
   classId: string;
@@ -76,17 +80,84 @@ export interface ReservationItem {
   user: {
     id: string;
     name: string;
+    nickname?: string;
     phoneNumber: string;
+    profileImgUrl?: string | null;
   };
   reservationDate: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED';
+  slotStartAt?: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED' | 'BOOKED';
   createdAt: string;
+  canceledAt?: string | null;
+  completedAt?: string | null;
+  // 결제 정보
+  pricePoints?: number;
+  paidPoints?: number;
+  couponDiscountPoints?: number;
+  payment?: {
+    method: 'CARD';
+    pointsUsed: number;
+    couponDiscount?: number;
+    paymentId: string;
+    orderNumber: string;
+  };
 }
 export interface ReservationListResponse {
   data: ReservationItem[];
   total: number;
   page: number;
   limit: number;
+}
+
+// [판매자] 매출 정산 요약 인터페이스
+export interface SettlementSummary {
+  totalRevenue: number;
+  couponDiscount: number;
+  refundAmount: number;
+  netRevenue: number;
+}
+
+export interface SettlementByClass {
+  classId: string;
+  classTitle: string;
+  bannerUrl: string | null;
+  totalRevenue: number;
+}
+
+export interface SellerSettlementResponse {
+  period: {
+    year: number;
+    month: number;
+  };
+  summary: SettlementSummary;
+  byClass: SettlementByClass[];
+}
+
+// [판매자] 상세 거래 내역 인터페이스
+export interface SettlementTransactionItem {
+  id: string;
+  type: 'USE' | 'REFUND';
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  createdAt: string;
+  reservation: {
+    id: string;
+    status: string;
+    class: {
+      id: string;
+      title: string;
+      bannerUrl: string | null;
+    };
+  };
+}
+
+export interface SellerTransactionResponse {
+  data: SettlementTransactionItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export const classApi = {
@@ -105,5 +176,21 @@ export const classApi = {
     apiClient.get<SlotItemResponse[]>('/api/reservations/seller/slots', { params }),
 
   getSellerReservations: (params: QueryParams) =>
-    apiClient.get<ReservationListResponse>('/api/seller/reservations', { params }),
+    apiClient.get<ReservationListResponse>('/api/reservations/seller/reservations', { params }),
+
+  getSellerReservationDetail: (id: string) =>
+    apiClient.get<ReservationItem>(`/api/reservations/seller/reservations/${id}`),
+
+  cancelReservationBySeller: (id: string) =>
+    apiClient.patch<void>(`/api/reservations/seller/reservations/${id}/cancel`, {}),
+
+  getSellerSettlement: (params: { year: number; month: number }) =>
+    apiClient.get<SellerSettlementResponse>('/api/points/seller/settlement', { params }),
+  getSellerTransactions: (params: {
+    year: number;
+    month: number;
+    classId?: string;
+    page?: number;
+    limit?: number;
+  }) => apiClient.get<SellerTransactionResponse>('/api/points/seller/transactions', { params }),
 };

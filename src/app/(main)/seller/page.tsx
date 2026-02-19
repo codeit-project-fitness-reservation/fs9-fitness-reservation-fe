@@ -118,8 +118,8 @@ export default function SellerPage() {
         />
         <QuickActionCard
           icon={<Image src={icCalendar} alt="" width={24} height={24} />}
-          label="내 예약 관리"
-          href="/seller/reservations"
+          label="내 클래스 관리"
+          href="/seller/classes"
         />
         <QuickActionCard
           icon={<Image src={icCoins} alt="" width={24} height={24} />}
