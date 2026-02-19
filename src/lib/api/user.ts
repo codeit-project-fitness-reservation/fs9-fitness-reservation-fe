@@ -13,8 +13,8 @@ export interface UserProfile {
 }
 
 export const userApi = {
-  getMyProfile: () => apiClient.get<UserProfile>('/api/users/me'),
+  getMyProfile: () => apiClient.get<UserProfile>('/api/auth/me'),
 
   updateProfile: (data: FormData | Record<string, string>) =>
-    apiClient.patch<UserProfile>('/api/users/me', data),
+    apiClient.put<UserProfile>('/api/auth/me', data),
 };

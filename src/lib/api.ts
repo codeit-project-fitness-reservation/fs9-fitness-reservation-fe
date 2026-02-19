@@ -143,6 +143,15 @@ export const apiClient = {
     return result.data;
   },
 
+  put: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
+    const result = await authFetch<T>(endpoint, {
+      method: 'PUT',
+      body: body as Record<string, unknown> | FormData,
+    });
+    if (!result.ok) throw new Error(result.error);
+    return result.data;
+  },
+
   delete: async <T = unknown>(endpoint: string, body?: Record<string, unknown>) => {
     const result = await authFetch<T>(endpoint, { method: 'DELETE', body });
     if (!result.ok) throw new Error(result.error);
