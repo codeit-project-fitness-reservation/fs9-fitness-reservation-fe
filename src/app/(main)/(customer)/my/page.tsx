@@ -6,6 +6,7 @@ import { MenuListItem } from '@/components/MenuListItem';
 import { BaseButton } from '@/components/common/BaseButton';
 import { userApi } from '@/lib/api/user';
 import { pointApi } from '@/lib/api/point';
+import { MOCK_USER_COUPONS } from '@/mocks/coupons';
 
 import coinsIcon from '@/assets/images/coins.svg';
 import myfotoIcon from '@/assets/images/myfoto.svg';
@@ -37,10 +38,13 @@ export default function MyPage() {
           pointApi.getMyBalance(),
         ]);
 
+        // 쿠폰 개수 계산 (사용되지 않은 쿠폰만)
+        const availableCoupons = MOCK_USER_COUPONS.filter((coupon) => !coupon.usedAt);
+
         setUserInfo({
           id: userResult.id,
           nickname: userResult.nickname,
-          couponCount: 0, // TODO: 쿠폰 API 구현 후 연결
+          couponCount: availableCoupons.length, // TODO: 쿠폰 API 구현 후 연결
           pointBalance: pointResult.pointBalance,
         });
       } catch (error) {

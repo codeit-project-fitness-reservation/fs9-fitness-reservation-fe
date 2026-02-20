@@ -41,6 +41,17 @@ export default function ReservationsPage() {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      setCurrentPage(1);
+      setRefreshKey((prev) => prev + 1);
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -52,7 +63,45 @@ export default function ReservationsPage() {
           limit: 10,
         });
 
-        const mappedReservations: Reservation[] = response.data.map((res) => ({
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Reservations API response:', response);
+          console.log('Response type:', typeof response);
+          console.log('Response keys:', response ? Object.keys(response) : 'null');
+        }
+
+        // 응답 구조 확인: ReservationListResponse는 { data: ReservationDetail[], total, page, limit } 형태
+        let reservationsData: typeof response.data = [];
+
+        if (response && response.data) {
+          if (Array.isArray(response.data)) {
+            reservationsData = response.data;
+          } else if (
+            response.data &&
+            typeof response.data === 'object' &&
+            'data' in response.data &&
+            Array.isArray((response.data as { data: unknown }).data)
+          ) {
+            reservationsData = (response.data as { data: typeof response.data }).data;
+          }
+        }
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Reservations data:', reservationsData);
+          console.log('Reservations data length:', reservationsData?.length);
+        }
+
+        if (!Array.isArray(reservationsData)) {
+          console.error('Invalid response structure:', {
+            response,
+            reservationsData,
+            responseDataType: typeof reservationsData,
+          });
+          setReservations([]);
+          setHasMore(false);
+          return;
+        }
+
+        const mappedReservations: Reservation[] = reservationsData.map((res) => ({
           id: res.id,
           userId: res.userId || '',
           classId: res.classId,
@@ -89,17 +138,28 @@ export default function ReservationsPage() {
           setReservations((prev) => [...prev, ...mappedReservations]);
         }
 
-        setHasMore(response.data.length === 10);
+        const total = (response as { total?: number }).total;
+        const hasMoreData = total
+          ? reservationsData.length < total
+          : reservationsData.length === 10;
+        setHasMore(hasMoreData);
       } catch (error) {
         console.error('예약 목록 조회 실패:', error);
-        alert('예약 목록을 불러오는데 실패했습니다.');
+        console.error('Error details:', {
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          error,
+        });
+        const errorMessage =
+          error instanceof Error ? error.message : '예약 목록을 불러오는데 실패했습니다.';
+        alert(errorMessage);
       } finally {
         setIsLoading(false);
       }
     };
 
     void fetchReservations();
-  }, [currentPage]);
+  }, [currentPage, refreshKey]);
 
   const handleViewDetails = (reservation: Reservation) => {
     if (reservation.slot) {

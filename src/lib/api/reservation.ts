@@ -75,9 +75,15 @@ export const reservationApi = {
   // Customer용
   getMyReservations: (params?: { status?: string; page?: number; limit?: number }) => {
     const queryParams: Record<string, string> = {};
-    if (params?.status) queryParams.status = params.status;
-    if (params?.page) queryParams.page = String(params.page);
-    if (params?.limit) queryParams.limit = String(params.limit);
+    if (params?.status) {
+      queryParams.status = params.status;
+    }
+    if (params?.page !== undefined) {
+      queryParams.page = String(params.page);
+    }
+    if (params?.limit !== undefined) {
+      queryParams.limit = String(params.limit);
+    }
     return apiClient.get<ReservationListResponse>('/api/reservations', { params: queryParams });
   },
 
