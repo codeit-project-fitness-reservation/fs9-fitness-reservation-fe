@@ -7,16 +7,12 @@ import { usePathname } from 'next/navigation';
 import { BaseButton } from '@/components/common/BaseButton';
 import { NotificationDropdown } from './NotificationDropdown';
 import { MOCK_NOTIFICATIONS } from '@/mocks/mockdata';
-import { UserRole, NotificationItem } from '@/types';
+import { NotificationItem } from '@/types';
 import { authFetch } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 import icBell from '@/assets/images/bell.svg';
 import icChevronDown from '@/assets/images/chevron-down.svg';
 import logoImg from '@/assets/images/FITMATCH.svg';
-
-type HeaderUser = {
-  nickname: string;
-  role: UserRole;
-};
 
 type ServerNotification = {
   id: string;
@@ -30,7 +26,7 @@ type ServerNotification = {
 const Header = () => {
   const pathname = usePathname();
 
-  const [user, setUser] = useState<HeaderUser | null>(null);
+  const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -66,29 +62,6 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchMe = async () => {
-      const result = await authFetch<{ id: string; role: UserRole; nickname: string }>(
-        '/api/auth/me',
-      );
-      if (!mounted) return;
-
-      if (result.ok) {
-        setUser({ nickname: result.data.nickname, role: result.data.role });
-      } else {
-        setUser(null);
-      }
-    };
-
-    void fetchMe();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // 로그인 상태일 때: 알림 목록 로드 + SSE 구독
   useEffect(() => {
     // 기존 SSE 연결 정리
     if (sseRef.current) {
@@ -213,7 +186,7 @@ const Header = () => {
                   }}
                   className="flex items-center text-sm font-normal text-gray-700"
                 >
-                  {user.nickname}님
+                  {user.nickname ?? '회원'}님
                   <Image
                     src={icChevronDown}
                     alt=""
@@ -234,8 +207,7 @@ const Header = () => {
                     </Link>
                     <button
                       onClick={async () => {
-                        await authFetch('/api/auth/logout', { method: 'POST' });
-                        setUser(null);
+                        await logout();
                         setIsProfileOpen(false);
                       }}
                       className="w-full border-t border-gray-200 px-4 py-2 text-right text-sm font-medium text-gray-900 hover:bg-gray-50"

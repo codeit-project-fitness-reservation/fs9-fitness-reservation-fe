@@ -1,45 +1,29 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { authFetch } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 
 type AllowedRole = 'SELLER';
 
 export default function SellerLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const { status, user } = useAuth();
 
   useEffect(() => {
-    let mounted = true;
+    if (status === 'loading') return;
+    if (status === 'unauthenticated') {
+      router.replace('/login?next=/seller');
+      return;
+    }
+    if (status === 'authenticated' && user && user.role !== 'SELLER') {
+      router.replace('/');
+    }
+  }, [router, status, user]);
 
-    const check = async () => {
-      const me = await authFetch<{ id: string; role: AllowedRole | string }>('/api/auth/me');
-      if (!mounted) return;
-
-      if (!me.ok) {
-        setAuthorized(false);
-        router.replace('/login?next=/seller');
-        return;
-      }
-
-      if (me.data.role !== 'SELLER') {
-        setAuthorized(false);
-        router.replace('/');
-        return;
-      }
-
-      setAuthorized(true);
-    };
-
-    void check();
-    return () => {
-      mounted = false;
-    };
-  }, [router]);
-
-  if (authorized !== true) return null;
+  if (status !== 'authenticated') return null;
+  if (!user || (user.role as AllowedRole | string) !== 'SELLER') return null;
 
   return <>{children}</>;
 }

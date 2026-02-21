@@ -9,6 +9,7 @@ import SimpleHeader from '@/components/layout/SimpleHeader/SimpleHeader';
 import InputField from '@/components/Field/InputField';
 import { BaseButton } from '@/components/common/BaseButton';
 import { authFetch } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 import { parseValidationErrors } from '@/lib/parseValidationErrors';
 import fitmatchLogo from '@/assets/images/FITMATCH.svg';
 
@@ -20,6 +21,7 @@ type LoginFormInput = {
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { setUser } = useAuth();
   const nextParam = searchParams.get('next');
   const safeNext =
     nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : null;
@@ -60,6 +62,11 @@ export default function LoginPage() {
       }
 
       const { user } = result.data!;
+      setUser({
+        id: user.id,
+        role: user.role as 'CUSTOMER' | 'SELLER' | 'ADMIN',
+        nickname: user.nickname,
+      });
 
       if (safeNext) {
         router.replace(safeNext);
