@@ -4,8 +4,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { classApi, ClassItem as ApiClassItem, SlotItem, SlotItemResponse } from '@/lib/api/class';
-import { ClassItem, Center, ClassSlot } from '@/types';
-import { Class as ClassType } from '@/types/class';
+import { ClassItem, Center } from '@/types';
+import { Class as ClassType, ClassSlot } from '@/types/class';
 import {
   generateTimeSlotsFromSchedule,
   generateWeekScheduleEvents,
@@ -23,12 +23,12 @@ import ClassImage from '@/app/(main)/(customer)/classes/[id]/_components/ClassIm
 import ClassInfo from '@/app/(main)/(customer)/classes/[id]/_components/ClassInfo';
 import TabNavigation from '@/app/(main)/(customer)/classes/[id]/_components/TabNavigation';
 import DatePicker from '@/app/(main)/(customer)/classes/[id]/_components/DatePicker';
-import RulesTab from '@/app/(main)/(customer)/classes/[id]/_components/RulesTab';
-import ReviewsTab from '@/app/(main)/(customer)/classes/[id]/_components/ReviewsTab';
 import ReservationBottomBar from '@/app/(main)/(customer)/classes/[id]/_components/ReservationBottomBar';
+import TabContent from './_components/TabContent';
 import EventTags from '@/components/common/EventTags';
 import KebabMenu from '@/components/seller/KebabMenu';
 import ConfirmationModal from '@/components/ConfirmationModal';
+import { useModal } from '@/providers/ModalProvider';
 import { ScheduleCalendar } from '@/components/common';
 import { ScheduleEvent } from '@/types';
 import userIcon from '@/assets/images/user-03.svg';
@@ -36,6 +36,7 @@ import userIcon from '@/assets/images/user-03.svg';
 export default function SellerClassDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { openModal, closeModal } = useModal();
   const classId = params.id as string;
 
   const [mounted, setMounted] = useState(false);
@@ -48,7 +49,7 @@ export default function SellerClassDetailPage() {
   const [activeTab, setActiveTab] = useState<TabType>('intro');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<ClassSlot | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [reviewCount, setReviewCount] = useState<number>(0);
   const [slotsData, setSlotsData] = useState<SlotItem[]>([]);
   const [rawSlotsData, setRawSlotsData] = useState<SlotItemResponse[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
@@ -133,6 +134,7 @@ export default function SellerClassDetailPage() {
         setClassDataForComponents(classForComponents);
         setCenterData(uiCenterData);
         setClassSchedule(parsedSchedule);
+        setReviewCount(apiDetail._count.reviews || 0);
       } catch {
         // 조회 실패 시 무시
       } finally {
@@ -223,7 +225,31 @@ export default function SellerClassDetailPage() {
   };
 
   const handleConfirmEdit = () => {
+    closeModal();
     router.push(`/seller/class-register?id=${classId}`);
+  };
+
+  const handleEditClick = () => {
+    openModal(ConfirmationModal, {
+      message: '수정 또는 삭제 시 예약이 모두 취소됩니다.\n계속 진행하시겠습니까?',
+      confirmText: '수정하기',
+      onConfirm: handleConfirmEdit,
+      onClose: closeModal,
+    });
+  };
+
+  const handleTimeSlotSelect = (slot: ClassSlot) => {
+    const convertedSlot: ClassSlot = {
+      id: slot.id,
+      classId: slot.classId,
+      startAt: slot.startAt instanceof Date ? slot.startAt : new Date(slot.startAt),
+      endAt: slot.endAt instanceof Date ? slot.endAt : new Date(slot.endAt),
+      capacity: slot.capacity,
+      currentReservation: slot.currentReservation,
+      isOpen: slot.isOpen,
+      createdAt: slot.createdAt instanceof Date ? slot.createdAt : new Date(slot.createdAt),
+    };
+    setSelectedTimeSlot(convertedSlot);
   };
 
   const generatedTimeSlots = useMemo((): ClassSlot[] => {
@@ -372,7 +398,7 @@ export default function SellerClassDetailPage() {
               )}
             </div>
             <div className="mt-1">
-              <KebabMenu onEdit={() => setShowEditModal(true)} onDelete={handleDeleteClass} />
+              <KebabMenu onEdit={handleEditClick} onDelete={handleDeleteClass} />
             </div>
           </div>
 
@@ -380,19 +406,23 @@ export default function SellerClassDetailPage() {
             <TabNavigation
               activeTab={activeTab}
               onTabChange={setActiveTab}
-              reviewCount={classData._count.reviews || 0}
+              reviewCount={reviewCount}
             />
           </div>
 
-          <div className="mt-8 min-h-75">
+          <div className="mt-8">
             {activeTab === 'intro' && (
               <div className="flex flex-col gap-12">
-                <section className="flex flex-col gap-4">
-                  <h2 className="text-base font-bold text-gray-900 md:text-lg">클래스 소개</h2>
-                  <p className="text-base leading-relaxed whitespace-pre-line text-gray-700">
-                    {classData.description || '등록된 소개글이 없습니다.'}
-                  </p>
-                </section>
+                {classDataForComponents && (
+                  <TabContent
+                    activeTab="intro"
+                    classData={classDataForComponents}
+                    selectedDate={selectedDate}
+                    onDateSelect={setSelectedDate}
+                    onTimeSlotSelect={handleTimeSlotSelect}
+                    selectedTimeSlot={selectedTimeSlot}
+                  />
+                )}
 
                 <div className="flex flex-col gap-10 md:flex-row md:gap-12">
                   <section className="flex flex-col gap-4 md:w-85.75">
@@ -412,26 +442,7 @@ export default function SellerClassDetailPage() {
                           <TimeSlotList
                             timeSlots={timeSlots}
                             selectedTimeSlot={selectedTimeSlot}
-                            onSelect={(slot) => {
-                              const convertedSlot: ClassSlot = {
-                                id: slot.id,
-                                classId: slot.classId,
-                                startAt:
-                                  slot.startAt instanceof Date
-                                    ? slot.startAt
-                                    : new Date(slot.startAt),
-                                endAt:
-                                  slot.endAt instanceof Date ? slot.endAt : new Date(slot.endAt),
-                                capacity: slot.capacity,
-                                currentReservation: slot.currentReservation,
-                                isOpen: slot.isOpen,
-                                createdAt:
-                                  slot.createdAt instanceof Date
-                                    ? slot.createdAt
-                                    : new Date(slot.createdAt),
-                              };
-                              setSelectedTimeSlot(convertedSlot);
-                            }}
+                            onSelect={handleTimeSlotSelect}
                           />
                         ) : (
                           <div className="flex items-center justify-center py-8">
@@ -457,10 +468,17 @@ export default function SellerClassDetailPage() {
               />
             )}
 
-            {activeTab === 'rules' && classDataForComponents && (
-              <RulesTab classData={classDataForComponents} />
+            {(activeTab === 'rules' || activeTab === 'reviews') && classDataForComponents && (
+              <TabContent
+                activeTab={activeTab}
+                classData={classDataForComponents}
+                selectedDate={selectedDate}
+                onDateSelect={setSelectedDate}
+                onTimeSlotSelect={handleTimeSlotSelect}
+                selectedTimeSlot={selectedTimeSlot}
+                onReviewCountChange={setReviewCount}
+              />
             )}
-            {activeTab === 'reviews' && <ReviewsTab />}
           </div>
         </div>
       </div>
@@ -472,14 +490,6 @@ export default function SellerClassDetailPage() {
           onReservation={() => {}}
         />
       )}
-
-      <ConfirmationModal
-        isOpen={showEditModal}
-        message={'수정 또는 삭제 시 예약이 모두 취소됩니다.\n계속 진행하시겠습니까?'}
-        confirmText="수정하기"
-        onConfirm={handleConfirmEdit}
-        onClose={() => setShowEditModal(false)}
-      />
     </div>
   );
 }

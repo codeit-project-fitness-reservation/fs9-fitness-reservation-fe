@@ -110,3 +110,14 @@ export const MOCK_CENTER_LIST: Center[] = [
     updatedAt: new Date('2026-01-20'),
   },
 ];
+//마이페이지 센터 정보
+export const MOCK_MEMBER_DATA = {
+  nickname: '홍길동',
+  companyName: 'ABC 피트니스 센터',
+  contact: '010-1234-5678',
+  roadAddress: '경기 성남시 분당구 123-869',
+  detailAddress: '1층',
+  description: '항상 최선을 다하는 ABC 피트니스 센터입니다.',
+  profileImage:
+    'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+};

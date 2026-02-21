@@ -21,7 +21,81 @@ export interface ReservationStats {
   };
 }
 
+export interface ReservationDetail {
+  id: string;
+  userId?: string;
+  classId: string;
+  slotId: string;
+  status: 'BOOKED' | 'CANCELED' | 'COMPLETED';
+  slotStartAt: string;
+  pricePoints: number;
+  couponDiscountPoints?: number;
+  paidPoints?: number;
+  createdAt: string;
+  updatedAt: string;
+  canceledAt?: string | null;
+  completedAt?: string | null;
+  class: {
+    id: string;
+    title: string;
+    center: {
+      id: string;
+      name: string;
+      address1: string;
+      address2?: string | null;
+    };
+  };
+  slot: {
+    id: string;
+    startAt: string;
+    endAt: string;
+    capacity: number;
+    _count: {
+      reservations: number;
+    };
+  };
+}
+
+export interface ReservationListResponse {
+  data: ReservationDetail[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface CreateReservationRequest {
+  classId: string;
+  slotId: string;
+  couponId?: string;
+  usedPoints?: number;
+  requestNote?: string;
+}
+
 export const reservationApi = {
+  // Customer용
+  getMyReservations: (params?: { status?: string; page?: number; limit?: number }) => {
+    const queryParams: Record<string, string> = {};
+    if (params?.status) {
+      queryParams.status = params.status;
+    }
+    if (params?.page !== undefined) {
+      queryParams.page = String(params.page);
+    }
+    if (params?.limit !== undefined) {
+      queryParams.limit = String(params.limit);
+    }
+    return apiClient.get<ReservationListResponse>('/api/reservations', { params: queryParams });
+  },
+
+  getReservationDetail: (id: string) => apiClient.get<ReservationDetail>(`/api/reservations/${id}`),
+
+  createReservation: (data: CreateReservationRequest) =>
+    apiClient.post<ReservationDetail>('/api/reservations', data),
+
+  cancelReservation: (id: string, cancelNote?: string) =>
+    apiClient.patch<void>(`/api/reservations/${id}/cancel`, { cancelNote }),
+
+  // Admin용
   getAdminReservations: async (params?: ReservationSearchParams) => {
     const queryParams: Record<string, string> = {};
     if (params) {
@@ -32,11 +106,7 @@ export const reservationApi = {
     return apiClient.get('/api/reservations/admin/reservations', { params: queryParams });
   },
 
-  getReservationDetail: async (id: string) => {
-    return apiClient.get(`/api/reservations/${id}`);
-  },
-
-  cancelReservation: async (id: string, cancelNote: string) => {
+  cancelReservationByAdmin: async (id: string, cancelNote: string) => {
     return apiClient.delete(`/api/reservations/admin/reservations/${id}`, { cancelNote });
   },
 

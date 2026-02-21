@@ -12,6 +12,9 @@ interface TabContentProps {
   onDateSelect: (date: Date | undefined) => void;
   onTimeSlotSelect: (slot: ClassSlot) => void;
   selectedTimeSlot: ClassSlot | null;
+  reservationSlotId?: string | null;
+  reservationHour?: string | null;
+  onReviewCountChange?: (count: number) => void;
 }
 
 export default function TabContent({
@@ -21,9 +24,12 @@ export default function TabContent({
   onDateSelect,
   onTimeSlotSelect,
   selectedTimeSlot,
+  reservationSlotId,
+  reservationHour,
+  onReviewCountChange,
 }: TabContentProps) {
   return (
-    <div className="min-h-[200px]">
+    <div className="min-h-50">
       {activeTab === 'intro' && <IntroTab classData={classData} />}
       {activeTab === 'schedule' && (
         <ScheduleTab
@@ -32,10 +38,14 @@ export default function TabContent({
           onDateSelect={onDateSelect}
           onTimeSlotSelect={onTimeSlotSelect}
           selectedTimeSlot={selectedTimeSlot}
+          reservationSlotId={reservationSlotId}
+          reservationHour={reservationHour}
         />
       )}
       {activeTab === 'rules' && <RulesTab classData={classData} />}
-      {activeTab === 'reviews' && <ReviewsTab />}
+      {activeTab === 'reviews' && (
+        <ReviewsTab classId={classData.id} onReviewCountChange={onReviewCountChange} />
+      )}
     </div>
   );
 }

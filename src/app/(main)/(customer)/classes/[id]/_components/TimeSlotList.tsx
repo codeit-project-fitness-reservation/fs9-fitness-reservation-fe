@@ -19,14 +19,17 @@ export default function TimeSlotList({ timeSlots, selectedTimeSlot, onSelect }: 
         const startTime = formatTime(slot.startAt);
         const endTime = formatTime(slot.endAt);
 
+        const selectedColorClass = 'border-blue-500 bg-blue-50';
+        const selectedCircleClass = 'border-blue-500 bg-blue-500';
+
         return (
           <button
             key={slot.id}
             onClick={() => !isFull && onSelect(slot)}
-            disabled={isFull}
+            disabled={isFull && !isSelected}
             className={`flex items-center justify-between rounded-lg border-2 p-4 text-left transition-colors ${
               isSelected
-                ? 'border-blue-500 bg-blue-50'
+                ? selectedColorClass
                 : isFull
                   ? 'border-gray-500 bg-gray-100 opacity-50'
                   : 'border-gray-200 bg-white hover:border-gray-300'
@@ -47,7 +50,7 @@ export default function TimeSlotList({ timeSlots, selectedTimeSlot, onSelect }: 
             </div>
             <div
               className={`h-5 w-5 shrink-0 rounded-full border-2 ${
-                isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300 bg-white'
+                isSelected ? selectedCircleClass : 'border-gray-300 bg-white'
               }`}
             >
               {isSelected && (

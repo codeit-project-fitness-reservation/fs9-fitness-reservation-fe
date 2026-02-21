@@ -2,14 +2,13 @@ import {
   User,
   NotificationItem,
   Center,
-  ClassItem,
   ScheduleEvent,
   SalesSummary,
   ClassSales,
   SalesTransaction,
+  ClassItem,
 } from '@/types';
 import { Class, ClassStatus } from '@/types/class';
-
 export const MOCK_ACCOUNTS: Record<string, User> = {
   'user@test.com': {
     id: 'user-1',
@@ -18,7 +17,8 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     phone: '010-1234-5678',
     role: 'CUSTOMER',
     password: 'password123',
-    pointBalance: 5000,
+    pointBalance: 10000,
+    couponCount: 2,
     createdAt: new Date('2026-01-01'),
     updatedAt: new Date('2026-01-20'),
   },
@@ -30,6 +30,7 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     role: 'SELLER',
     password: 'sellerpassword',
     pointBalance: 0,
+    couponCount: 0,
     createdAt: new Date('2026-01-01'),
     updatedAt: new Date('2026-01-20'),
   },
@@ -41,6 +42,7 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     role: 'ADMIN',
     password: 'adminpassword',
     pointBalance: 0,
+    couponCount: 0,
     createdAt: new Date('2026-01-01'),
     updatedAt: new Date('2026-01-20'),
   },
@@ -107,6 +109,14 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
     ],
     status: 'APPROVED',
     displayCapacity: '7/10',
+    center: {
+      id: 'center-1',
+      name: '강남 피트니스 센터',
+    },
+    _count: {
+      reservations: 7,
+      reviews: 12,
+    },
     createdAt: new Date('2026-01-10'),
     updatedAt: new Date('2026-01-15'),
   },
@@ -128,6 +138,14 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
     status: 'PENDING',
     statusLabel: '대기중',
     displayCapacity: '0/12',
+    center: {
+      id: 'center-1',
+      name: '강남 피트니스 센터',
+    },
+    _count: {
+      reservations: 0,
+      reviews: 0,
+    },
     createdAt: new Date('2026-01-18'),
     updatedAt: new Date('2026-01-18'),
   },
@@ -148,11 +166,18 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
     rejectReason:
       '이미지 해상도가 기준에 미달합니다. 최소 1920x1080 이상의 이미지를 업로드해주세요.',
     displayCapacity: '0/8',
+    center: {
+      id: 'center-1',
+      name: '강남 피트니스 센터',
+    },
+    _count: {
+      reservations: 0,
+      reviews: 0,
+    },
     createdAt: new Date('2026-01-17'),
     updatedAt: new Date('2026-01-19'),
   },
 ];
-
 // 판매자 스케줄 (오늘의 스케줄) - ClassSlot 기반
 export const MOCK_SELLER_SCHEDULES: ScheduleEvent[] = [
   {
@@ -609,5 +634,256 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     dateTime: '2026.01.18. 14:00',
     amount: -50000,
     createdAt: new Date('2026-01-18T14:00:00'),
+  },
+];
+
+// 리뷰 Mock 데이터
+export interface MockReview {
+  id: string;
+  classId: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  content: string;
+  images?: string[];
+  createdAt: string;
+}
+
+export const MOCK_REVIEWS: MockReview[] = [
+  {
+    id: 'review-1',
+    classId: 'class-1',
+    userId: 'user-1',
+    userName: '홍길동',
+    rating: 5,
+    content: '운동을 처음 해봤는데 강사님께서 친절하게 알려주셔서 편하게 할 수 있었어요.',
+    images: [
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=400&q=80',
+    ],
+    createdAt: '2025.01.10',
+  },
+  {
+    id: 'review-2',
+    classId: 'class-1',
+    userId: 'user-2',
+    userName: '홍길동',
+    rating: 5,
+    content: '운동을 처음 해봤는데 강사님께서 친절하게 알려주셔서 편하게 할 수 있었어요.',
+    images: [
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=400&q=80',
+    ],
+    createdAt: '2025.01.10',
+  },
+  {
+    id: 'review-3',
+    classId: 'class-1',
+    userId: 'user-3',
+    userName: '홍길동',
+    rating: 5,
+    content:
+      '혼자 운동할 때보다 훨씬 집중돼요. 시간 맞춰 진행되니까 흐트러지지 않고 끝까지 하게 돼요.',
+    createdAt: '2025.01.10',
+  },
+];
+
+// 참여자 Mock 데이터
+export const MOCK_PARTICIPANTS = [
+  {
+    id: 'reservation-1',
+    classId: 'class-1',
+    classTitle: '30분 근력 운동',
+    user: {
+      id: 'user-1',
+      name: '홍길동',
+      phoneNumber: '010-1234-5678',
+      profileImgUrl:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=faces',
+    },
+    reservationDate: new Date('2026-01-24T12:00:00').toISOString(),
+    status: 'CONFIRMED' as const,
+    createdAt: new Date('2026-01-20T10:00:00').toISOString(),
+    payment: {
+      method: 'CARD' as const,
+      pointsUsed: 40000,
+      couponDiscount: 10000,
+      paymentId: 'R123',
+      orderNumber: '12345',
+    },
+  },
+  {
+    id: 'reservation-2',
+    classId: 'class-1',
+    classTitle: '30분 근력 운동',
+    user: {
+      id: 'user-2',
+      name: '김민지',
+      phoneNumber: '010-2345-6789',
+      profileImgUrl:
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=faces',
+    },
+    reservationDate: new Date('2026-01-24T12:00:00').toISOString(),
+    status: 'CONFIRMED' as const,
+    createdAt: new Date('2026-01-21T11:00:00').toISOString(),
+    payment: {
+      method: 'CARD' as const,
+      pointsUsed: 35000,
+      couponDiscount: 5000,
+      paymentId: 'R124',
+      orderNumber: '12346',
+    },
+  },
+  {
+    id: 'reservation-3',
+    classId: 'class-1',
+    classTitle: '30분 근력 운동',
+    user: {
+      id: 'user-3',
+      name: '박수아',
+      phoneNumber: '010-3456-7890',
+      profileImgUrl:
+        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=faces',
+    },
+    reservationDate: new Date('2026-01-24T12:00:00').toISOString(),
+    status: 'CONFIRMED' as const,
+    createdAt: new Date('2026-01-22T09:00:00').toISOString(),
+    payment: {
+      method: 'CARD' as const,
+      pointsUsed: 45000,
+      paymentId: 'R125',
+      orderNumber: '12347',
+    },
+  },
+  {
+    id: 'reservation-4',
+    classId: 'class-1',
+    classTitle: '30분 근력 운동',
+    user: {
+      id: 'user-4',
+      name: '정상훈',
+      phoneNumber: '010-4567-8901',
+      profileImgUrl:
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=faces',
+    },
+    reservationDate: new Date('2026-01-24T12:00:00').toISOString(),
+    status: 'CONFIRMED' as const,
+    createdAt: new Date('2026-01-23T14:00:00').toISOString(),
+    payment: {
+      method: 'CARD' as const,
+      pointsUsed: 50000,
+      couponDiscount: 15000,
+      paymentId: 'R126',
+      orderNumber: '12348',
+    },
+  },
+  {
+    id: 'reservation-5',
+    classId: 'class-1',
+    classTitle: '30분 근력 운동',
+    user: {
+      id: 'user-5',
+      name: '홍길동',
+      phoneNumber: '010-5678-9012',
+      profileImgUrl:
+        'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=faces',
+    },
+    reservationDate: new Date('2026-01-24T12:00:00').toISOString(),
+    status: 'CONFIRMED' as const,
+    createdAt: new Date('2026-01-23T15:00:00').toISOString(),
+    payment: {
+      method: 'CARD' as const,
+      pointsUsed: 30000,
+      paymentId: 'R127',
+      orderNumber: '12349',
+    },
+  },
+  {
+    id: 'reservation-6',
+    classId: 'class-1',
+    classTitle: '30분 근력 운동',
+    user: {
+      id: 'user-6',
+      name: '이영희',
+      phoneNumber: '010-6789-0123',
+      profileImgUrl:
+        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=faces',
+    },
+    reservationDate: new Date('2026-01-24T12:00:00').toISOString(),
+    status: 'CONFIRMED' as const,
+    createdAt: new Date('2026-01-23T16:00:00').toISOString(),
+    payment: {
+      method: 'CARD' as const,
+      pointsUsed: 40000,
+      couponDiscount: 8000,
+      paymentId: 'R128',
+      orderNumber: '12350',
+    },
+  },
+  // 2026-02-09 10:00 시간대 참여자 (매트 필라테스용)
+  {
+    id: 'reservation-7',
+    classId: 'class-1',
+    classTitle: '매트 필라테스',
+    user: {
+      id: 'user-7',
+      name: '최지영',
+      phoneNumber: '010-7890-1234',
+      profileImgUrl:
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=faces',
+    },
+    reservationDate: new Date('2026-02-09T10:00:00').toISOString(),
+    status: 'CONFIRMED' as const,
+    createdAt: new Date('2026-02-05T10:00:00').toISOString(),
+    payment: {
+      method: 'CARD' as const,
+      pointsUsed: 35000,
+      paymentId: 'R129',
+      orderNumber: '12351',
+    },
+  },
+  {
+    id: 'reservation-8',
+    classId: 'class-1',
+    classTitle: '매트 필라테스',
+    user: {
+      id: 'user-8',
+      name: '강민수',
+      phoneNumber: '010-8901-2345',
+      profileImgUrl:
+        'https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=150&h=150&fit=crop&crop=faces',
+    },
+    reservationDate: new Date('2026-02-09T10:00:00').toISOString(),
+    status: 'CONFIRMED' as const,
+    createdAt: new Date('2026-02-06T11:00:00').toISOString(),
+    payment: {
+      method: 'CARD' as const,
+      pointsUsed: 40000,
+      couponDiscount: 10000,
+      paymentId: 'R130',
+      orderNumber: '12352',
+    },
+  },
+  {
+    id: 'reservation-9',
+    classId: 'class-1',
+    classTitle: '매트 필라테스',
+    user: {
+      id: 'user-9',
+      name: '윤서연',
+      phoneNumber: '010-9012-3456',
+      profileImgUrl:
+        'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&h=150&fit=crop&crop=faces',
+    },
+    reservationDate: new Date('2026-02-09T10:00:00').toISOString(),
+    status: 'CONFIRMED' as const,
+    createdAt: new Date('2026-02-07T09:00:00').toISOString(),
+    payment: {
+      method: 'CARD' as const,
+      pointsUsed: 45000,
+      couponDiscount: 5000,
+      paymentId: 'R131',
+      orderNumber: '12353',
+    },
   },
 ];

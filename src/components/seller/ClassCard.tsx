@@ -7,6 +7,10 @@ import { ClassItem } from '@/types';
 import icUser from '@/assets/images/user-02.svg';
 import StatusBadge from '@/components/common/StatusBadge';
 
+interface ClassCardProps extends ClassItem {
+  onClick?: () => void;
+}
+
 export default function ClassCard({
   id,
   title,
@@ -15,7 +19,8 @@ export default function ClassCard({
   displayCapacity,
   status,
   statusLabel,
-}: ClassItem) {
+  onClick,
+}: ClassCardProps) {
   const router = useRouter();
 
   const statusUpper = status.toUpperCase();
@@ -28,7 +33,11 @@ export default function ClassCard({
 
   const handleClick = () => {
     if (isApproved) {
-      router.push(`/seller/${id}`);
+      if (onClick) {
+        onClick();
+      } else {
+        router.push(`/seller/${id}`);
+      }
     }
   };
 

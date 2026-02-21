@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Center } from '@/types';
 import { Class } from '@/types/class';
-import { MOCK_CENTER_LIST } from '@/mocks/centers';
-import { MOCK_CLASS_LIST } from '@/mocks/mockdata';
+import { centerApi } from '@/lib/api/center';
+import { classApi } from '@/lib/api/class';
 import CenterHeader from './_components/CenterHeader';
 import CenterImage from './_components/CenterImage';
 import CenterInfo from './_components/CenterInfo';
@@ -22,20 +22,63 @@ export default function CenterDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: API 호출로 대체
-    const mockCenter = MOCK_CENTER_LIST.find((c) => c.id === centerId);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [centerResponse, classesResponse] = await Promise.all([
+          centerApi.getCenterDetail(centerId),
+          classApi.getClasses({ centerId }),
+        ]);
 
-    if (mockCenter) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCenterData(mockCenter);
+        const mappedCenter: Center = {
+          id: centerResponse.id,
+          ownerId: centerResponse.ownerId,
+          name: centerResponse.name,
+          address1: centerResponse.address1,
+          address2: centerResponse.address2 ?? undefined,
+          introduction: centerResponse.introduction ?? undefined,
+          businessHours: (centerResponse.businessHours as Record<string, unknown>) ?? undefined,
+          lat: centerResponse.lat ?? undefined,
+          lng: centerResponse.lng ?? undefined,
+          createdAt: new Date(centerResponse.createdAt),
+          updatedAt: new Date(centerResponse.updatedAt),
+        };
 
-      // 해당 센터의 클래스 목록 필터링
-      const classes = MOCK_CLASS_LIST.filter((c) => c.centerId === centerId);
+        setCenterData(mappedCenter);
 
-      setCenterClasses(classes);
-    }
+        const mappedClasses: Class[] = classesResponse.data
+          .filter((item) => item.center.id === centerId)
+          .map((item) => ({
+            id: item.id,
+            centerId: item.center.id,
+            title: item.title,
+            category: item.category,
+            level: item.level,
+            description: item.description ?? null,
+            notice: item.notice ?? null,
+            pricePoints: item.pricePoints,
+            capacity: item.capacity,
+            bannerUrl: item.bannerUrl ?? null,
+            imgUrls: item.imgUrls || [],
+            status: item.status as Class['status'],
+            rejectReason: null,
+            createdAt: item.createdAt,
+            updatedAt: item.createdAt,
+            currentReservation: 0,
+            rating: 0,
+            reviewCount: item._count.reviews || 0,
+          }));
 
-    setIsLoading(false);
+        setCenterClasses(mappedClasses);
+      } catch (error) {
+        console.error('데이터 로드 실패:', error);
+        alert('데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void fetchData();
   }, [centerId]);
 
   const handleFavoriteToggle = () => {
@@ -70,7 +113,7 @@ export default function CenterDetailPage() {
         <CenterClasses classes={centerClasses} />
 
         {/* 리뷰 섹션 */}
-        <CenterReviews />
+        <CenterReviews centerId={centerId} />
       </div>
     </div>
   );
