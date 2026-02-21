@@ -178,7 +178,7 @@ const Header = () => {
   }, [user]);
 
   if (pathname.startsWith('/admin')) return null;
-  const logoHref = pathname.startsWith('/seller') ? '/seller' : '/';
+  const logoHref = pathname.startsWith('/seller') ? '/seller' : user ? '/main' : '/';
   return (
     <header className="sticky top-0 z-50 h-14 w-full bg-gray-200">
       <div className="mx-auto flex h-full w-full items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:max-w-240">
@@ -216,7 +216,7 @@ const Header = () => {
                 {isProfileOpen && (
                   <div className="absolute top-full right-0 mt-2 w-32 rounded-xl border border-gray-200 bg-white py-2 shadow-lg">
                     <Link
-                      href={user.role === 'SELLER' ? '/seller/mypage' : '/mypage'}
+                      href={user.role === 'SELLER' ? '/seller/mypage' : '/my'}
                       onClick={() => setIsProfileOpen(false)}
                       className="block px-4 py-2 text-right text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >

@@ -46,14 +46,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refresh = useCallback(async () => {
-    // eslint(react-hooks/set-state-in-effect) 대응:
-    // refresh()를 useEffect에서 호출할 때, 첫 tick에서 동기 setState를 피한다.
-    await Promise.resolve();
-    setStatus('loading');
     setError(null);
 
     const result = await authFetch<{ id: string; role: UserRole; nickname?: string }>(
       '/api/auth/me',
+      { headers: { 'Cache-Control': 'no-cache' } },
     );
     if (!result.ok) {
       setUserState(null);
@@ -74,9 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (didInit.current) return;
     didInit.current = true;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refresh();
-  }, [refresh]);
+    // refresh는 useCallback으로 안정적이므로 의존성 배열에서 제외해도 무방
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const logout = useCallback(async () => {
     setError(null);

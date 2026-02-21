@@ -1,7 +1,6 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -19,12 +18,7 @@ type LoginFormInput = {
 };
 
 export default function LoginPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const { setUser } = useAuth();
-  const nextParam = searchParams.get('next');
-  const safeNext =
-    nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : null;
 
   const {
     register,
@@ -62,20 +56,12 @@ export default function LoginPage() {
       }
 
       const { user } = result.data!;
+      // setUser → status = 'authenticated' → (auth)/layout.tsx가 redirect 처리
       setUser({
         id: user.id,
         role: user.role as 'CUSTOMER' | 'SELLER' | 'ADMIN',
         nickname: user.nickname,
       });
-
-      if (safeNext) {
-        router.replace(safeNext);
-        return;
-      }
-
-      router.replace(
-        user?.role === 'SELLER' ? '/seller' : user?.role === 'ADMIN' ? '/admin' : '/main',
-      );
     } catch {
       setError('root', { message: '네트워크 오류가 발생했습니다. 다시 시도해주세요.' });
     }
