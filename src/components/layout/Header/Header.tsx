@@ -20,6 +20,7 @@ type ServerNotification = {
   title: string;
   body: string | null;
   linkUrl: string | null;
+  isRead: boolean;
   createdAt: string;
 };
 
@@ -36,11 +37,22 @@ const Header = () => {
   const sseRef = useRef<EventSource | null>(null);
 
   const handleReadAll = () => {
+    const unread = notifications.filter((n) => !n.isRead);
     setNotifications(notifications.map((n) => ({ ...n, isRead: true })));
+    unread.forEach((n) => {
+      void authFetch(`/api/notifications/${n.id}`, {
+        method: 'PATCH',
+        body: { isRead: true },
+      });
+    });
   };
 
   const handleReadOne = (id: string) => {
     setNotifications(notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+    void authFetch(`/api/notifications/${id}`, {
+      method: 'PATCH',
+      body: { isRead: true },
+    });
   };
 
   const handleDelete = (id: string) => {
@@ -92,8 +104,7 @@ const Header = () => {
             title: n.title,
             body: n.body ?? undefined,
             linkUrl: n.linkUrl ?? undefined,
-            // isRead는 서버에 없어서 클라에서만 관리(기본 미읽음)
-            isRead: false,
+            isRead: n.isRead,
             createdAt: new Date(n.createdAt),
           })),
         );
@@ -123,6 +134,11 @@ const Header = () => {
 
     const onUpdated = (event: MessageEvent<string>) => {
       const payload = JSON.parse(event.data) as ServerNotification;
+      // 읽음 처리된 알림은 목록에서 제거
+      if (payload.isRead) {
+        setNotifications((prev) => prev.filter((n) => n.id !== payload.id));
+        return;
+      }
       setNotifications((prev) =>
         prev.map((n) =>
           n.id === payload.id
@@ -131,6 +147,7 @@ const Header = () => {
                 title: payload.title,
                 body: payload.body ?? undefined,
                 linkUrl: payload.linkUrl ?? undefined,
+                isRead: payload.isRead,
               }
             : n,
         ),
@@ -199,7 +216,7 @@ const Header = () => {
                 {isProfileOpen && (
                   <div className="absolute top-full right-0 mt-2 w-32 rounded-xl border border-gray-200 bg-white py-2 shadow-lg">
                     <Link
-                      href={user.role === 'SELLER' ? '/seller/mypage' : '/my'}
+                      href={user.role === 'SELLER' ? '/seller/mypage' : '/mypage'}
                       onClick={() => setIsProfileOpen(false)}
                       className="block px-4 py-2 text-right text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >
