@@ -10,7 +10,7 @@ import FilterModal, { FilterState } from './_components/FilterModal';
 import FilterBadge from './_components/FilterBadge';
 import SortModal, { SortOption } from './_components/SortModal';
 import { Class } from '@/types/class';
-import { MOCK_CLASS_LIST } from '@/mocks/mockdata';
+import { classApi } from '@/lib/api/class';
 import filterLinesIcon from '@/assets/images/filter-lines.svg';
 import filterIcon from '@/assets/images/filter.svg';
 
@@ -92,37 +92,53 @@ export default function ClassesPage() {
       setIsLoading(true);
       setError(null);
       try {
-        // TODO: API 호출 구현
-        // 임시: Mock 데이터 사용 + 필터/검색/정렬 로직
-        let filteredClasses = [...MOCK_CLASS_LIST];
+        const params: Record<string, string> = {
+          page: String(currentPage),
+          limit: String(itemsPerPage),
+        };
 
-        // 검색 필터링
         if (appliedSearchQuery.trim()) {
-          filteredClasses = filteredClasses.filter((classItem) =>
-            classItem.title.toLowerCase().includes(appliedSearchQuery.toLowerCase()),
-          );
+          params.search = appliedSearchQuery;
         }
 
-        // 필터 적용
         if (filters.programTypes.length > 0) {
-          filteredClasses = filteredClasses.filter((classItem) =>
-            filters.programTypes.includes(classItem.category),
-          );
+          params.category = filters.programTypes.join(',');
         }
 
         if (filters.difficulty.length > 0) {
-          filteredClasses = filteredClasses.filter((classItem) =>
-            filters.difficulty.includes(classItem.level),
-          );
+          params.level = filters.difficulty.join(',');
         }
 
+        const response = await classApi.getClasses(params);
+        let filteredClasses: Class[] = response.data.map((item) => ({
+          id: item.id,
+          centerId: item.center.id,
+          title: item.title,
+          category: item.category,
+          level: item.level,
+          description: item.description ?? null,
+          notice: item.notice ?? null,
+          pricePoints: item.pricePoints,
+          capacity: item.capacity,
+          bannerUrl: item.bannerUrl ?? null,
+          imgUrls: item.imgUrls || [],
+          status: item.status as Class['status'],
+          rejectReason: null,
+          createdAt: item.createdAt,
+          updatedAt: item.createdAt,
+          currentReservation: item._count?.reservations ?? 0,
+          rating: 0, // TODO: 백엔드에서 제공되면 추가
+          reviewCount: item._count?.reviews ?? 0,
+        }));
+
+        // 필터 적용 (클라이언트 사이드)
         if (filters.reservationStatus === 'available') {
           filteredClasses = filteredClasses.filter(
             (classItem) => (classItem.currentReservation || 0) < classItem.capacity,
           );
         }
 
-        // 정렬
+        // 정렬 (클라이언트 사이드)
         switch (selectedSort) {
           case 'recommended':
             // 추천순 (기본값, rating 높은 순)
@@ -130,7 +146,6 @@ export default function ClassesPage() {
             break;
           case 'distance':
             // 거리순 (현재는 정렬 없음, 추후 거리 정보 추가 시 구현)
-            // filteredClasses.sort((a, b) => (a.distance || 0) - (b.distance || 0));
             break;
           case 'priceLow':
             // 가격 낮은 순
@@ -140,13 +155,8 @@ export default function ClassesPage() {
             break;
         }
 
-        // 페이지네이션
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const paginatedClasses = filteredClasses.slice(startIndex, endIndex);
-
-        setClasses(paginatedClasses);
-        setTotalCount(filteredClasses.length);
+        setClasses(filteredClasses);
+        setTotalCount(response.total);
       } catch (err) {
         setError(err instanceof Error ? err.message : '클래스를 불러오는데 실패했습니다.');
         setClasses([]);

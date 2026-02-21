@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { MOCK_CENTER_LIST } from '@/mocks/centers';
+import { centerApi } from '@/lib/api/center';
 import type { Center } from '@/types';
 import markerSvg from '@/assets/images/marker.svg';
 
@@ -127,10 +127,32 @@ export default function AroundFitness({
     if (!isKakaoLoaded) return;
     if (!window.kakao?.maps) return;
 
-    const centers = MOCK_CENTER_LIST.filter(
-      (c) => typeof c.lat === 'number' && typeof c.lng === 'number',
-    );
-    ensureCenterMarkers(centers);
+    const fetchCenters = async () => {
+      try {
+        const response = await centerApi.getCenters();
+        const mappedCenters: Center[] = response.data
+          .filter((c) => typeof c.lat === 'number' && typeof c.lng === 'number')
+          .map((c) => ({
+            id: c.id,
+            ownerId: c.ownerId,
+            name: c.name,
+            address1: c.address1,
+            address2: c.address2 ?? undefined,
+            introduction: c.introduction ?? undefined,
+            businessHours: (c.businessHours as Record<string, unknown>) ?? undefined,
+            lat: c.lat ?? undefined,
+            lng: c.lng ?? undefined,
+            createdAt: new Date(c.createdAt),
+            updatedAt: new Date(c.updatedAt),
+          }));
+
+        ensureCenterMarkers(mappedCenters);
+      } catch (error) {
+        console.error('센터 목록 조회 실패:', error);
+      }
+    };
+
+    void fetchCenters();
   }, [ensureCenterMarkers, isKakaoLoaded]);
 
   useEffect(() => {
@@ -138,11 +160,33 @@ export default function AroundFitness({
     if (!isKakaoLoaded) return;
     if (!window.kakao?.maps) return;
 
-    const centers = MOCK_CENTER_LIST.filter(
-      (c) => typeof c.lat === 'number' && typeof c.lng === 'number',
-    );
-    ensureCenterMarkers(centers);
-    focusCenterById(pinnedCenterId);
+    const fetchCenters = async () => {
+      try {
+        const response = await centerApi.getCenters();
+        const mappedCenters: Center[] = response.data
+          .filter((c) => typeof c.lat === 'number' && typeof c.lng === 'number')
+          .map((c) => ({
+            id: c.id,
+            ownerId: c.ownerId,
+            name: c.name,
+            address1: c.address1,
+            address2: c.address2 ?? undefined,
+            introduction: c.introduction ?? undefined,
+            businessHours: (c.businessHours as Record<string, unknown>) ?? undefined,
+            lat: c.lat ?? undefined,
+            lng: c.lng ?? undefined,
+            createdAt: new Date(c.createdAt),
+            updatedAt: new Date(c.updatedAt),
+          }));
+
+        ensureCenterMarkers(mappedCenters);
+        focusCenterById(pinnedCenterId);
+      } catch (error) {
+        console.error('센터 목록 조회 실패:', error);
+      }
+    };
+
+    void fetchCenters();
   }, [ensureCenterMarkers, focusCenterById, isKakaoLoaded, pinnedCenterId]);
 
   return null;

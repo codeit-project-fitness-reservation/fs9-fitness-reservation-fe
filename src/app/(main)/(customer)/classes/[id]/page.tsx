@@ -5,7 +5,8 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Class, ClassSlot } from '@/types/class';
 import { Center } from '@/types';
-import { MOCK_CLASS_LIST, MOCK_SELLER_CENTER } from '@/mocks/mockdata';
+import { classApi } from '@/lib/api/class';
+import { centerApi } from '@/lib/api/center';
 import { TabType } from './_components/types';
 import ClassImage from './_components/ClassImage';
 import EventTags from '@/components/common/EventTags';
@@ -33,7 +34,7 @@ export default function ClassDetailPage() {
   useEffect(() => {
     const fromReservation = searchParams.get('fromReservation') === 'true';
     const tab = searchParams.get('tab') as TabType | null;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     setIsFromReservation(fromReservation);
 
     if (fromReservation) {
@@ -44,24 +45,77 @@ export default function ClassDetailPage() {
   }, [searchParams]);
   const [reviewCount, setReviewCount] = useState<number>(0);
 
-  // Mock 데이터 로드
+  // API 데이터 로드
   useEffect(() => {
-    // TODO: API 호출로 대체
-    const mockClass = MOCK_CLASS_LIST.find((classItem) => classItem.id === classId);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const classResponse = await classApi.getClassDetail(classId);
 
-    if (!mockClass) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsLoading(false);
-      return;
-    }
+        const mappedClass: Class = {
+          id: classResponse.id,
+          centerId: classResponse.center.id,
+          title: classResponse.title,
+          category: classResponse.category,
+          level: classResponse.level,
+          description: classResponse.description ?? null,
+          notice: classResponse.notice ?? null,
+          pricePoints: classResponse.pricePoints,
+          capacity: classResponse.capacity,
+          bannerUrl: classResponse.bannerUrl ?? null,
+          imgUrls: classResponse.imgUrls || [],
+          status: classResponse.status as Class['status'],
+          rejectReason: null,
+          createdAt: classResponse.createdAt,
+          updatedAt: classResponse.createdAt,
+          currentReservation: 0, // TODO: 백엔드에서 제공되면 추가
+          rating: 0, // TODO: 백엔드에서 제공되면 추가
+          reviewCount: classResponse._count.reviews || 0,
+        };
 
-    const mockCenter: Center = MOCK_SELLER_CENTER;
+        setClassData(mappedClass);
+        setReviewCount(classResponse._count.reviews || 0);
 
-    setClassData(mockClass);
+        // 센터 정보 조회
+        try {
+          const centerResponse = await centerApi.getCenterDetail(classResponse.center.id);
+          const mappedCenter: Center = {
+            id: centerResponse.id,
+            ownerId: centerResponse.ownerId,
+            name: centerResponse.name,
+            address1: centerResponse.address1,
+            address2: centerResponse.address2 ?? undefined,
+            introduction: centerResponse.introduction ?? undefined,
+            businessHours: (centerResponse.businessHours as Record<string, unknown>) ?? undefined,
+            lat: centerResponse.lat ?? undefined,
+            lng: centerResponse.lng ?? undefined,
+            createdAt: new Date(centerResponse.createdAt),
+            updatedAt: new Date(centerResponse.updatedAt),
+          };
+          setCenterData(mappedCenter);
+        } catch (centerError) {
+          console.error('센터 정보 조회 실패:', centerError);
+          // 센터 정보 없이도 진행 - 클래스 정보에서 센터 이름만 사용
+          const fallbackCenter: Center = {
+            id: classResponse.center.id,
+            ownerId: '',
+            name: classResponse.center.name,
+            address1: classResponse.center.address1 || '',
+            address2: classResponse.center.address2 ?? undefined,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          setCenterData(fallbackCenter);
+        }
+      } catch (error) {
+        console.error('클래스 정보 조회 실패:', error);
+        alert('클래스 정보를 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    setCenterData(mockCenter);
-
-    setIsLoading(false);
+    void fetchData();
   }, [classId]);
 
   const handleReservation = () => {

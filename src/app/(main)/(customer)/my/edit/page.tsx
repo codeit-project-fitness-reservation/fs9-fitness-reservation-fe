@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import SimpleHeader from '@/components/layout/SimpleHeader/SimpleHeader';
 import { BaseButton } from '@/components/common/BaseButton';
 import InputField from '@/components/Field/InputField';
-import { MOCK_ACCOUNTS } from '@/mocks/mockdata';
 import { userApi } from '@/lib/api/user';
 
 import personalfotoIcon from '@/assets/images/personalfoto.svg';
@@ -20,15 +19,35 @@ const getSvgSrc = (svg: SvgImport): string => {
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const mockUser = MOCK_ACCOUNTS['user@test.com'];
 
-  const [nickname, setNickname] = useState(mockUser.nickname || '');
-  const [phone, setPhone] = useState(mockUser.phone || '');
+  const [nickname, setNickname] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const user = await userApi.getMyProfile();
+        setNickname(user.nickname);
+        setPhone(user.phone);
+        if (user.profileImgUrl) {
+          setProfileImage(user.profileImgUrl);
+        }
+      } catch (error) {
+        console.error('프로필 조회 실패:', error);
+        alert('프로필 정보를 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void fetchProfile();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -98,6 +117,14 @@ export default function EditProfilePage() {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[calc(100vh-56px)] items-center justify-center">
+        <p className="text-base font-medium text-gray-400">로딩 중...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[calc(100vh-56px)] flex-col bg-gray-50 max-[640px]:bg-white">

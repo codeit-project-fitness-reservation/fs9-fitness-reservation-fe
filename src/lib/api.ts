@@ -90,8 +90,12 @@ export async function authFetch<T = unknown>(
   }
 
   if (!res.ok) {
-    const errorMsg =
+    let errorMsg =
       json.error?.message || json.error?.details || json.message || `HTTP ${res.status}`;
+
+    if (res.status === 409) {
+      errorMsg = json.error?.message || json.message || '이미 존재하는 데이터입니다.';
+    }
 
     return {
       ok: false,
@@ -102,6 +106,16 @@ export async function authFetch<T = unknown>(
   }
 
   const responseData = json.data !== undefined ? json.data : (json as unknown as T);
+
+  if (process.env.NODE_ENV === 'development' && path.includes('/api/reservations')) {
+    console.log('API Response for reservations:', {
+      path,
+      json,
+      responseData,
+      hasData: json.data !== undefined,
+    });
+  }
+
   return { ok: true, data: responseData };
 }
 
@@ -126,9 +140,24 @@ export const apiClient = {
   },
 
   post: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
+    let cleanBody: B;
+    if (body instanceof FormData) {
+      cleanBody = body;
+    } else if (body && typeof body === 'object' && !Array.isArray(body)) {
+      const filtered: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
+        if (value !== undefined && value !== null && value !== '') {
+          filtered[key] = value;
+        }
+      }
+      cleanBody = filtered as B;
+    } else {
+      cleanBody = body;
+    }
+
     const result = await authFetch<T>(endpoint, {
       method: 'POST',
-      body: body as Record<string, unknown> | FormData,
+      body: cleanBody as Record<string, unknown> | FormData,
     });
     if (!result.ok) throw new Error(result.error);
     return result.data;
@@ -137,6 +166,15 @@ export const apiClient = {
   patch: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
     const result = await authFetch<T>(endpoint, {
       method: 'PATCH',
+      body: body as Record<string, unknown> | FormData,
+    });
+    if (!result.ok) throw new Error(result.error);
+    return result.data;
+  },
+
+  put: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
+    const result = await authFetch<T>(endpoint, {
+      method: 'PUT',
       body: body as Record<string, unknown> | FormData,
     });
     if (!result.ok) throw new Error(result.error);

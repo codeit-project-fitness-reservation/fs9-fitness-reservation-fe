@@ -9,6 +9,7 @@ export default function PaymentFailPage() {
   const searchParams = useSearchParams();
   const errorCode = searchParams.get('code');
   const errorMessage = searchParams.get('message');
+  const orderId = searchParams.get('orderId');
 
   const handleRetry = () => {
     router.back();
@@ -16,6 +17,35 @@ export default function PaymentFailPage() {
 
   const handleGoHome = () => {
     router.push('/main');
+  };
+
+  const handleTestMode = () => {
+    // 포인트 충전인지 예약인지 판단
+    const classId = searchParams.get('classId');
+    const slotId = searchParams.get('slotId');
+    const amount = searchParams.get('amount');
+
+    if (classId && slotId) {
+      // 예약인 경우
+      const successParams = new URLSearchParams();
+      successParams.set('classId', classId);
+      successParams.set('slotId', slotId);
+      successParams.set('orderId', orderId || `order-test-${Date.now()}`);
+      const couponId = searchParams.get('couponId');
+      const usedPoints = searchParams.get('usedPoints');
+      const requestNote = searchParams.get('requestNote');
+      if (couponId) successParams.set('couponId', couponId);
+      if (usedPoints) successParams.set('usedPoints', usedPoints);
+      if (requestNote) successParams.set('requestNote', requestNote);
+      router.push(`/payment/success?${successParams.toString()}`);
+    } else if (amount) {
+      // 포인트 충전인 경우
+      router.push(
+        `/payment/success?orderId=${orderId || `point-charge-test-${Date.now()}`}&amount=${amount}`,
+      );
+    } else {
+      alert('테스트 모드를 사용할 수 없습니다. 필요한 정보가 없습니다.');
+    }
   };
 
   return (
@@ -74,6 +104,17 @@ export default function PaymentFailPage() {
           >
             다시 시도
           </BaseButton>
+          {/* 테스트 모드: 실패 페이지에서 성공 페이지로 이동 */}
+          {(searchParams.get('classId') || searchParams.get('amount')) && (
+            <BaseButton
+              type="button"
+              variant="secondary"
+              onClick={handleTestMode}
+              className="w-full py-[11px] text-[17px] font-semibold max-[640px]:py-3 max-[640px]:text-base"
+            >
+              테스트 모드: 성공 페이지로 이동
+            </BaseButton>
+          )}
           <div className="flex gap-4 max-[640px]:flex-col max-[640px]:gap-3">
             <a
               href="https://docs.tosspayments.com/reference/error-codes"

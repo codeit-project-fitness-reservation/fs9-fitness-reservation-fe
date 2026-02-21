@@ -10,9 +10,8 @@ import WriteReviewModal from './_components/WriteReviewModal';
 import SortModal, { HistorySortOption } from './_components/SortModal';
 import HistoryDetailModal from './_components/HistoryDetailModal';
 import { Reservation } from '@/types';
-import { MOCK_HISTORY } from '@/mocks/reservations';
-import { MOCK_REVIEWS } from '@/mocks/reviews';
-import { MOCK_ACCOUNTS } from '@/mocks/mockdata';
+import { reservationApi } from '@/lib/api/reservation';
+import { reviewApi } from '@/lib/api/review';
 
 import mapPinIcon from '@/assets/images/map-pin.svg';
 import clockIcon from '@/assets/images/clock.svg';
@@ -42,7 +41,7 @@ const formatDateTime = (startAt: Date | string, endAt: Date | string): string =>
 export default function HistoryPage() {
   const router = useRouter();
   const sortDropdownRef = useRef<HTMLDivElement>(null);
-  const [history, setHistory] = useState<Reservation[]>(MOCK_HISTORY);
+  const [history, setHistory] = useState<Reservation[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [hasMore, setHasMore] = useState(true);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -51,107 +50,67 @@ export default function HistoryPage() {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState<HistorySortOption>('latest');
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const handleViewDetails = (reservation: Reservation) => {
-    setSelectedReservation(reservation);
-    setIsDetailModalOpen(true);
-  };
-
-  const handleWriteReview = (reservation: Reservation) => {
-    setSelectedReservation(reservation);
-    setIsReviewModalOpen(true);
-  };
-
-  const handleReviewSubmit = async (data: { rating: number; content: string; images: File[] }) => {
-    if (!selectedReservation) return;
-
-    setIsSubmittingReview(true);
-    try {
-      const mockUser = MOCK_ACCOUNTS['user@test.com'];
-      const newReview = {
-        id: `review-${Date.now()}`,
-        reservationId: selectedReservation.id,
-        userId: mockUser.id,
-        classId: selectedReservation.classId,
-        rating: data.rating,
-        content: data.content,
-        imgUrls: [],
-        createdAt: new Date(),
-        userNickname: mockUser.nickname,
-        userProfileImg: undefined,
-      };
-
-      // MOCK_REVIEWS에 추가 (실제로는 API 응답으로 처리)
-      MOCK_REVIEWS.unshift(newReview);
-
-      console.log('Review submitted:', {
-        reservationId: selectedReservation.id,
-        classId: selectedReservation.classId,
-        rating: data.rating,
-        content: data.content,
-        imageCount: data.images.length,
-        newReview,
-        totalReviews: MOCK_REVIEWS.length,
-        reviewsForClass: MOCK_REVIEWS.filter((r) => r.classId === selectedReservation.classId),
-      });
-
-      alert('리뷰가 등록되었습니다.');
-      setIsReviewModalOpen(false);
-
-      // 리뷰 작성 후 해당 클래스 페이지로 이동하여 리뷰 확인
-      const classId = selectedReservation.classId;
-      setSelectedReservation(null);
-
-      // 약간의 지연 후 페이지 이동 (모달 닫힘 처리 후)
-      setTimeout(() => {
-        router.push(`/classes/${classId}`);
-      }, 100);
-    } catch (error) {
-      console.error('Review submission error:', error);
-      alert('리뷰 등록에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setIsSubmittingReview(false);
-    }
-  };
-
-  const handleLoadMore = () => {
-    if (hasMore) {
-      const moreHistory: Reservation[] = [
-        {
-          id: String(history.length + 1),
-          userId: 'user-1',
-          classId: `class-${history.length + 1}`,
-          slotId: `slot-${history.length + 1}`,
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        setIsLoading(true);
+        const response = await reservationApi.getMyReservations({
           status: 'COMPLETED',
-          slotStartAt: new Date('2026-01-25T14:00:00'),
-          pricePoints: 5000,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          completedAt: new Date('2026-01-25T15:00:00'),
+          page: currentPage,
+          limit: 10,
+        });
+
+        const mappedHistory: Reservation[] = response.data.map((res) => ({
+          id: res.id,
+          userId: res.userId || '',
+          classId: res.classId,
+          slotId: res.slotId,
+          status: res.status as Reservation['status'],
+          slotStartAt: new Date(res.slotStartAt),
+          pricePoints: res.pricePoints,
+          couponDiscountPoints: res.couponDiscountPoints ?? 0,
+          paidPoints: res.paidPoints ?? res.pricePoints,
+          createdAt: new Date(res.createdAt),
+          updatedAt: new Date(res.updatedAt),
+          completedAt: res.completedAt ? new Date(res.completedAt) : undefined,
           class: {
-            title: '30분 순환 근력 운동',
+            title: res.class.title,
             center: {
-              name: '에이원 필라테스',
+              name: res.class.center.name,
             },
           },
-          slot: {
-            startAt: new Date('2026-01-25T14:00:00'),
-            endAt: new Date('2026-01-25T15:00:00'),
-            capacity: 10,
-            _count: {
-              reservations: 3,
-            },
-          },
-        },
-      ];
+          slot: res.slot
+            ? {
+                startAt: new Date(res.slot.startAt),
+                endAt: new Date(res.slot.endAt),
+                capacity: res.slot.capacity,
+                _count: {
+                  reservations: res.slot._count.reservations,
+                },
+              }
+            : undefined,
+        }));
 
-      setHistory((prev) => [...prev, ...moreHistory]);
+        if (currentPage === 1) {
+          setHistory(mappedHistory);
+        } else {
+          setHistory((prev) => [...prev, ...mappedHistory]);
+        }
 
-      if (history.length + moreHistory.length >= 10) {
-        setHasMore(false);
+        setHasMore(response.data.length === 10);
+      } catch (error) {
+        console.error('수강 내역 조회 실패:', error);
+        alert('수강 내역을 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
       }
-    }
-  };
+    };
+
+    void fetchHistory();
+  }, [currentPage]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -169,10 +128,60 @@ export default function HistoryPage() {
     };
   }, [isSortOpen]);
 
-  const handleFilterClick = () => {
-    setIsSortOpen(false);
-    console.log('Filter click');
+  const handleViewDetails = (reservation: Reservation) => {
+    setSelectedReservation(reservation);
+    setIsDetailModalOpen(true);
   };
+
+  const handleWriteReview = (reservation: Reservation) => {
+    setSelectedReservation(reservation);
+    setIsReviewModalOpen(true);
+  };
+
+  const handleReviewSubmit = async (data: { rating: number; content: string; images: File[] }) => {
+    if (!selectedReservation) return;
+
+    setIsSubmittingReview(true);
+    try {
+      await reviewApi.createReview({
+        reservationId: selectedReservation.id,
+        rating: data.rating,
+        content: data.content,
+        images: data.images,
+      });
+
+      alert('리뷰가 등록되었습니다.');
+      setIsReviewModalOpen(false);
+
+      // 리뷰 작성 후 해당 클래스 페이지로 이동하여 리뷰 확인
+      const classId = selectedReservation.classId;
+      setSelectedReservation(null);
+
+      // 약간의 지연 후 페이지 이동 (모달 닫힘 처리 후)
+      setTimeout(() => {
+        router.push(`/classes/${classId}?tab=reviews`);
+      }, 100);
+    } catch (error) {
+      console.error('Review submission error:', error);
+      alert('리뷰 등록에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (hasMore && !isLoading) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  if (isLoading && history.length === 0) {
+    return (
+      <div className="flex min-h-[calc(100vh-56px)] items-center justify-center">
+        <p className="text-base font-medium text-gray-400">로딩 중...</p>
+      </div>
+    );
+  }
 
   const handleSortClick = () => {
     setIsSortOpen((prev) => !prev);

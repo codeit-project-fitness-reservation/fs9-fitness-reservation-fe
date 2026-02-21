@@ -1,9 +1,12 @@
 'use client';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { MenuListItem } from '@/components/MenuListItem';
 import { BaseButton } from '@/components/common/BaseButton';
-import { MOCK_ACCOUNTS } from '@/mocks/mockdata';
+import { userApi } from '@/lib/api/user';
+import { pointApi } from '@/lib/api/point';
+import { MOCK_USER_COUPONS } from '@/mocks/coupons';
 
 import coinsIcon from '@/assets/images/coins.svg';
 import myfotoIcon from '@/assets/images/myfoto.svg';
@@ -24,14 +27,51 @@ interface UserInfo {
 
 export default function MyPage() {
   const router = useRouter();
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const mockUser = MOCK_ACCOUNTS['user@test.com'];
-  const userInfo: UserInfo = {
-    id: mockUser.id,
-    nickname: mockUser.nickname,
-    couponCount: mockUser.couponCount,
-    pointBalance: mockUser.pointBalance,
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [userResult, pointResult] = await Promise.all([
+          userApi.getMyProfile(),
+          pointApi.getMyBalance(),
+        ]);
+
+        // 쿠폰 개수 계산 (사용되지 않은 쿠폰만)
+        const availableCoupons = MOCK_USER_COUPONS.filter((coupon) => !coupon.usedAt);
+
+        setUserInfo({
+          id: userResult.id,
+          nickname: userResult.nickname,
+          couponCount: availableCoupons.length, // TODO: 쿠폰 API 구현 후 연결
+          pointBalance: pointResult.pointBalance,
+        });
+      } catch (error) {
+        console.error('데이터 로드 실패:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-base font-medium text-gray-400">로딩 중...</p>
+      </div>
+    );
+  }
+
+  if (!userInfo) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-base font-medium text-red-500">데이터를 불러올 수 없습니다.</p>
+      </div>
+    );
+  }
 
   const menuItems = [
     { title: '회원 정보 수정', href: '/my/edit' },
