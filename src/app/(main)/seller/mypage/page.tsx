@@ -37,11 +37,11 @@ export default function SellerMyPage() {
     address: `${center.address1} ${center.address2 || ''}`,
 
     //TODO: 추후 전화번호 mock data 제거 필요(백엔드 쪽 코드 확인 후)
-    phone: center.owner?.phoneNumber || MOCK_MEMBER_DATA.contact || '연락처 미등록',
+    phone: center.owner?.phone || MOCK_MEMBER_DATA.contact || '연락처 미등록',
     introduction: center.introduction || '등록된 소개글이 없습니다.',
     //TODO: 추후 프로필이미지 mock data 제거 필요(백엔드 쪽 코드 확인 후)
 
-    profileImgUrl: center.owner?.profileImage || MOCK_MEMBER_DATA.profileImage || null,
+    profileImgUrl: center.owner?.profileImgUrl || MOCK_MEMBER_DATA.profileImage || null,
   };
 
   const menuItems = [
