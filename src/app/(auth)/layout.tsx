@@ -1,9 +1,9 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { authFetch } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 
 type Role = 'CUSTOMER' | 'SELLER' | 'ADMIN';
 
@@ -15,7 +15,6 @@ function canAccess(role: Role, path: string): boolean {
   if (path.startsWith('/seller')) return role === 'SELLER';
   if (path.startsWith('/admin')) return role === 'ADMIN';
   if (path.startsWith('/mypage')) return true;
-  // 기타 경로는 일단 허용
   return true;
 }
 
@@ -24,35 +23,27 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const nextParam = searchParams.get('next');
   const safeNext = isSafeNext(nextParam) ? nextParam : null;
+  const { status, user } = useAuth();
 
-  const [ready, setReady] = useState(false);
-
+  // 이미 로그인한 유저는 적절한 페이지로 리다이렉트
   useEffect(() => {
-    let mounted = true;
+    if (status !== 'authenticated' || !user) return;
 
-    const check = async () => {
-      const me = await authFetch<{ id: string; role: Role }>('/api/auth/me');
-      if (!mounted) return;
-      if (!me.ok) {
-        setReady(true);
-        return;
-      }
-      if (safeNext && canAccess(me.data.role, safeNext)) {
-        router.replace(safeNext);
-      } else {
-        router.replace(
-          me.data.role === 'SELLER' ? '/seller' : me.data.role === 'ADMIN' ? '/admin' : '/main',
-        );
-      }
-    };
+    const role = user.role as Role;
+    router.replace(
+      safeNext && canAccess(role, safeNext)
+        ? safeNext
+        : role === 'SELLER'
+          ? '/seller'
+          : role === 'ADMIN'
+            ? '/admin'
+            : '/main',
+    );
+  }, [router, safeNext, status, user]);
 
-    void check();
-    return () => {
-      mounted = false;
-    };
-  }, [router, safeNext]);
-
-  if (!ready) return null;
+  // 인증 확인 완료 후 로그인된 유저면 리다이렉트 대기 중이므로 숨김
+  // loading 중엔 폼을 바로 보여줌 (지연 없음)
+  if (status === 'authenticated') return null;
 
   return <section className="flex min-h-dvh flex-col bg-white">{children}</section>;
 }

@@ -6,14 +6,46 @@ export interface AdjustPointInput {
   memo: string;
 }
 
-export const pointApi = {
-  // 관리자 포인트 지급/회수
-  adjustPoint: (data: AdjustPointInput) => {
-    return apiClient.post('/api/points/admin/adjust', data);
-  },
+export interface PointBalance {
+  pointBalance: number;
+}
 
-  // 관리자 포인트 내역 조회
-  getHistory: (params: { page?: number; limit?: number; userId?: string }) => {
-    return apiClient.get('/api/points/admin/history', { params });
-  },
+export interface PointHistoryItem {
+  id: string;
+  type: 'CHARGE' | 'USE' | 'REFUND' | 'ADMIN';
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  reservationId?: string | null;
+  orderId?: string | null;
+  paymentKey?: string | null;
+  memo?: string | null;
+  createdAt: string;
+}
+
+export interface PointHistoryResponse {
+  data: PointHistoryItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ChargePointRequest {
+  amount: number;
+  paymentKey: string;
+  orderId: string;
+}
+
+export const pointApi = {
+  getMyBalance: () => apiClient.get<PointBalance>('/api/points/me'),
+
+  getMyHistory: (params?: { page?: number; limit?: number }) =>
+    apiClient.get<PointHistoryResponse>('/api/points/me/history', { params }),
+
+  charge: (data: ChargePointRequest) => apiClient.post<PointBalance>('/api/points/charge', data),
+
+  adjustPoint: (data: AdjustPointInput) => apiClient.post('/api/points/admin/adjust', data),
+
+  getHistory: (params: { page?: number; limit?: number; userId?: string }) =>
+    apiClient.get('/api/points/admin/history', { params }),
 };

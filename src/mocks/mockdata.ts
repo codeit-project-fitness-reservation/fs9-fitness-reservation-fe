@@ -6,6 +6,7 @@ import {
   SalesSummary,
   ClassSales,
   SalesTransaction,
+  ClassItem,
 } from '@/types';
 import { Class, ClassStatus } from '@/types/class';
 export const MOCK_ACCOUNTS: Record<string, User> = {

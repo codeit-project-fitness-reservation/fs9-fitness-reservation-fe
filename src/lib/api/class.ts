@@ -55,12 +55,16 @@ export interface SlotItemResponse {
   };
   isAvailable?: boolean;
   isOpen?: boolean;
-  classId: string;
+  classId?: string;
   class?: {
     id: string;
     classId: string;
   };
   createdAt?: string | Date;
+}
+
+export interface ClassDetailResponse extends ClassItem {
+  slots?: SlotItemResponse[];
 }
 
 export interface SlotItem {
@@ -168,7 +172,7 @@ export const classApi = {
   approveClass: (id: string) => apiClient.patch<ClassItem>(`/api/classes/${id}/approve`, {}),
   updateClass: (id: string, data: FormData) => apiClient.patch<void>(`/api/classes/${id}`, data),
   deleteClass: (id: string) => apiClient.delete<void>(`/api/classes/${id}`),
-  getClassDetail: (id: string) => apiClient.get<ClassItem>(`/api/classes/${id}`),
+  getClassDetail: (id: string) => apiClient.get<ClassDetailResponse>(`/api/classes/${id}`),
   rejectClass: (id: string, reason: string) =>
     apiClient.patch<ClassItem>(`/api/classes/${id}/reject`, { rejectReason: reason }),
 

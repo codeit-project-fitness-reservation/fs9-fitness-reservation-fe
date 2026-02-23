@@ -78,16 +78,39 @@ export async function authFetch<T = unknown>(
     return { ok: false, error: message };
   }
 
+  // 304 Not Modified: body 소비 전에 먼저 처리
+  // no-cache 헤더를 붙여 재요청하여 실제 데이터를 가져옴
+  if (res.status === 304) {
+    try {
+      const freshRes = await fetch(url, {
+        ...rest,
+        credentials: rest.credentials ?? 'include',
+        headers: { ...headers, 'Cache-Control': 'no-cache' },
+        body:
+          body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
+      });
+      const freshJson = (await safeJson(freshRes)) as {
+        success?: boolean;
+        data?: T;
+        message?: string;
+        error?: { message?: string; details?: string };
+      };
+      if (freshRes.ok) {
+        const d = freshJson.data !== undefined ? freshJson.data : (freshJson as unknown as T);
+        return { ok: true, data: d };
+      }
+    } catch {
+      // fallthrough
+    }
+    return { ok: false, error: 'NOT_MODIFIED' };
+  }
+
   const json = (await safeJson(res)) as {
     success?: boolean;
     data?: T;
     message?: string;
     error?: { message?: string; details?: string };
   };
-
-  if (res.status === 304) {
-    return { ok: false, error: '캐시된 데이터입니다. 새로고침해주세요.' };
-  }
 
   if (!res.ok) {
     const errorMsg =

@@ -7,16 +7,12 @@ import { usePathname } from 'next/navigation';
 import { BaseButton } from '@/components/common/BaseButton';
 import { NotificationDropdown } from './NotificationDropdown';
 import { MOCK_NOTIFICATIONS } from '@/mocks/mockdata';
-import { UserRole, NotificationItem } from '@/types';
+import { NotificationItem } from '@/types';
 import { authFetch } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 import icBell from '@/assets/images/bell.svg';
 import icChevronDown from '@/assets/images/chevron-down.svg';
 import logoImg from '@/assets/images/FITMATCH.svg';
-
-type HeaderUser = {
-  nickname: string;
-  role: UserRole;
-};
 
 type ServerNotification = {
   id: string;
@@ -24,13 +20,14 @@ type ServerNotification = {
   title: string;
   body: string | null;
   linkUrl: string | null;
+  isRead: boolean;
   createdAt: string;
 };
 
 const Header = () => {
   const pathname = usePathname();
 
-  const [user, setUser] = useState<HeaderUser | null>(null);
+  const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -40,11 +37,22 @@ const Header = () => {
   const sseRef = useRef<EventSource | null>(null);
 
   const handleReadAll = () => {
+    const unread = notifications.filter((n) => !n.isRead);
     setNotifications(notifications.map((n) => ({ ...n, isRead: true })));
+    unread.forEach((n) => {
+      void authFetch(`/api/notifications/${n.id}`, {
+        method: 'PATCH',
+        body: { isRead: true },
+      });
+    });
   };
 
   const handleReadOne = (id: string) => {
     setNotifications(notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+    void authFetch(`/api/notifications/${id}`, {
+      method: 'PATCH',
+      body: { isRead: true },
+    });
   };
 
   const handleDelete = (id: string) => {
@@ -66,29 +74,6 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchMe = async () => {
-      const result = await authFetch<{ id: string; role: UserRole; nickname: string }>(
-        '/api/auth/me',
-      );
-      if (!mounted) return;
-
-      if (result.ok) {
-        setUser({ nickname: result.data.nickname, role: result.data.role });
-      } else {
-        setUser(null);
-      }
-    };
-
-    void fetchMe();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // 로그인 상태일 때: 알림 목록 로드 + SSE 구독
   useEffect(() => {
     // 기존 SSE 연결 정리
     if (sseRef.current) {
@@ -119,8 +104,7 @@ const Header = () => {
             title: n.title,
             body: n.body ?? undefined,
             linkUrl: n.linkUrl ?? undefined,
-            // isRead는 서버에 없어서 클라에서만 관리(기본 미읽음)
-            isRead: false,
+            isRead: n.isRead,
             createdAt: new Date(n.createdAt),
           })),
         );
@@ -150,6 +134,11 @@ const Header = () => {
 
     const onUpdated = (event: MessageEvent<string>) => {
       const payload = JSON.parse(event.data) as ServerNotification;
+      // 읽음 처리된 알림은 목록에서 제거
+      if (payload.isRead) {
+        setNotifications((prev) => prev.filter((n) => n.id !== payload.id));
+        return;
+      }
       setNotifications((prev) =>
         prev.map((n) =>
           n.id === payload.id
@@ -158,6 +147,7 @@ const Header = () => {
                 title: payload.title,
                 body: payload.body ?? undefined,
                 linkUrl: payload.linkUrl ?? undefined,
+                isRead: payload.isRead,
               }
             : n,
         ),
@@ -188,7 +178,7 @@ const Header = () => {
   }, [user]);
 
   if (pathname.startsWith('/admin')) return null;
-  const logoHref = pathname.startsWith('/seller') ? '/seller' : '/';
+  const logoHref = pathname.startsWith('/seller') ? '/seller' : user ? '/main' : '/';
   return (
     <header className="sticky top-0 z-50 h-14 w-full bg-gray-200">
       <div className="mx-auto flex h-full w-full items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:max-w-240">
@@ -213,7 +203,7 @@ const Header = () => {
                   }}
                   className="flex items-center text-sm font-normal text-gray-700"
                 >
-                  {user.nickname}님
+                  {user.nickname ?? '회원'}님
                   <Image
                     src={icChevronDown}
                     alt=""
@@ -226,7 +216,7 @@ const Header = () => {
                 {isProfileOpen && (
                   <div className="absolute top-full right-0 mt-2 w-32 rounded-xl border border-gray-200 bg-white py-2 shadow-lg">
                     <Link
-                      href={user.role === 'SELLER' ? '/seller/mypage' : '/mypage'}
+                      href={user.role === 'SELLER' ? '/seller/mypage' : '/my'}
                       onClick={() => setIsProfileOpen(false)}
                       className="block px-4 py-2 text-right text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >
@@ -234,8 +224,7 @@ const Header = () => {
                     </Link>
                     <button
                       onClick={async () => {
-                        await authFetch('/api/auth/logout', { method: 'POST' });
-                        setUser(null);
+                        await logout();
                         setIsProfileOpen(false);
                       }}
                       className="w-full border-t border-gray-200 px-4 py-2 text-right text-sm font-medium text-gray-900 hover:bg-gray-50"

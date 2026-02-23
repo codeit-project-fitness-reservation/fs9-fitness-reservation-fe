@@ -53,6 +53,7 @@ export default function PaymentWidget({
           setAmount: (amount: { currency: string; value: number }) => Promise<void>;
           renderPaymentMethods: (options: { selector: string; variantKey: string }) => Promise<{
             on: (event: string, callback: (data: unknown) => void) => void;
+            getSelectedPaymentMethod?: () => Promise<unknown>;
           }>;
           renderAgreement: (options: { selector: string; variantKey: string }) => Promise<void>;
         };
@@ -73,9 +74,27 @@ export default function PaymentWidget({
           }),
         ]);
 
+        // 결제 방법 선택 이벤트 리스너 등록
         paymentMethodWidget.on('paymentMethodSelect', (selectedPaymentMethod: unknown) => {
+          console.log('Payment method selected in widget:', selectedPaymentMethod);
           onPaymentMethodSelect?.(selectedPaymentMethod);
         });
+
+        // 위젯이 준비되면 현재 선택된 결제 방법 확인
+        try {
+          const widgetWithMethod = paymentMethodWidget as unknown as {
+            getSelectedPaymentMethod?: () => Promise<unknown>;
+          };
+          if (widgetWithMethod.getSelectedPaymentMethod) {
+            const currentMethod = await widgetWithMethod.getSelectedPaymentMethod();
+            if (currentMethod) {
+              console.log('Current payment method:', currentMethod);
+              onPaymentMethodSelect?.(currentMethod);
+            }
+          }
+        } catch (error) {
+          console.log('No initial payment method selected');
+        }
 
         paymentMethodWidgetRef.current = paymentMethodWidget;
         setReady(true);
