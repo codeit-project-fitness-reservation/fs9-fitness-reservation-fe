@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ClassItem } from '@/types';
 import icUser from '@/assets/images/user-02.svg';
 import StatusBadge from '@/components/common/StatusBadge';
+import ImagePlaceholder from '@/components/common/ImagePlaceholder';
 
 interface ClassCardProps extends ClassItem {
   onClick?: () => void;
@@ -80,25 +81,21 @@ export default function ClassCard({
             alt={title}
             className="h-full w-full object-cover"
             onError={() => {
-              console.error('이미지 로드 실패:', imageUrl);
+              // 이미지 로드 실패 시 에러 상태로 전환
+              // 콘솔 에러는 개발 환경에서만 표시
+              if (process.env.NODE_ENV === 'development') {
+                console.error('이미지 로드 실패:', imageUrl);
+              }
               setImageError(true);
+            }}
+            onLoad={() => {
+              // 이미지 로드 성공 시 에러 상태 초기화
+              setImageError(false);
             }}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gray-200">
-            <svg
-              className="h-6 w-6 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
+            <ImagePlaceholder />
           </div>
         )}
       </div>

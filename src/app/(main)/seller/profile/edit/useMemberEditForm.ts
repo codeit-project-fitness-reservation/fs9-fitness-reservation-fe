@@ -5,8 +5,9 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { centerApi } from '@/lib/api/center';
+import { authApi, MeResponse } from '@/lib/api/auth';
 import { memberFormSchema, MemberFormInput } from './memberSchema';
-import { MOCK_MEMBER_DATA } from '@/mocks/centers';
+import { formatPhoneNumber, formatPhoneInput } from '@/lib/utils/format';
 
 export function useMemberForm() {
   const router = useRouter();
@@ -30,26 +31,28 @@ export function useMemberForm() {
   useEffect(() => {
     const fetchMemberData = async () => {
       try {
-        const data = await centerApi.getMyCenter();
+        // User 정보와 Center 정보를 병렬로 가져오기
+        const [userData, centerData] = await Promise.all([authApi.me(), centerApi.getMyCenter()]);
 
-        if (data && data.owner) {
-          setCenterId(data.id);
+        // Center 정보 설정
+        if (centerData) {
+          setCenterId(centerData.id);
+          setValue('companyName', centerData.name);
+          setValue('roadAddress', centerData.address1);
+          setValue('detailAddress', centerData.address2 || '');
+          setValue('description', centerData.introduction || '');
+        }
 
-          setValue('companyName', data.name);
-          setValue('roadAddress', data.address1);
-          setValue('detailAddress', data.address2 || '');
-          setValue('description', data.introduction || '');
-
-          setValue('nickname', data.owner.nickname);
-
-          //TODO: 추후 전화번호   mock data 제거 필요(백엔드 쪽 코드 확인 후)
-          setValue('contact', data.owner.phoneNumber || MOCK_MEMBER_DATA.contact || '');
-
-          //TODO: 추후 프로필 이미지 mock data 제거  필요(백엔드 쪽 코드 확인 후)
-
-          const profileImage = data.owner.profileImage || MOCK_MEMBER_DATA.profileImage || null;
-          if (profileImage) {
-            setProfilePreview(profileImage);
+        // User 정보 설정 (phone과 profileImage는 user에서 가져옴)
+        if (userData) {
+          setValue('nickname', userData.nickname);
+          // 전화번호 포맷팅 적용
+          setValue('contact', formatPhoneNumber(userData.phone));
+          // API 응답에서 profileImgUrl 또는 profileImage 사용
+          const userDataWithImgUrl = userData as MeResponse;
+          const profileImageUrl = userDataWithImgUrl.profileImgUrl || userData.profileImage;
+          if (profileImageUrl) {
+            setProfilePreview(profileImageUrl);
           }
         }
       } catch (error) {
@@ -73,47 +76,79 @@ export function useMemberForm() {
     if (!centerId) return;
 
     try {
-      if (profileFile) {
-        const formData = new FormData();
-        formData.append('nickname', data.nickname);
-        formData.append('phoneNumber', data.contact);
-        formData.append('name', data.companyName);
-        formData.append('address1', data.roadAddress);
-        formData.append('address2', data.detailAddress || '');
-        formData.append('introduction', data.description);
+      // 비밀번호 변경 여부 확인 (8자 이상 입력된 경우에만 변경)
+      const passwordValue = data.password?.trim();
+      const passwordConfirmValue = data.passwordConfirm?.trim();
+      const shouldUpdatePassword = passwordValue && passwordValue.length >= 8;
 
-        if (data.password && data.password.trim().length >= 8) {
-          formData.append('password', data.password);
-        }
-
-        formData.append('profileImage', profileFile);
-
-        await centerApi.updateCenter(centerId, formData);
-      } else {
-        const jsonData: Record<string, string> = {
-          nickname: data.nickname,
-          phoneNumber: data.contact,
-          name: data.companyName,
-          address1: data.roadAddress,
-          address2: data.detailAddress || '',
-          introduction: data.description,
-        };
-
-        if (data.password && data.password.trim().length >= 8) {
-          jsonData.password = data.password;
-        }
-
-        await centerApi.updateCenter(centerId, jsonData);
+      // 비밀번호가 입력된 경우, 비밀번호 확인도 함께 전송 (백엔드 검증을 위해)
+      if (shouldUpdatePassword && passwordValue !== passwordConfirmValue) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
       }
+
+      // 판매자 프로필 및 센터 정보를 함께 업데이트 (PUT /api/auth/seller/me)
+      // 백엔드 updateSellerProfile 함수가 User와 Center를 모두 업데이트함
+      const sellerProfileData: FormData | Record<string, string> = profileFile
+        ? (() => {
+            const formData = new FormData();
+            // 판매자 프로필 정보
+            formData.append('nickname', data.nickname);
+            formData.append('phone', data.contact);
+            // 비밀번호 변경 (입력된 경우에만 추가)
+            if (shouldUpdatePassword && passwordValue) {
+              formData.append('password', passwordValue);
+              // 백엔드 검증을 위해 passwordConfirm도 함께 전송
+              if (passwordConfirmValue) {
+                formData.append('passwordConfirm', passwordConfirmValue);
+              }
+            }
+            formData.append('profileImage', profileFile);
+            // 센터 정보 (백엔드가 centerName으로 받음)
+            formData.append('centerName', data.companyName);
+            formData.append('address1', data.roadAddress);
+            formData.append('address2', data.detailAddress || '');
+            formData.append('introduction', data.description);
+            return formData;
+          })()
+        : {
+            // 판매자 프로필 정보
+            nickname: data.nickname,
+            phone: data.contact,
+            // 비밀번호 변경 (입력된 경우에만 추가)
+            ...(shouldUpdatePassword && passwordValue
+              ? {
+                  password: passwordValue,
+                  // 백엔드 검증을 위해 passwordConfirm도 함께 전송
+                  ...(passwordConfirmValue ? { passwordConfirm: passwordConfirmValue } : {}),
+                }
+              : {}),
+            // 센터 정보 (백엔드가 centerName으로 받음)
+            centerName: data.companyName,
+            address1: data.roadAddress,
+            address2: data.detailAddress || '',
+            introduction: data.description,
+          };
+
+      await authApi.updateSellerProfile(sellerProfileData);
 
       alert('성공적으로 수정되었습니다.');
 
+      // 마이페이지로 이동하고 데이터 새로고침
       router.push('/seller/mypage');
+      router.refresh();
     } catch (error) {
       const message = error instanceof Error ? error.message : '정보 수정에 실패했습니다.';
       console.error('수정 실패:', error);
+      console.error('에러 상세:', error instanceof Error ? error.stack : error);
       alert(message);
     }
+  };
+
+  // 전화번호 입력 핸들러 (자동 하이픈 추가)
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneInput(e.target.value);
+    setValue('contact', formatted, { shouldValidate: true });
   };
 
   return {
@@ -125,5 +160,6 @@ export function useMemberForm() {
     onSubmit,
     profilePreview,
     handleImageChange,
+    handlePhoneChange,
   };
 }

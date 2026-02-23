@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { reviewApi, Review } from '@/lib/api/review';
+import { reviewApi } from '@/lib/api/review';
+import { Review } from '@/types';
 import StarIcon from '@/assets/images/Star.svg';
 
 interface ReviewsTabProps {
@@ -74,15 +75,15 @@ export default function ReviewsTab({ classId, centerId, onReviewCountChange }: R
     </div>
   );
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateInput: string | Date) => {
     try {
-      const date = new Date(dateString);
+      const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}.${month}.${day}`;
     } catch {
-      return dateString;
+      return String(dateInput);
     }
   };
 
@@ -109,7 +110,7 @@ export default function ReviewsTab({ classId, centerId, onReviewCountChange }: R
   }
 
   return (
-    <div className="flex flex-col gap-4 bg-gray-50 p-1 md:p-1">
+    <div className="flex flex-col gap-4 bg-white p-1 md:p-1">
       <h2 className="text-[18px] font-semibold text-gray-900">리뷰</h2>
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -124,7 +125,7 @@ export default function ReviewsTab({ classId, centerId, onReviewCountChange }: R
                 {/* 이미지 목록 */}
                 {review.imgUrls && review.imgUrls.length > 0 && (
                   <div className="no-scrollbar mb-3 flex gap-2 overflow-x-auto">
-                    {review.imgUrls.map((image, idx) => (
+                    {review.imgUrls.map((image: string, idx: number) => (
                       <div
                         key={`${review.id}-img-${idx}`}
                         className={`relative shrink-0 overflow-hidden rounded ${
@@ -153,7 +154,7 @@ export default function ReviewsTab({ classId, centerId, onReviewCountChange }: R
 
                 {/* 작성자 정보 */}
                 <div className="flex items-center gap-1 text-xs text-gray-500 md:text-sm">
-                  <span>{review.user?.nickname || '익명'}</span>
+                  <span>{review.userNickname || '익명'}</span>
                   <span className="text-gray-200">·</span>
                   <span>{formatDate(review.createdAt)}</span>
                 </div>
