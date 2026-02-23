@@ -11,7 +11,7 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: '운동 예약 플랫폼',
+  title: 'FitMatch',
   description: '쉽고 빠른 운동 예약 서비스',
 };
 
