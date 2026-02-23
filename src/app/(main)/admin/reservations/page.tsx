@@ -12,7 +12,11 @@ import Pagination from '@/components/Pagination';
 export default function AdminReservationsPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filters, setFilters] = useState<FilterValues>({});
+  const [filters, setFilters] = useState<FilterValues>({
+    period: '전체기간',
+    status: '전체',
+    searchType: 'User',
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
   const [totalPages, setTotalPages] = useState(0);
@@ -43,70 +47,30 @@ export default function AdminReservationsPage() {
 
   const [totalCount, setTotalCount] = useState(0);
 
-  type ReservationListPayload = {
-    data?: Reservation[] | { data?: Reservation[]; total?: number; totalCount?: number };
-    content?: Reservation[];
-    reservations?: Reservation[];
-    total?: number;
-    totalCount?: number;
-    totalElements?: number;
-  };
-
   const fetchReservations = useCallback(async (page: number, currentFilters: FilterValues) => {
     setIsLoading(true);
     try {
       const { startDate, endDate } = calculateDateRange(currentFilters.period || '전체기간');
 
       const take = ITEMS_PER_PAGE;
-      const skip = (page - 1) * take;
 
       const response = await reservationApi.getAdminReservations({
         startDate,
         endDate,
         status: currentFilters.status !== '전체' ? currentFilters.status : undefined,
         keyword: currentFilters.search,
-        searchType: currentFilters.searchType,
-        skip: skip.toString(),
-        take: take.toString(),
+        searchType: currentFilters.search ? currentFilters.searchType : undefined,
+        // page: page,
+        // limit: take,
       });
 
-      console.log('API Response:', response);
-
-      const raw = response as ReservationListPayload | Reservation[];
-      let list: Reservation[] = [];
-      let total = 0;
-
-      if (Array.isArray(raw)) {
-        list = raw;
-        total = list.length;
-      } else {
-        const res = raw;
-        if (res?.data && !Array.isArray(res.data) && Array.isArray(res.data.data)) {
-          list = res.data.data;
-          total = res.data.total ?? res.data.totalCount ?? 0;
-        } else if (res?.data && Array.isArray(res.data)) {
-          list = res.data;
-          total = res.total ?? res.totalCount ?? list.length;
-        } else if (res?.content && Array.isArray(res.content)) {
-          list = res.content;
-          total = res.totalElements ?? res.total ?? 0;
-        } else if (res?.reservations && Array.isArray(res.reservations)) {
-          list = res.reservations;
-          total = res.totalCount ?? 0;
-        }
-      }
-
-      console.log('Parsed List:', list);
-      console.log('Parsed Total:', total);
+      const res = response as { data?: Reservation[]; total?: number; totalCount?: number };
+      const list = res?.data ?? [];
+      const total = res?.total ?? res?.totalCount ?? list.length;
 
       setReservations(list);
       setTotalCount(total);
-
-      if (total === list.length && list.length === ITEMS_PER_PAGE) {
-        setTotalPages(page + 1);
-      } else {
-        setTotalPages(Math.ceil(total / ITEMS_PER_PAGE) || 1);
-      }
+      setTotalPages(Math.ceil(total / ITEMS_PER_PAGE) || 1);
     } catch (error) {
       console.error('예약 조회 실패:', error);
     } finally {
@@ -119,7 +83,6 @@ export default function AdminReservationsPage() {
   }, [currentPage, filters, fetchReservations]);
 
   const handleFilterChange = (newFilters: FilterValues) => {
-    console.log('예약 필터 변경:', newFilters);
     setFilters(newFilters);
     setCurrentPage(1);
   };

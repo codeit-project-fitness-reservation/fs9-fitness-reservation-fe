@@ -25,7 +25,7 @@ export default function ClassDetailModal({
 
   if (!classItem) return null;
 
-  const capacityStr = `${classItem._count.reservations}/${classItem.capacity}`;
+  const capacityStr = `${classItem.capacity}명`;
 
   const handleApprove = async () => {
     if (!confirm('이 클래스를 승인하시겠습니까?')) return;
@@ -112,7 +112,7 @@ export default function ClassDetailModal({
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">정원 (예약/총원)</span>
+                  <span className="text-gray-500">정원</span>
                   <span className="text-gray-900">{capacityStr}</span>
                 </div>
                 <div className="flex items-center justify-between">
