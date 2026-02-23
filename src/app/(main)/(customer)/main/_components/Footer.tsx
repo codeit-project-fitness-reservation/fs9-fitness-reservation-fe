@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import FitmatchLogo from '@/assets/images/FITMATCH.svg';
+import FitmatchLogo from '@/assets/images/Logo.svg';
 
 export default function Footer() {
   return (

@@ -7,7 +7,7 @@ interface MainLayoutProps {
   children: React.ReactNode;
 }
 
-const SIMPLE_HEADER_PAGES = ['/seller/class-register', '/seller/profile/edit'];
+const SIMPLE_HEADER_PAGES = ['/seller/class-register', '/seller/profile/edit', '/seller/coupons'];
 
 const FULL_WIDTH_PAGES = ['/admin'];
 const MY_PAGE = '/my';
