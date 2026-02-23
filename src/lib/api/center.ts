@@ -4,6 +4,7 @@ export interface CenterItem {
   id: string;
   ownerId: string;
   name: string;
+  phone: string | null; // 센터 연락처
   address1: string;
   address2: string | null;
   introduction: string | null;
@@ -15,7 +16,7 @@ export interface CenterItem {
 
   owner: {
     nickname: string;
-    phoneNumber: string | null; // 연락처
+    phone: string | null; // 판매자 연락처
     profileImage: string | null; // 프로필 이미지
   };
 }
