@@ -1,7 +1,14 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 export default function Home() {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      <h1 className="text-3xl font-bold">운동 예약 플랫폼 메인 페이지</h1>
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/main');
+  }, [router]);
+
+  return null;
 }

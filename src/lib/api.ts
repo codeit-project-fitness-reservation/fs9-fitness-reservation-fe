@@ -149,11 +149,56 @@ export const apiClient = {
   },
 
   post: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
+    // undefined 필드를 제거하여 백엔드에 전송하지 않음
+    let cleanBody: B;
+    if (body instanceof FormData) {
+      cleanBody = body;
+    } else if (body && typeof body === 'object' && !Array.isArray(body)) {
+      const filtered: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
+        if (value !== undefined && value !== null && value !== '') {
+          filtered[key] = value;
+        }
+      }
+      cleanBody = filtered as B;
+    } else {
+      cleanBody = body;
+    }
+
     const result = await authFetch<T>(endpoint, {
       method: 'POST',
-      body: body as Record<string, unknown> | FormData,
+      body: cleanBody as Record<string, unknown> | FormData,
     });
-    if (!result.ok) throw new Error(result.error);
+    if (!result.ok) {
+      throw new Error(result.error);
+    }
+    return result.data;
+  },
+
+  put: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
+    // undefined 필드를 제거하여 백엔드에 전송하지 않음
+    let cleanBody: B;
+    if (body instanceof FormData) {
+      cleanBody = body;
+    } else if (body && typeof body === 'object' && !Array.isArray(body)) {
+      const filtered: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
+        if (value !== undefined && value !== null && value !== '') {
+          filtered[key] = value;
+        }
+      }
+      cleanBody = filtered as B;
+    } else {
+      cleanBody = body;
+    }
+
+    const result = await authFetch<T>(endpoint, {
+      method: 'PUT',
+      body: cleanBody as Record<string, unknown> | FormData,
+    });
+    if (!result.ok) {
+      throw new Error(result.error);
+    }
     return result.data;
   },
 
@@ -171,13 +216,17 @@ export const apiClient = {
       method: 'PATCH',
       body: body as Record<string, unknown> | FormData,
     });
-    if (!result.ok) throw new Error(result.error);
+    if (!result.ok) {
+      throw new Error(result.error);
+    }
     return result.data;
   },
 
   delete: async <T = unknown>(endpoint: string, body?: Record<string, unknown>) => {
     const result = await authFetch<T>(endpoint, { method: 'DELETE', body });
-    if (!result.ok) throw new Error(result.error);
+    if (!result.ok) {
+      throw new Error(result.error);
+    }
     return result.data;
   },
 };
