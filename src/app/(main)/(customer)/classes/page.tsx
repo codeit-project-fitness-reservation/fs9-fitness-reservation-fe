@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import SearchBar from './_components/SearchBar';
 import ClassCard from './_components/ClassCard';
@@ -16,10 +16,14 @@ import filterIcon from '@/assets/images/filter.svg';
 
 export default function ClassesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const sortDropdownRef = useRef<HTMLDivElement>(null);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [appliedSearchQuery, setAppliedSearchQuery] = useState('');
+
+  // URL 파라미터에서 검색어 읽기
+  const searchFromUrl = searchParams.get('search') || '';
+  const [searchQuery, setSearchQuery] = useState(searchFromUrl);
+  const [appliedSearchQuery, setAppliedSearchQuery] = useState(searchFromUrl);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -86,6 +90,16 @@ export default function ClassesPage() {
     setSelectedSort(sort);
   };
 
+  // URL 파라미터 변경 시 검색어 동기화
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    if (urlSearch !== appliedSearchQuery) {
+      setSearchQuery(urlSearch);
+      setAppliedSearchQuery(urlSearch);
+      setCurrentPage(1);
+    }
+  }, [searchParams]);
+
   // API 호출
   useEffect(() => {
     const loadClasses = async () => {
@@ -98,7 +112,13 @@ export default function ClassesPage() {
         };
 
         if (appliedSearchQuery.trim()) {
-          params.search = appliedSearchQuery;
+          params.search = appliedSearchQuery.trim();
+
+          // 디버깅: 검색어가 제대로 전달되는지 확인
+          if (process.env.NODE_ENV === 'development') {
+            console.log('검색어 전달:', appliedSearchQuery.trim());
+            console.log('API 파라미터:', params);
+          }
         }
 
         if (filters.programTypes.length > 0) {
@@ -170,8 +190,18 @@ export default function ClassesPage() {
   }, [appliedSearchQuery, filters, selectedSort, currentPage, itemsPerPage]);
 
   const handleSearch = (query: string) => {
-    setAppliedSearchQuery(query);
+    const trimmedQuery = query.trim();
+    setAppliedSearchQuery(trimmedQuery);
     setCurrentPage(1);
+
+    // URL 파라미터 업데이트
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    if (trimmedQuery) {
+      newSearchParams.set('search', trimmedQuery);
+    } else {
+      newSearchParams.delete('search');
+    }
+    router.push(`/classes?${newSearchParams.toString()}`, { scroll: false });
   };
 
   const handleApplyFilters = (newFilters: FilterState) => {
