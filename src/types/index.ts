@@ -11,9 +11,12 @@ export interface User {
   profileImgUrl?: string | null;
   introduction?: string | null;
   pointBalance: number;
-  couponCount: number;
-  createdAt: Date;
-  updatedAt: Date;
+  couponCount?: number;
+  createdAt: string;
+  updatedAt: string;
+  reservationCount?: number;
+  reviewCount?: number;
+  note?: string | null;
 }
 
 // --- [2. Notification] ---
@@ -70,8 +73,7 @@ export interface ClassItem extends Class {
     id: string;
     name: string;
   };
-  _count: {
-    reservations: number;
+  _count?: {
     reviews?: number;
   };
   displayCapacity?: string;
@@ -118,20 +120,19 @@ export interface Reservation {
   classId: string;
   slotId: string;
   status: ReservationStatus;
-  slotStartAt: Date;
+  slotStartAt: string;
   pricePoints: number;
   couponDiscountPoints?: number;
   paidPoints?: number;
   userCouponId?: string;
-  canceledAt?: Date;
-  canceledBy?: string;
-  cancelNote?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  completedAt?: Date;
+  canceledAt?: string | null;
+  canceledBy?: UserRole | null;
+  cancelNote?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string | null;
 
   user?: {
-    name: string;
     nickname: string;
     email: string;
     phone: string;
@@ -143,10 +144,10 @@ export interface Reservation {
     };
   };
   slot?: {
-    startAt: Date;
-    endAt: Date;
+    startAt: string;
+    endAt: string;
     capacity: number;
-    _count: {
+    _count?: {
       reservations: number;
     };
   };
@@ -171,21 +172,26 @@ export interface PointHistory {
 // --- [8. Coupon (NEW)] ---
 export interface CouponTemplate {
   id: string;
-  centerId?: string;
+  issuerId: string;
+  centerId?: string | null;
   name: string;
-  discountPoints: number;
-  discountPercentage: number;
-  expiresAt?: Date;
-  createdAt: Date;
+  discountPoints: number | null;
+  discountPercentage: number | null;
+  expiresAt?: string | null;
+  createdAt: string;
 }
 
 export interface UserCoupon {
   id: string;
   userId: string;
-  templateId: string;
-  issuedAt: Date;
-  usedAt?: Date;
-  template?: CouponTemplate;
+  templateId: string | null;
+  // 발급 시점 스냅샷 필드 (템플릿 삭제 후에도 유지)
+  couponName: string;
+  discountPoints: number | null;
+  discountPercentage: number | null;
+  expiresAt: string | null;
+  issuedAt: string;
+  usedAt: string | null;
 }
 
 // --- [9. Review (NEW)] ---
@@ -197,9 +203,14 @@ export interface Review {
   rating: number;
   content?: string;
   imgUrls: string[];
-  createdAt: Date;
+  createdAt: string;
   userNickname?: string;
   userProfileImg?: string;
+  user?: {
+    id: string;
+    nickname: string;
+    profileImgUrl?: string | null;
+  };
 }
 
 // --- [10. Sales (매출)] ---

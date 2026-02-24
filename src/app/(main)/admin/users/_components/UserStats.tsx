@@ -1,28 +1,28 @@
-import { User } from '@/types';
+'use client';
 
 interface UserStatsProps {
-  users: User[];
+  stats: {
+    total: number;
+    customer: number;
+    seller: number;
+  };
 }
 
-export default function UserStats({ users }: UserStatsProps) {
-  const totalCount = users.length;
-  const customerCount = users.filter((u) => u.role === 'CUSTOMER').length;
-  const sellerCount = users.filter((u) => u.role === 'SELLER').length;
-
+export default function UserStats({ stats: passedStats }: UserStatsProps) {
   const stats = [
     {
       label: '총 회원',
-      value: totalCount,
+      value: passedStats.total,
       unit: '건',
     },
     {
       label: '고객',
-      value: customerCount,
+      value: passedStats.customer,
       unit: '명',
     },
     {
       label: '판매자',
-      value: sellerCount,
+      value: passedStats.seller,
       unit: '명',
     },
   ];

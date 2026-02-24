@@ -13,6 +13,12 @@ export type SettlementTransactionType = 'USE' | 'REFUND';
 
 // --- 2. Customer Interfaces ---
 
+export interface AdjustPointInput {
+  userId: string;
+  amount: number;
+  memo: string;
+}
+
 export interface PointBalance {
   pointBalance: number;
 }
@@ -106,8 +112,7 @@ export const pointApi = {
     apiClient.get<PointHistoryResponse>('/api/points/me/history', {
       params: buildQueryParams(params),
     }),
-
-  charge: (data: ChargePointRequest) => apiClient.post<PointBalance>('/api/points/charge', data),
+charge: (data: ChargePointRequest) => apiClient.post<PointBalance>('/api/points/charge', data),
 
   /**
    * [Seller] 정산 및 매출 관리
@@ -134,4 +139,12 @@ export const pointApi = {
       }),
     });
   },
+
+  /**
+   * [Admin] 포인트 조정 및 내역 관리
+   */
+  adjustPoint: (data: AdjustPointInput) => apiClient.post('/api/points/admin/adjust', data),
+
+  getHistory: (params: { page?: number; limit?: number; userId?: string }) =>
+    apiClient.get('/api/points/admin/history', { params }),
 };
