@@ -37,12 +37,19 @@ export default function ScheduleTab({
           const mappedSlots: ClassSlot[] = response.slots.map((slot) => ({
             id: slot.id,
             classId: classId,
-            startAt: new Date(slot.startAt),
-            endAt: new Date(slot.endAt),
+            startAt:
+              typeof slot.startAt === 'string'
+                ? slot.startAt
+                : new Date(slot.startAt).toISOString(),
+            endAt: typeof slot.endAt === 'string' ? slot.endAt : new Date(slot.endAt).toISOString(),
             capacity: slot.capacity,
             currentReservation: slot.currentReservation ?? slot.currentReservations ?? 0,
             isOpen: slot.isOpen ?? true,
-            createdAt: slot.createdAt ? new Date(slot.createdAt) : new Date(),
+            createdAt: slot.createdAt
+              ? typeof slot.createdAt === 'string'
+                ? slot.createdAt
+                : new Date(slot.createdAt).toISOString()
+              : new Date().toISOString(),
           }));
           setAllSlots(mappedSlots);
         }

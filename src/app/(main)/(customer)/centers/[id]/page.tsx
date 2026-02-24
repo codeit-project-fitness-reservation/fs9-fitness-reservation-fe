@@ -40,8 +40,8 @@ export default function CenterDetailPage() {
           businessHours: (centerResponse.businessHours as Record<string, unknown>) ?? undefined,
           lat: centerResponse.lat ?? undefined,
           lng: centerResponse.lng ?? undefined,
-          createdAt: new Date(centerResponse.createdAt),
-          updatedAt: new Date(centerResponse.updatedAt),
+          createdAt: centerResponse.createdAt,
+          updatedAt: centerResponse.updatedAt,
         };
 
         setCenterData(mappedCenter);
@@ -60,13 +60,13 @@ export default function CenterDetailPage() {
             capacity: item.capacity,
             bannerUrl: item.bannerUrl ?? null,
             imgUrls: item.imgUrls || [],
-            status: item.status as Class['status'],
+            status: item.status,
             rejectReason: null,
             createdAt: item.createdAt,
             updatedAt: item.createdAt,
             currentReservation: 0,
-            rating: 0,
-            reviewCount: item._count?.reviews || 0,
+            rating: item.rating ?? 0,
+            reviewCount: item.reviewCount ?? 0,
           }));
 
         setCenterClasses(mappedClasses);

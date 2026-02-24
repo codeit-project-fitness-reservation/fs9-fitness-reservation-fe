@@ -1,4 +1,13 @@
 import { apiClient } from '../api';
+import type { Reservation } from '@/types';
+
+export interface AdminReservationListResponse {
+  data: Reservation[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages?: number;
+}
 
 export interface ReservationSearchParams {
   page?: string;
@@ -96,14 +105,16 @@ export const reservationApi = {
     apiClient.patch<void>(`/api/reservations/${id}/cancel`, { cancelNote }),
 
   // Admin용
-  getAdminReservations: async (params?: ReservationSearchParams) => {
+  getAdminReservations: (params?: ReservationSearchParams) => {
     const queryParams: Record<string, string> = {};
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value) queryParams[key] = value;
       });
     }
-    return apiClient.get('/api/reservations/admin/reservations', { params: queryParams });
+    return apiClient.get<AdminReservationListResponse>('/api/reservations/admin/reservations', {
+      params: queryParams,
+    });
   },
 
   cancelReservationByAdmin: async (id: string, cancelNote: string) => {

@@ -68,7 +68,7 @@ export default function HistoryPage() {
           userId: res.userId || '',
           classId: res.classId,
           slotId: res.slotId,
-          status: res.status as Reservation['status'],
+          status: res.status,
           slotStartAt: res.slotStartAt,
           pricePoints: res.pricePoints,
           couponDiscountPoints: res.couponDiscountPoints ?? 0,

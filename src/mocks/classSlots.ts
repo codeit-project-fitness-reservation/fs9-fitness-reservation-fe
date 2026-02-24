@@ -11,10 +11,10 @@ function toLocalDateKey(date: Date) {
   return `${y}${m}${d}`;
 }
 
-function atTime(baseDate: Date, hour: number, minute = 0) {
+function atTime(baseDate: Date, hour: number, minute = 0): string {
   const d = new Date(baseDate);
   d.setHours(hour, minute, 0, 0);
-  return d;
+  return d.toISOString();
 }
 
 export function getMockClassSlotsForDate(params: { classId: string; date: Date }): ClassSlot[] {
@@ -30,7 +30,7 @@ export function getMockClassSlotsForDate(params: { classId: string; date: Date }
       capacity: 10,
       currentReservation: 5,
       isOpen: true,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     },
     {
       id: `slot-${classId}-${dateKey}-1300`,
@@ -40,7 +40,7 @@ export function getMockClassSlotsForDate(params: { classId: string; date: Date }
       capacity: 10,
       currentReservation: 8,
       isOpen: true,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     },
     {
       id: `slot-${classId}-${dateKey}-1400`,
@@ -50,7 +50,7 @@ export function getMockClassSlotsForDate(params: { classId: string; date: Date }
       capacity: 10,
       currentReservation: 8,
       isOpen: true,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     },
     {
       id: `slot-${classId}-${dateKey}-1500`,
@@ -60,7 +60,7 @@ export function getMockClassSlotsForDate(params: { classId: string; date: Date }
       capacity: 10,
       currentReservation: 3,
       isOpen: true,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     },
     {
       id: `slot-${classId}-${dateKey}-1600`,
@@ -70,7 +70,7 @@ export function getMockClassSlotsForDate(params: { classId: string; date: Date }
       capacity: 10,
       currentReservation: 10,
       isOpen: false,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     },
   ];
 }

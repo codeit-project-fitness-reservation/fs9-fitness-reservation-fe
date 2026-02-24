@@ -142,7 +142,7 @@ export default function ClassesPage() {
           capacity: item.capacity,
           bannerUrl: item.bannerUrl ?? null,
           imgUrls: item.imgUrls || [],
-          status: item.status as Class['status'],
+          status: item.status,
           rejectReason: null,
           createdAt: item.createdAt,
           updatedAt: item.createdAt,

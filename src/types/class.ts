@@ -6,6 +6,8 @@ export enum ClassStatus {
   REJECTED = 'REJECTED',
 }
 
+export type ClassStatusValue = 'PENDING' | 'APPROVED' | 'REJECTED';
+
 export interface Class {
   id: string;
   centerId: string;
@@ -18,7 +20,7 @@ export interface Class {
   capacity: number;
   bannerUrl: string | null;
   imgUrls: string[];
-  status: ClassStatus;
+  status: ClassStatusValue;
   rejectReason: string | null;
   createdAt: string;
   updatedAt: string;
@@ -30,10 +32,10 @@ export interface Class {
 export interface ClassSlot {
   id: string;
   classId: string;
-  startAt: Date | string; // Prisma DateTime은 Date 객체로 반환, JSON 직렬화 시 string
-  endAt: Date | string; // Prisma DateTime은 Date 객체로 반환, JSON 직렬화 시 string
+  startAt: string;
+  endAt: string;
   capacity: number;
   currentReservation: number;
   isOpen: boolean;
-  createdAt: Date | string;
+  createdAt: string;
 }

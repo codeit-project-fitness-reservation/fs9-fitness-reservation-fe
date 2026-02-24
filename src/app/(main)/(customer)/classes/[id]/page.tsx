@@ -64,7 +64,7 @@ export default function ClassDetailPage() {
           capacity: classResponse.capacity,
           bannerUrl: classResponse.bannerUrl ?? null,
           imgUrls: classResponse.imgUrls || [],
-          status: classResponse.status as Class['status'],
+          status: classResponse.status,
           rejectReason: null,
           createdAt: classResponse.createdAt,
           updatedAt: classResponse.createdAt,
@@ -89,8 +89,8 @@ export default function ClassDetailPage() {
             businessHours: (centerResponse.businessHours as Record<string, unknown>) ?? undefined,
             lat: centerResponse.lat ?? undefined,
             lng: centerResponse.lng ?? undefined,
-            createdAt: new Date(centerResponse.createdAt),
-            updatedAt: new Date(centerResponse.updatedAt),
+            createdAt: centerResponse.createdAt,
+            updatedAt: centerResponse.updatedAt,
           };
           setCenterData(mappedCenter);
         } catch (centerError) {
@@ -102,8 +102,8 @@ export default function ClassDetailPage() {
             name: classResponse.center.name,
             address1: classResponse.center.address1 || '',
             address2: classResponse.center.address2 ?? undefined,
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
           };
           setCenterData(fallbackCenter);
         }

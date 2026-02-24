@@ -142,8 +142,8 @@ export default function AroundFitness({
             businessHours: (c.businessHours as Record<string, unknown>) ?? undefined,
             lat: c.lat ?? undefined,
             lng: c.lng ?? undefined,
-            createdAt: new Date(c.createdAt),
-            updatedAt: new Date(c.updatedAt),
+            createdAt: c.createdAt,
+            updatedAt: c.updatedAt,
           }));
 
         ensureCenterMarkers(mappedCenters);
@@ -175,8 +175,8 @@ export default function AroundFitness({
             businessHours: (c.businessHours as Record<string, unknown>) ?? undefined,
             lat: c.lat ?? undefined,
             lng: c.lng ?? undefined,
-            createdAt: new Date(c.createdAt),
-            updatedAt: new Date(c.updatedAt),
+            createdAt: c.createdAt,
+            updatedAt: c.updatedAt,
           }));
 
         ensureCenterMarkers(mappedCenters);

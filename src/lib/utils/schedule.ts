@@ -124,12 +124,12 @@ export function generateTimeSlotsFromSchedule(
       slots.push({
         id: `schedule-${selectedDayName}-${time}-${selectedDateStr}`,
         classId: classData.id,
-        startAt,
-        endAt,
+        startAt: startAt.toISOString(),
+        endAt: endAt.toISOString(),
         capacity: classData.capacity,
         currentReservation: 0,
         isOpen: true,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       });
     });
   });
@@ -171,8 +171,8 @@ export function generateTodayScheduleEvents(
         classId: classData.id,
         slotId: `schedule-${classData.id}-${todayDayName}-${time}-${dateKey}`,
         title: classData.title,
-        start: eventDate,
-        end: endDate,
+        start: eventDate.toISOString(),
+        end: endDate.toISOString(),
         resource: {
           className: classData.title,
           category: classData.category || '',
@@ -242,8 +242,8 @@ export function generateWeekScheduleEvents(
           classId: classData.id,
           slotId: `schedule-${classData.id}-${day}-${time}-${dateKey}`,
           title: classData.title,
-          start: eventDate,
-          end: endDate,
+          start: eventDate.toISOString(),
+          end: endDate.toISOString(),
           resource: {
             className: classData.title,
             category: classData.category || '',
@@ -317,8 +317,8 @@ export function generateRecurringScheduleEvents(
             classId: classData.id,
             slotId: `schedule-${day}-${time}-${week}`,
             title: classData.title,
-            start: eventDate,
-            end: endDate,
+            start: eventDate.toISOString(),
+            end: endDate.toISOString(),
             resource: {
               className: classData.title,
               category: classData.category || '',
@@ -432,15 +432,15 @@ export function convertSlotsToClassSlots(
       return {
         id: slot.id,
         classId: slot.classId,
-        startAt,
-        endAt,
+        startAt: startAt.toISOString(),
+        endAt: endAt.toISOString(),
         capacity: slot.capacity,
         currentReservation: slot.currentReservations,
         isOpen: slot.isAvailable,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       };
     })
-    .filter((slot): slot is ClassSlot => slot !== null);
+    .filter((s): s is ClassSlot => s !== null);
 }
 
 export function convertSlotsToScheduleEvents(
@@ -460,8 +460,8 @@ export function convertSlotsToScheduleEvents(
         classId: slot.classId || slot.class?.classId || slot.class?.id || '',
         slotId: slot.id,
         title: classData.title,
-        start: startAt,
-        end: endAt,
+        start: typeof startAt === 'string' ? startAt : startAt.toISOString(),
+        end: typeof endAt === 'string' ? endAt : endAt.toISOString(),
         resource: {
           className: classData.title,
           category: classData.category || '',

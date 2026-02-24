@@ -1,8 +1,5 @@
 import { Review } from '@/types';
 
-/**
- * 클래스 리뷰 목록 Mock 데이터
- */
 export const MOCK_REVIEWS: Review[] = [
   {
     id: 'review-1',
@@ -73,9 +70,6 @@ export const MOCK_REVIEWS: Review[] = [
   },
 ];
 
-/**
- * 클래스 ID로 리뷰 목록 조회
- */
 export function getMockReviewsForClass(classId: string): Review[] {
   return MOCK_REVIEWS.filter((review) => review.classId === classId);
 }

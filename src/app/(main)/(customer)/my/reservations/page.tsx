@@ -69,44 +69,15 @@ export default function ReservationsPage() {
           console.log('Response keys:', response ? Object.keys(response) : 'null');
         }
 
-        // 응답 구조 확인: ReservationListResponse는 { data: ReservationDetail[], total, page, limit } 형태
-        let reservationsData: typeof response.data = [];
-
-        if (response && response.data) {
-          if (Array.isArray(response.data)) {
-            reservationsData = response.data;
-          } else if (
-            response.data &&
-            typeof response.data === 'object' &&
-            'data' in response.data &&
-            Array.isArray((response.data as { data: unknown }).data)
-          ) {
-            reservationsData = (response.data as { data: typeof response.data }).data;
-          }
-        }
-
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Reservations data:', reservationsData);
-          console.log('Reservations data length:', reservationsData?.length);
-        }
-
-        if (!Array.isArray(reservationsData)) {
-          console.error('Invalid response structure:', {
-            response,
-            reservationsData,
-            responseDataType: typeof reservationsData,
-          });
-          setReservations([]);
-          setHasMore(false);
-          return;
-        }
+        const reservationsData = Array.isArray(response?.data) ? response.data : [];
+        const total = response?.total ?? 0;
 
         const mappedReservations: Reservation[] = reservationsData.map((res) => ({
           id: res.id,
           userId: res.userId || '',
           classId: res.classId,
           slotId: res.slotId,
-          status: res.status as Reservation['status'],
+          status: res.status,
           slotStartAt: res.slotStartAt,
           pricePoints: res.pricePoints,
           couponDiscountPoints: res.couponDiscountPoints ?? 0,
@@ -138,7 +109,6 @@ export default function ReservationsPage() {
           setReservations((prev) => [...prev, ...mappedReservations]);
         }
 
-        const total = (response as { total?: number }).total;
         const hasMoreData = total
           ? reservationsData.length < total
           : reservationsData.length === 10;

@@ -21,8 +21,8 @@ export const MOCK_CENTER_LIST: Center[] = [
     },
     lat: 37.5012,
     lng: 127.0396,
-    createdAt: new Date('2026-01-01'),
-    updatedAt: new Date('2026-01-15'),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-15T00:00:00.000Z',
   },
   {
     id: 'center-2',
@@ -42,8 +42,8 @@ export const MOCK_CENTER_LIST: Center[] = [
     },
     lat: 37.3956,
     lng: 127.1112,
-    createdAt: new Date('2026-01-05'),
-    updatedAt: new Date('2026-01-20'),
+    createdAt: '2026-01-05T00:00:00.000Z',
+    updatedAt: '2026-01-20T00:00:00.000Z',
   },
   {
     id: 'center-3',
@@ -63,8 +63,8 @@ export const MOCK_CENTER_LIST: Center[] = [
     },
     lat: 37.5008,
     lng: 127.0364,
-    createdAt: new Date('2026-01-10'),
-    updatedAt: new Date('2026-01-18'),
+    createdAt: '2026-01-10T00:00:00.000Z',
+    updatedAt: '2026-01-18T00:00:00.000Z',
   },
   {
     id: 'center-4',
@@ -85,8 +85,8 @@ export const MOCK_CENTER_LIST: Center[] = [
     // 판교 인근(센터-2 주변) 좌표로 배치해 지도에서 "주변 센터"로 함께 보이도록 함
     lat: 37.3952,
     lng: 127.1126,
-    createdAt: new Date('2026-01-01'),
-    updatedAt: new Date('2026-01-15'),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-15T00:00:00.000Z',
   },
   {
     id: 'center-5',
@@ -106,8 +106,8 @@ export const MOCK_CENTER_LIST: Center[] = [
     },
     lat: 37.5007,
     lng: 127.0389,
-    createdAt: new Date('2026-01-05'),
-    updatedAt: new Date('2026-01-20'),
+    createdAt: '2026-01-05T00:00:00.000Z',
+    updatedAt: '2026-01-20T00:00:00.000Z',
   },
 ];
 //마이페이지 센터 정보

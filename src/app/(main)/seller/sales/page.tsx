@@ -60,7 +60,7 @@ export default function SalesPage() {
             statusLabel: isUse ? '완료' : '환불',
             dateTime: `${year}.${month}.${day}. ${hours}:${minutes}`,
             amount: isUse ? item.amount : -item.amount,
-            createdAt: new Date(item.createdAt),
+            createdAt: item.createdAt,
           };
         },
       );
