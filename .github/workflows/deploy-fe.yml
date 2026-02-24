@@ -50,7 +50,23 @@ jobs:
           NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY: ${{ secrets.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY }}
           TOSS_PAYMENTS_SECRET_KEY: ${{ secrets.TOSS_PAYMENTS_SECRET_KEY }}
 
-      - name: Deploy to server via SSH
+      - name: Prepare standalone bundle
+        run: |
+          cp -r public .next/standalone/
+          cp -r .next/static .next/standalone/.next/
+          cd .next/standalone && tar czf ../../deploy.tar.gz .
+
+      - name: Upload bundle via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          source: deploy.tar.gz
+          target: ~/fs9-fitness-reservation-fe/
+
+      - name: Extract and restart on server
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -58,12 +74,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
+            set -e
             cd ~/fs9-fitness-reservation-fe
-            git pull origin main
-            pnpm install --frozen-lockfile
-            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
-            NEXT_PUBLIC_KAKAO_MAP_API_KEY=${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }} \
-            NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY }} \
-            TOSS_PAYMENTS_SECRET_KEY=${{ secrets.TOSS_PAYMENTS_SECRET_KEY }} \
-            pnpm build
-            pm2 restart fit-match-fe || pm2 start pnpm --name fit-match-fe -- start
+            mkdir -p app
+            find app -mindepth 1 -delete 2>/dev/null || true
+            tar xzf deploy.tar.gz -C app
+            cd app && (pm2 restart fit-match-fe || pm2 start server.js --name fit-match-fe)

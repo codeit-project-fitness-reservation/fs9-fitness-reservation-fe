@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'standalone',
   reactCompiler: true,
   async rewrites() {
     // 브라우저에서 BE로 직접 호출(CORS)하지 않고, Next가 프록시로 전달
