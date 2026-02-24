@@ -75,6 +75,7 @@ export interface ClassItem extends Class {
   };
   _count?: {
     reviews?: number;
+    reservations?: number;
   };
   displayCapacity?: string;
   statusLabel?: string;
@@ -112,7 +113,7 @@ export interface ScheduleEvent {
 }
 
 // --- [6. Reservation] ---
-export type ReservationStatus = 'BOOKED' | 'CANCELED' | 'COMPLETED';
+export type ReservationStatus = 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED' | 'BOOKED';
 
 export interface Reservation {
   id: string;

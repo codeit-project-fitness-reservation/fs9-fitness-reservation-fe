@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { DayPicker } from 'react-day-picker';
-import { couponApi, CreateCouponTemplateInput } from '@/lib/api/coupon';
+import { couponApi, CreateCouponInput } from '@/lib/api/coupon';
 import { cn } from '@/lib/utils';
 import 'react-day-picker/dist/style.css';
 
@@ -118,7 +118,7 @@ export default function CreateCouponModal({ onClose, onCreated }: CreateCouponMo
         name,
         discountType,
         usageValue: numValue,
-        expiresAt: expiresAt,
+        expiresAt: expiresAt.toISOString(),
       });
       alert('쿠폰이 생성되었습니다.');
       onCreated();

@@ -18,7 +18,7 @@ export default function GiveCouponModal({ user, onClose, onConfirm }: GiveCoupon
   const fetchCoupons = async () => {
     try {
       // 내가 생성한 쿠폰 목록 조회
-      const data = await couponApi.getMyCoupons();
+      const data = await couponApi.getCouponTemplates();
       setCoupons(data);
     } catch (error) {
       console.error('쿠폰 목록 조회 실패:', error);

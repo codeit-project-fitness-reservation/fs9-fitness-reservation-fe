@@ -88,7 +88,7 @@ export default function HistoryPage() {
                 endAt: res.slot.endAt,
                 capacity: res.slot.capacity,
                 _count: {
-                  reservations: res.slot._count.reservations,
+                  reservations: res.slot._count?.reservations ?? 0,
                 },
               }
             : undefined,

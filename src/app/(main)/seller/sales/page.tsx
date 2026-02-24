@@ -71,7 +71,10 @@ export default function SalesPage() {
                 ? '날짜 정보 없음'
                 : `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`,
               amount: isUse ? item.amount : -item.amount,
-              createdAt: date,
+              createdAt:
+                typeof item.createdAt === 'string'
+                  ? item.createdAt
+                  : new Date(item.createdAt).toISOString(),
             };
           });
 

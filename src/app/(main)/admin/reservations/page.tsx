@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import AdminFilter, { reservationFilterConfigs, FilterValues } from '../_components/AdminFilter';
 import ReservationList from './_components/ReservationList';
 import { reservationApi } from '@/lib/api/reservation';
-import { Reservation } from '@/types';
+import { Reservation, ReservationStatus } from '@/types';
 
 import { calculateDateRange } from '@/lib/utils/filterDate';
 import Pagination from '@/components/Pagination';
@@ -57,7 +57,10 @@ export default function AdminReservationsPage() {
       const response = await reservationApi.getAdminReservations({
         startDate,
         endDate,
-        status: currentFilters.status !== '전체' ? currentFilters.status : undefined,
+        status:
+          currentFilters.status !== '전체'
+            ? (currentFilters.status as ReservationStatus)
+            : undefined,
         keyword: currentFilters.search,
         searchType: currentFilters.search ? currentFilters.searchType : undefined,
       });

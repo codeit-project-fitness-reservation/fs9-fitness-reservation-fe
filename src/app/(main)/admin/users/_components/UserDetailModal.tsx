@@ -95,7 +95,7 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
 
   const handleGiveCoupon = async (couponId: string) => {
     try {
-      await couponApi.giveUserCoupon(userId, couponId);
+      await couponApi.issueCoupon({ userId, templateId: couponId });
       alert('쿠폰이 지급되었습니다.');
       fetchData(); // 데이터 갱신
     } catch (error) {

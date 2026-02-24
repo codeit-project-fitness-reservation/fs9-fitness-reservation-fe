@@ -33,6 +33,7 @@ export interface ClassItem {
 
   _count?: {
     reviews?: number;
+    reservations?: number;
   };
   reviewCount?: number;
   rating?: number;
