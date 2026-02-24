@@ -46,7 +46,10 @@ export default function SellerPage() {
           updatedAt: apiClass.updatedAt ?? apiClass.createdAt,
           center: apiClass.center,
           _count: apiClass._count,
-          displayCapacity: undefined,
+          displayCapacity:
+            apiClass.status.toUpperCase() === 'APPROVED'
+              ? `${apiClass._count?.reservations ?? 0}/${apiClass.capacity}`
+              : undefined,
           statusLabel: undefined,
         }));
 
@@ -131,7 +134,6 @@ export default function SellerPage() {
       <section className="mb-6">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-gray-800">내 클래스 목록</h2>
-          <span className="text-xs text-gray-500">총 {classes.length}개</span>
         </div>
 
         <div className="space-y-2">

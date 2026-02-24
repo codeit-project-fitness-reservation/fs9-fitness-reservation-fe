@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import InputField from '@/components/Field/InputField';
 import TextAreaField from '@/components/Field/TextAreaField';
+import CreateButton from '@/components/common/CreateButton';
 import { useClassForm } from './useClassForm';
 import { categoryOptions, levelOptions, numericFields } from './classschema';
 import { RadioGroup } from './components/RadioGroup';
@@ -24,6 +25,10 @@ export default function RegisterClassPage() {
     setValue,
     selectedImages,
     setSelectedImages,
+    existingImageUrls,
+    removedImageUrls,
+    removeExistingImage,
+    restoreExistingImage,
     onSubmit,
     isFormValid,
     trigger,
@@ -33,7 +38,11 @@ export default function RegisterClassPage() {
   return (
     <div className="flex min-h-screen w-full justify-center bg-gray-200/40">
       <main className="relative flex w-full max-w-240 flex-col bg-[#FAFAFA] shadow-sm">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 px-8 pt-12 pb-32">
+        <form
+          id="class-register-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-8 px-8 pt-12 pb-32"
+        >
           {/* 클래스명 */}
           <section className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-800">
@@ -69,16 +78,20 @@ export default function RegisterClassPage() {
           </div>
 
           {/* 가격 & 인원 */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+
+          <div className="flex flex-col gap-6">
             {numericFields.map((field) => (
-              <NumericInputField key={field.name} field={field} control={control} />
+              <div key={field.name} className="flex flex-col gap-1.5">
+                <NumericInputField field={field} control={control} />
+              </div>
             ))}
           </div>
-
           {/* 이미지 업로드 */}
 
           <ImageUpload
             selectedImages={selectedImages}
+            existingImageUrls={existingImageUrls}
+            removedImageUrls={removedImageUrls}
             fileInputRef={fileInputRef}
             onImageSelect={(file) => {
               setSelectedImages((prev: File[]) => [...prev, file]);
@@ -86,6 +99,8 @@ export default function RegisterClassPage() {
             onImageRemove={(index: number) => {
               setSelectedImages((prev: File[]) => prev.filter((_, i) => i !== index));
             }}
+            onExistingImageRemove={removeExistingImage}
+            onExistingImageRestore={restoreExistingImage}
           />
 
           {/* 상세 소개 */}
@@ -116,23 +131,14 @@ export default function RegisterClassPage() {
 
           {/* 시간 선택 */}
           <TimeSlotSelector control={control} />
-
-          <div className="pointer-events-none fixed right-0 bottom-0 left-0 z-50">
-            <div className="pointer-events-auto mx-auto w-full max-w-240 border-t border-gray-100 bg-white px-8 py-5 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-              <button
-                type="submit"
-                disabled={!isFormValid}
-                className={`w-full rounded-xl py-4 text-[16px] font-bold transition-all ${
-                  isFormValid
-                    ? 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98]'
-                    : 'cursor-not-allowed bg-gray-100 text-gray-400'
-                }`}
-              >
-                {isEditMode ? '수정하기' : '신청하기'}
-              </button>
-            </div>
-          </div>
         </form>
+
+        <CreateButton
+          type="submit"
+          form="class-register-form"
+          label={isEditMode ? '수정하기' : '신청하기'}
+          disabled={!isFormValid}
+        />
       </main>
     </div>
   );

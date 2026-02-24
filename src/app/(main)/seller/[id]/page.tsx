@@ -427,13 +427,13 @@ export default function SellerClassDetailPage() {
 
                 <div className="flex flex-col gap-10 md:flex-row md:gap-12">
                   <section className="flex flex-col gap-4 md:w-85.75">
-                    <h2 className="text-lg font-bold text-gray-900">날짜 선택</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">날짜 선택</h2>
                     <DatePicker selectedDate={selectedDate} onSelect={setSelectedDate} />
                   </section>
 
                   {selectedDate && (
                     <section className="flex flex-1 flex-col gap-4">
-                      <h2 className="text-lg font-bold text-gray-900">시간 선택</h2>
+                      <h2 className="text-lg font-semibold text-gray-900">시간 선택</h2>
                       <div className="max-h-87 overflow-y-auto rounded-xl bg-gray-200 p-5">
                         {isLoadingSlots ? (
                           <div className="flex items-center justify-center py-8">

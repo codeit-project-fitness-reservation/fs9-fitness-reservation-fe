@@ -130,6 +130,24 @@ export async function authFetch<T = unknown>(
 
 export type QueryParams = Record<string, string | number | undefined>;
 
+/**
+ * Helper function to build query parameters safely.
+ * Filters out undefined, null, and empty string values.
+ */
+export function buildQueryParams(
+  params?: Record<string, string | number | boolean | undefined | null>,
+): QueryParams {
+  const query: QueryParams = {};
+  if (!params) return query;
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      query[key] = String(value);
+    }
+  });
+  return query;
+}
+
 function toQueryString(params: QueryParams): string {
   const entries = Object.entries(params)
     .filter(([, v]) => v != null)

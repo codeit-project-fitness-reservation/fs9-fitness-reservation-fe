@@ -129,57 +129,6 @@ export interface ReservationListResponse {
   limit: number;
 }
 
-// [판매자] 매출 정산 요약 인터페이스
-export interface SettlementSummary {
-  totalRevenue: number;
-  couponDiscount: number;
-  refundAmount: number;
-  netRevenue: number;
-}
-
-export interface SettlementByClass {
-  classId: string;
-  classTitle: string;
-  bannerUrl: string | null;
-  totalRevenue: number;
-}
-
-export interface SellerSettlementResponse {
-  period: {
-    year: number;
-    month: number;
-  };
-  summary: SettlementSummary;
-  byClass: SettlementByClass[];
-}
-
-// [판매자] 상세 거래 내역 인터페이스
-export interface SettlementTransactionItem {
-  id: string;
-  type: 'USE' | 'REFUND';
-  amount: number;
-  balanceBefore: number;
-  balanceAfter: number;
-  createdAt: string;
-  reservation: {
-    id: string;
-    status: string;
-    class: {
-      id: string;
-      title: string;
-      bannerUrl: string | null;
-    };
-  };
-}
-
-export interface SellerTransactionResponse {
-  data: SettlementTransactionItem[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
 export const classApi = {
   getStats: () => apiClient.get<ClassStats>('/api/classes/stats'),
   getClasses: (params?: QueryParams) =>
@@ -203,14 +152,4 @@ export const classApi = {
 
   cancelReservationBySeller: (id: string) =>
     apiClient.patch<void>(`/api/reservations/seller/reservations/${id}/cancel`, {}),
-
-  getSellerSettlement: (params: { year: number; month: number }) =>
-    apiClient.get<SellerSettlementResponse>('/api/points/seller/settlement', { params }),
-  getSellerTransactions: (params: {
-    year: number;
-    month: number;
-    classId?: string;
-    page?: number;
-    limit?: number;
-  }) => apiClient.get<SellerTransactionResponse>('/api/points/seller/transactions', { params }),
 };
