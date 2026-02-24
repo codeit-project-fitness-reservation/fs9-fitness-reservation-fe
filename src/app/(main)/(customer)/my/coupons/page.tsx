@@ -23,23 +23,17 @@ const formatDate = (date: Date | string | null | undefined): string => {
 };
 
 const formatDiscount = (coupon: UserCoupon): string => {
-  const template = coupon.template;
-  if (!template) return '할인 정보 없음';
-
-  if (template.discountPercentage > 0) {
-    return `${template.discountPercentage}% 할인`;
+  if (coupon.discountPercentage && coupon.discountPercentage > 0) {
+    return `${coupon.discountPercentage}% 할인`;
   }
-  if (template.discountPoints > 0) {
-    return `${template.discountPoints.toLocaleString()}원 할인`;
+  if (coupon.discountPoints && coupon.discountPoints > 0) {
+    return `${coupon.discountPoints.toLocaleString()}원 할인`;
   }
   return '할인 정보 없음';
 };
 
 const formatCondition = (coupon: UserCoupon): string => {
-  const template = coupon.template;
-  if (!template) return '제한 없음';
-
-  if (template.discountPoints > 0 && template.discountPoints >= 10000) {
+  if (coupon.discountPoints && coupon.discountPoints >= 10000) {
     return '20,000원 이상 결제 시';
   }
   return '제한 없음';
@@ -68,14 +62,12 @@ export default function CouponsPage() {
               >
                 <div className="flex flex-col gap-1">
                   <h3 className="text-base font-semibold text-gray-900">
-                    {coupon.template?.name || '쿠폰'}
+                    {coupon.couponName || '쿠폰'}
                   </h3>
                   <p className="text-sm font-medium text-blue-600">{formatDiscount(coupon)}</p>
                   <p className="text-xs text-gray-500">{formatCondition(coupon)}</p>
-                  {coupon.template?.expiresAt && (
-                    <p className="text-xs text-gray-500">
-                      만료: {formatDate(coupon.template.expiresAt)}
-                    </p>
+                  {coupon.expiresAt && (
+                    <p className="text-xs text-gray-500">만료: {formatDate(coupon.expiresAt)}</p>
                   )}
                 </div>
                 <div className="shrink-0">

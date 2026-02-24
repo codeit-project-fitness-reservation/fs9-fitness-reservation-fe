@@ -114,7 +114,6 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
       name: '강남 피트니스 센터',
     },
     _count: {
-      reservations: 7,
       reviews: 12,
     },
     createdAt: new Date('2026-01-10'),
@@ -143,7 +142,6 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
       name: '강남 피트니스 센터',
     },
     _count: {
-      reservations: 0,
       reviews: 0,
     },
     createdAt: new Date('2026-01-18'),
@@ -171,7 +169,6 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
       name: '강남 피트니스 센터',
     },
     _count: {
-      reservations: 0,
       reviews: 0,
     },
     createdAt: new Date('2026-01-17'),

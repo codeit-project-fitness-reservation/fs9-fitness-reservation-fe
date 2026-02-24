@@ -1,9 +1,10 @@
-import { User } from '@/_mock/user';
+import { User } from '@/types';
 import { format } from 'date-fns';
 
 interface UserListProps {
   users: User[];
   loading?: boolean;
+  onUserClick?: (userId: string) => void;
 }
 
 const ROLE_MAP: Record<string, string> = {
@@ -12,7 +13,7 @@ const ROLE_MAP: Record<string, string> = {
   CUSTOMER: '고객',
 };
 
-export default function UserList({ users, loading }: UserListProps) {
+export default function UserList({ users, loading, onUserClick }: UserListProps) {
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
@@ -44,7 +45,11 @@ export default function UserList({ users, loading }: UserListProps) {
               </tr>
             ) : (
               users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
+                <tr
+                  key={user.id}
+                  className="cursor-pointer hover:bg-gray-50"
+                  onClick={() => onUserClick?.(user.id)}
+                >
                   <td className="px-6 py-4 text-gray-900">
                     {format(new Date(user.createdAt), 'yyyy.MM.dd')}
                   </td>
