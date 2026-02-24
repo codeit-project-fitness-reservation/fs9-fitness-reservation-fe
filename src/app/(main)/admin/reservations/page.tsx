@@ -9,6 +9,18 @@ import { Reservation, ReservationStatus } from '@/types';
 import { calculateDateRange } from '@/lib/utils/filterDate';
 import Pagination from '@/components/Pagination';
 
+const RESERVATION_STATUSES: ReservationStatus[] = [
+  'PENDING',
+  'CONFIRMED',
+  'CANCELED',
+  'COMPLETED',
+  'BOOKED',
+];
+
+function isReservationStatus(s: string): s is ReservationStatus {
+  return RESERVATION_STATUSES.includes(s as ReservationStatus);
+}
+
 export default function AdminReservationsPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,8 +70,8 @@ export default function AdminReservationsPage() {
         startDate,
         endDate,
         status:
-          currentFilters.status !== '전체'
-            ? (currentFilters.status as ReservationStatus)
+          currentFilters.status !== '전체' && isReservationStatus(currentFilters.status)
+            ? currentFilters.status
             : undefined,
         keyword: currentFilters.search,
         searchType: currentFilters.search ? currentFilters.searchType : undefined,
