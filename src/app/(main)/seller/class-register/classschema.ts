@@ -33,13 +33,13 @@ export const classFormSchema = z.object({
     .string()
     .min(1, '카테고리를 선택해주세요.')
     .refine((val) => (categoryOptions as readonly string[]).includes(val), {
-      message: '유효한 카테고리를 선택해주세요.',
+      error: '유효한 카테고리를 선택해주세요.',
     }),
   level: z
     .string()
     .min(1, '난이도를 선택해주세요.')
     .refine((val) => (levelOptions as readonly string[]).includes(val), {
-      message: '유효한 난이도를 선택해주세요.',
+      error: '유효한 난이도를 선택해주세요.',
     }),
 
   pricePoints: z
@@ -51,7 +51,7 @@ export const classFormSchema = z.object({
         return !isNaN(Number(numericValue)) && Number(numericValue) > 0;
       },
       {
-        message: '올바른 가격을 입력해주세요.',
+        error: '올바른 가격을 입력해주세요.',
       },
     ),
 
@@ -64,7 +64,7 @@ export const classFormSchema = z.object({
         return !isNaN(Number(numericValue)) && Number(numericValue) > 0;
       },
       {
-        message: '올바른 인원을 입력해주세요.',
+        error: '올바른 인원을 입력해주세요.',
       },
     ),
 

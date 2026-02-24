@@ -105,16 +105,17 @@ export default function PaymentFailPage() {
             다시 시도
           </BaseButton>
           {/* 테스트 모드: 실패 페이지에서 성공 페이지로 이동 */}
-          {(searchParams.get('classId') || searchParams.get('amount')) && (
-            <BaseButton
-              type="button"
-              variant="secondary"
-              onClick={handleTestMode}
-              className="w-full py-[11px] text-[17px] font-semibold max-[640px]:py-3 max-[640px]:text-base"
-            >
-              테스트 모드: 성공 페이지로 이동
-            </BaseButton>
-          )}
+          {process.env.NODE_ENV === 'development' &&
+            (searchParams.get('classId') || searchParams.get('amount')) && (
+              <BaseButton
+                type="button"
+                variant="secondary"
+                onClick={handleTestMode}
+                className="w-full py-[11px] text-[17px] font-semibold max-[640px]:py-3 max-[640px]:text-base"
+              >
+                테스트 모드: 성공 페이지로 이동
+              </BaseButton>
+            )}
           <div className="flex gap-4 max-[640px]:flex-col max-[640px]:gap-3">
             <a
               href="https://docs.tosspayments.com/reference/error-codes"

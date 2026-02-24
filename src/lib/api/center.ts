@@ -15,8 +15,8 @@ export interface CenterItem {
 
   owner: {
     nickname: string;
-    phoneNumber: string | null; // 연락처
-    profileImage: string | null; // 프로필 이미지
+    phone: string | null; // 연락처
+    profileImgUrl: string | null; // 프로필 이미지
   };
 }
 

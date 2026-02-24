@@ -6,6 +6,7 @@ import ReservationList from './reservations/_components/ReservationList';
 import { classApi, ClassItem } from '@/lib/api/class';
 import { reservationApi } from '@/lib/api/reservation';
 import { Reservation } from '@/types';
+import { calculateDateRange } from '@/lib/utils/filterDate';
 
 export default function AdminHomePage() {
   const [pendingClasses, setPendingClasses] = useState<ClassItem[]>([]);
@@ -35,51 +36,21 @@ export default function AdminHomePage() {
     }
   }, []);
 
-  type ReservationListPayload = {
-    data?: Reservation[] | { data?: Reservation[]; total?: number; totalCount?: number };
-    content?: Reservation[];
-    reservations?: Reservation[];
-    total?: number;
-    totalCount?: number;
-    totalElements?: number;
-  };
-
   const fetchReservations = useCallback(async () => {
     setReservationsLoading(true);
     try {
+      const { startDate, endDate } = calculateDateRange('전체기간');
+
       const response = await reservationApi.getAdminReservations({
-        skip: '0',
-        take: PREVIEW_LIMIT.toString(),
+        // page: 1,
+        // limit: PREVIEW_LIMIT,
+        startDate,
+        endDate,
       });
 
-      const raw = response as ReservationListPayload | Reservation[];
-      let list: Reservation[] = [];
-      let total = 0;
-
-      if (Array.isArray(raw)) {
-        list = raw;
-        total = list.length;
-      } else {
-        const res = raw;
-        if (
-          res?.data &&
-          !Array.isArray(res.data) &&
-          Array.isArray((res.data as { data?: Reservation[] }).data)
-        ) {
-          const d = res.data as { data: Reservation[]; total?: number; totalCount?: number };
-          list = d.data;
-          total = d.total ?? d.totalCount ?? 0;
-        } else if (res?.data && Array.isArray(res.data)) {
-          list = res.data;
-          total = res.total ?? res.totalCount ?? list.length;
-        } else if (res?.content && Array.isArray(res.content)) {
-          list = res.content;
-          total = res.totalElements ?? res.total ?? 0;
-        } else if (res?.reservations && Array.isArray(res.reservations)) {
-          list = res.reservations;
-          total = res.totalCount ?? 0;
-        }
-      }
+      const res = response as { data?: Reservation[]; total?: number; totalCount?: number };
+      const list = (res?.data ?? []).slice(0, PREVIEW_LIMIT);
+      const total = res?.total ?? res?.totalCount ?? list.length;
 
       setReservations(list);
       setTotalReservationCount(total);

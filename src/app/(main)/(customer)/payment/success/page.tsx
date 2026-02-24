@@ -405,15 +405,19 @@ export default function PaymentSuccessPage() {
                   >
                     {isChargingPoints ? '포인트 충전 중...' : '결제 승인하기'}
                   </BaseButton>
-                  <BaseButton
-                    type="button"
-                    variant="secondary"
-                    onClick={chargePointsDirectly}
-                    className="w-full py-[11px] text-[17px] font-semibold max-[640px]:py-3 max-[640px]:text-base"
-                    disabled={isChargingPoints || isCreatingReservation}
-                  >
-                    {isChargingPoints ? '포인트 충전 중...' : '테스트 모드: 결제 없이 포인트 충전'}
-                  </BaseButton>
+                  {process.env.NODE_ENV === 'development' && (
+                    <BaseButton
+                      type="button"
+                      variant="secondary"
+                      onClick={chargePointsDirectly}
+                      className="w-full py-[11px] text-[17px] font-semibold max-[640px]:py-3 max-[640px]:text-base"
+                      disabled={isChargingPoints || isCreatingReservation}
+                    >
+                      {isChargingPoints
+                        ? '포인트 충전 중...'
+                        : '테스트 모드: 결제 없이 포인트 충전'}
+                    </BaseButton>
+                  )}
                 </>
               ) : (
                 <>
@@ -431,19 +435,21 @@ export default function PaymentSuccessPage() {
                   >
                     {isCreatingReservation ? '예약 생성 중...' : '결제 승인하기'}
                   </BaseButton>
-                  {searchParams.get('classId') && searchParams.get('slotId') && (
-                    <BaseButton
-                      type="button"
-                      variant="secondary"
-                      onClick={createReservationDirectly}
-                      className="w-full py-[11px] text-[17px] font-semibold max-[640px]:py-3 max-[640px]:text-base"
-                      disabled={isCreatingReservation}
-                    >
-                      {isCreatingReservation
-                        ? '예약 생성 중...'
-                        : '테스트 모드: 결제 없이 예약 생성'}
-                    </BaseButton>
-                  )}
+                  {process.env.NODE_ENV === 'development' &&
+                    searchParams.get('classId') &&
+                    searchParams.get('slotId') && (
+                      <BaseButton
+                        type="button"
+                        variant="secondary"
+                        onClick={createReservationDirectly}
+                        className="w-full py-[11px] text-[17px] font-semibold max-[640px]:py-3 max-[640px]:text-base"
+                        disabled={isCreatingReservation}
+                      >
+                        {isCreatingReservation
+                          ? '예약 생성 중...'
+                          : '테스트 모드: 결제 없이 예약 생성'}
+                      </BaseButton>
+                    )}
                 </>
               )}
             </div>

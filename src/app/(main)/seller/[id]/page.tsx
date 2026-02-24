@@ -95,8 +95,7 @@ export default function SellerClassDetailPage() {
           updatedAt: new Date(apiDetail.createdAt),
           center: apiDetail.center,
           _count: {
-            reservations: apiDetail._count.reservations,
-            reviews: apiDetail._count.reviews,
+            reviews: apiDetail._count?.reviews,
           },
         };
 
@@ -134,7 +133,7 @@ export default function SellerClassDetailPage() {
         setClassDataForComponents(classForComponents);
         setCenterData(uiCenterData);
         setClassSchedule(parsedSchedule);
-        setReviewCount(apiDetail._count.reviews || 0);
+        setReviewCount(apiDetail._count?.reviews || 0);
       } catch {
         // 조회 실패 시 무시
       } finally {
@@ -385,9 +384,7 @@ export default function SellerClassDetailPage() {
             />
             <div className="flex items-center gap-1.5">
               <Image src={userIcon} alt="인원" width={20} height={20} />
-              <p className="text-base font-medium text-gray-400">
-                {classData._count.reservations}/{classData.capacity}
-              </p>
+              <p className="text-base font-medium text-gray-400">{classData.capacity}명</p>
             </div>
           </div>
 

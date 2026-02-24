@@ -24,7 +24,7 @@ export function calculateDateRange(period: string): { startDate?: string; endDat
       startDate = subMonths(now, 1);
       break;
     case '전체기간':
-      return { startDate: '2020-01-01', endDate: '2100-12-31' };
+      return { startDate: undefined, endDate: undefined };
     default:
       startDate = subDays(now, 1); // 기본값: 1일
   }

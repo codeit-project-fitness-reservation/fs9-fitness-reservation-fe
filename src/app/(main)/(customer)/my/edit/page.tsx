@@ -95,7 +95,7 @@ export default function EditProfilePage() {
 
         formData.append('profileImage', profileFile);
 
-        await userApi.updateProfile(formData);
+        await userApi.updateCustomerProfile(formData);
       } else {
         const jsonData: Record<string, string> = {
           nickname,
@@ -104,7 +104,7 @@ export default function EditProfilePage() {
 
         jsonData.password = password;
 
-        await userApi.updateProfile(jsonData);
+        await userApi.updateCustomerProfile(jsonData);
       }
 
       alert('회원 정보가 수정되었습니다.');

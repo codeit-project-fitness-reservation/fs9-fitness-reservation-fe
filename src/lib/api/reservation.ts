@@ -2,14 +2,14 @@ import { apiClient } from '../api';
 
 export interface ReservationSearchParams {
   page?: string;
+  limit?: string;
   size?: string;
   status?: string;
   startDate?: string;
   endDate?: string;
   searchType?: string;
   keyword?: string;
-  skip?: string;
-  take?: string;
+  userId?: string;
 }
 
 export interface ReservationStats {
@@ -114,7 +114,7 @@ export const reservationApi = {
     startDate?: string;
     endDate?: string;
   }): Promise<ReservationStats> => {
-    const queryParams: Record<string, string> = {};
+    const queryParams: Record<string, string | number> = {};
     if (params?.startDate) queryParams.startDate = params.startDate;
     if (params?.endDate) queryParams.endDate = params.endDate;
     return apiClient.get<ReservationStats>('/api/reservations/admin/reservations/stats', {

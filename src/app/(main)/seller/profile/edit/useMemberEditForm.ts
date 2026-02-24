@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { centerApi } from '@/lib/api/center';
+import { userApi } from '@/lib/api/user';
 import { memberFormSchema, MemberFormInput } from './memberSchema';
 import { MOCK_MEMBER_DATA } from '@/mocks/centers';
 
@@ -41,13 +42,9 @@ export function useMemberForm() {
           setValue('description', data.introduction || '');
 
           setValue('nickname', data.owner.nickname);
+          setValue('contact', data.owner.phone || MOCK_MEMBER_DATA.contact || '');
 
-          //TODO: 추후 전화번호   mock data 제거 필요(백엔드 쪽 코드 확인 후)
-          setValue('contact', data.owner.phoneNumber || MOCK_MEMBER_DATA.contact || '');
-
-          //TODO: 추후 프로필 이미지 mock data 제거  필요(백엔드 쪽 코드 확인 후)
-
-          const profileImage = data.owner.profileImage || MOCK_MEMBER_DATA.profileImage || null;
+          const profileImage = data.owner.profileImgUrl || MOCK_MEMBER_DATA.profileImage || null;
           if (profileImage) {
             setProfilePreview(profileImage);
           }
@@ -73,38 +70,30 @@ export function useMemberForm() {
     if (!centerId) return;
 
     try {
-      if (profileFile) {
-        const formData = new FormData();
-        formData.append('nickname', data.nickname);
-        formData.append('phoneNumber', data.contact);
-        formData.append('name', data.companyName);
-        formData.append('address1', data.roadAddress);
-        formData.append('address2', data.detailAddress || '');
-        formData.append('introduction', data.description);
+      // 유저 프로필 수정 (nickname, phone, password, profileImage)
+      const profileFormData = new FormData();
+      profileFormData.append('nickname', data.nickname);
+      profileFormData.append('phone', data.contact);
 
-        if (data.password && data.password.trim().length >= 8) {
-          formData.append('password', data.password);
-        }
-
-        formData.append('profileImage', profileFile);
-
-        await centerApi.updateCenter(centerId, formData);
-      } else {
-        const jsonData: Record<string, string> = {
-          nickname: data.nickname,
-          phoneNumber: data.contact,
-          name: data.companyName,
-          address1: data.roadAddress,
-          address2: data.detailAddress || '',
-          introduction: data.description,
-        };
-
-        if (data.password && data.password.trim().length >= 8) {
-          jsonData.password = data.password;
-        }
-
-        await centerApi.updateCenter(centerId, jsonData);
+      if (data.password && data.password.trim().length >= 8) {
+        profileFormData.append('password', data.password);
       }
+
+      if (profileFile) {
+        profileFormData.append('profileImage', profileFile);
+      }
+
+      await userApi.updateSellerProfile(profileFormData);
+
+      // 센터 정보 수정 (name, address1, address2, introduction)
+      const centerData: Record<string, string> = {
+        name: data.companyName,
+        address1: data.roadAddress,
+        address2: data.detailAddress || '',
+        introduction: data.description,
+      };
+
+      await centerApi.updateCenter(centerId, centerData);
 
       alert('성공적으로 수정되었습니다.');
 
