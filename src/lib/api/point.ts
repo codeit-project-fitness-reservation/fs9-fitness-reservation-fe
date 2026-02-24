@@ -120,10 +120,7 @@ export const pointApi = {
    */
   getSellerSettlement: (params: { year: number; month: number }) => {
     return apiClient.get<SellerSettlementResponse>('/api/points/seller/settlement', {
-      params: buildQueryParams({
-        year: params.year,
-        month: params.month,
-      }),
+      params: buildQueryParams(params),
     });
   },
 
@@ -135,13 +132,17 @@ export const pointApi = {
     limit?: number;
   }) => {
     return apiClient.get<SellerTransactionResponse>('/api/points/seller/transactions', {
-      params: buildQueryParams({
-        ...params,
-      }),
+      params: buildQueryParams(params),
     });
   },
+
+  /**
+   * [Admin] 포인트 조정 및 내역 관리
+   */
   adjustPoint: (data: AdjustPointInput) => apiClient.post('/api/points/admin/adjust', data),
 
   getHistory: (params: { page?: number; limit?: number; userId?: string }) =>
-    apiClient.get('/api/points/admin/history', { params }),
+    apiClient.get('/api/points/admin/history', {
+      params: buildQueryParams(params),
+    }),
 };
