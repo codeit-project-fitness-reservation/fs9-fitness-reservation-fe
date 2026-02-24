@@ -19,8 +19,8 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     password: 'password123',
     pointBalance: 10000,
     couponCount: 2,
-    createdAt: new Date('2026-01-01'),
-    updatedAt: new Date('2026-01-20'),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-20T00:00:00.000Z',
   },
   'seller@test.com': {
     id: 'seller-1',
@@ -31,8 +31,8 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     password: 'sellerpassword',
     pointBalance: 0,
     couponCount: 0,
-    createdAt: new Date('2026-01-01'),
-    updatedAt: new Date('2026-01-20'),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-20T00:00:00.000Z',
   },
   'admin@test.com': {
     id: 'admin-1',
@@ -43,8 +43,8 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     password: 'adminpassword',
     pointBalance: 0,
     couponCount: 0,
-    createdAt: new Date('2026-01-01'),
-    updatedAt: new Date('2026-01-20'),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-20T00:00:00.000Z',
   },
 };
 
@@ -55,7 +55,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     title: '새로운 예약이 신청되었습니다.',
     body: '초급 필라테스 클래스에 새로운 예약이 있습니다.',
     isRead: false,
-    createdAt: new Date('2026-01-19'),
+    createdAt: '2026-01-19T00:00:00.000Z',
   },
   {
     id: 'noti-2',
@@ -63,7 +63,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
     title: '시스템 점검 안내입니다.',
     body: '2026년 1월 25일 새벽 2시~4시 시스템 점검이 예정되어 있습니다.',
     isRead: true,
-    createdAt: new Date('2026-01-18'),
+    createdAt: '2026-01-18T00:00:00.000Z',
   },
 ];
 
@@ -86,8 +86,8 @@ export const MOCK_SELLER_CENTER: Center = {
   },
   lat: 37.5012,
   lng: 127.0396,
-  createdAt: new Date('2026-01-01'),
-  updatedAt: new Date('2026-01-15'),
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-15T00:00:00.000Z',
 };
 
 // 판매자 클래스 목록
@@ -116,8 +116,8 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
     _count: {
       reviews: 12,
     },
-    createdAt: new Date('2026-01-10'),
-    updatedAt: new Date('2026-01-15'),
+    createdAt: '2026-01-10T00:00:00.000Z',
+    updatedAt: '2026-01-15T00:00:00.000Z',
   },
   {
     id: 'class-2',
@@ -144,8 +144,8 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
     _count: {
       reviews: 0,
     },
-    createdAt: new Date('2026-01-18'),
-    updatedAt: new Date('2026-01-18'),
+    createdAt: '2026-01-18T00:00:00.000Z',
+    updatedAt: '2026-01-18T00:00:00.000Z',
   },
   {
     id: 'class-3',
@@ -171,8 +171,8 @@ export const MOCK_SELLER_CLASSES: ClassItem[] = [
     _count: {
       reviews: 0,
     },
-    createdAt: new Date('2026-01-17'),
-    updatedAt: new Date('2026-01-19'),
+    createdAt: '2026-01-17T00:00:00.000Z',
+    updatedAt: '2026-01-19T00:00:00.000Z',
   },
 ];
 // 판매자 스케줄 (오늘의 스케줄) - ClassSlot 기반
@@ -182,8 +182,8 @@ export const MOCK_SELLER_SCHEDULES: ScheduleEvent[] = [
     classId: 'class-1',
     slotId: 'slot-1',
     title: ' 근력 운동',
-    start: new Date(2026, 0, 22, 12, 0),
-    end: new Date(2026, 0, 22, 13, 0),
+    start: '2026-01-22T12:00:00.000Z',
+    end: '2026-01-22T13:00:00.000Z',
     resource: {
       className: '근력 운동',
       category: '헬스',
@@ -199,8 +199,8 @@ export const MOCK_SELLER_SCHEDULES: ScheduleEvent[] = [
     classId: 'class-1',
     slotId: 'slot-2',
     title: '30분 근력 운동',
-    start: new Date(2026, 0, 21, 14, 30),
-    end: new Date(2026, 0, 21, 15, 30),
+    start: '2026-01-21T14:30:00.000Z',
+    end: '2026-01-21T15:30:00.000Z',
     resource: {
       className: '30분 근력 운동',
       category: '헬스',
@@ -216,8 +216,8 @@ export const MOCK_SELLER_SCHEDULES: ScheduleEvent[] = [
     classId: 'class-2',
     slotId: 'slot-5',
     title: '힐링 요가 클래스',
-    start: new Date(2026, 0, 23, 18, 0),
-    end: new Date(2026, 0, 23, 19, 30),
+    start: '2026-01-23T18:00:00.000Z',
+    end: '2026-01-23T19:30:00.000Z',
     resource: {
       className: '힐링 요가 클래스',
       category: '요가',
@@ -233,8 +233,8 @@ export const MOCK_SELLER_SCHEDULES: ScheduleEvent[] = [
     classId: 'class-1',
     slotId: 'slot-7',
     title: '60분 근력 운동',
-    start: new Date(2026, 0, 24, 11, 0),
-    end: new Date(2026, 0, 24, 12, 0),
+    start: '2026-01-24T11:00:00.000Z',
+    end: '2026-01-24T12:00:00.000Z',
     resource: {
       className: '30분 근력 운동',
       category: '헬스',
@@ -476,7 +476,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2025.12.05. 10:00',
     amount: 50000,
-    createdAt: new Date('2025-12-05T10:00:00'),
+    createdAt: new Date('2025-12-05T10:00:00').toISOString(),
   },
   {
     id: 'st-2025-12-2',
@@ -486,7 +486,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2025.12.10. 18:00',
     amount: 40000,
-    createdAt: new Date('2025-12-10T18:00:00'),
+    createdAt: new Date('2025-12-10T18:00:00').toISOString(),
   },
   {
     id: 'st-2025-12-3',
@@ -496,7 +496,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2025.12.15. 14:00',
     amount: 50000,
-    createdAt: new Date('2025-12-15T14:00:00'),
+    createdAt: new Date('2025-12-15T14:00:00').toISOString(),
   },
   {
     id: 'st-2025-12-4',
@@ -506,7 +506,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2025.12.20. 19:00',
     amount: 40000,
-    createdAt: new Date('2025-12-20T19:00:00'),
+    createdAt: new Date('2025-12-20T19:00:00').toISOString(),
   },
   {
     id: 'st-2025-12-5',
@@ -516,7 +516,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '환불',
     dateTime: '2025.12.25. 18:00',
     amount: -40000,
-    createdAt: new Date('2025-12-25T18:00:00'),
+    createdAt: new Date('2025-12-25T18:00:00').toISOString(),
   },
 
   // ===== 2026년 1월 거래 (총 매출 420,000원) =====
@@ -528,7 +528,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2026.01.02. 10:00',
     amount: 50000,
-    createdAt: new Date('2026-01-02T10:00:00'),
+    createdAt: new Date('2026-01-02T10:00:00').toISOString(),
   },
   {
     id: 'st-2',
@@ -538,7 +538,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2026.01.05. 14:00',
     amount: 50000,
-    createdAt: new Date('2026-01-05T14:00:00'),
+    createdAt: new Date('2026-01-05T14:00:00').toISOString(),
   },
   {
     id: 'st-3',
@@ -548,7 +548,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2026.01.10. 11:00',
     amount: 50000,
-    createdAt: new Date('2026-01-10T11:00:00'),
+    createdAt: new Date('2026-01-10T11:00:00').toISOString(),
   },
   {
     id: 'st-4',
@@ -558,7 +558,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2026.01.15. 16:00',
     amount: 50000,
-    createdAt: new Date('2026-01-15T16:00:00'),
+    createdAt: new Date('2026-01-15T16:00:00').toISOString(),
   },
   // 힐링 요가 클래스 거래 (총 220,000원)
   {
@@ -569,7 +569,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2026.01.03. 18:00',
     amount: 40000,
-    createdAt: new Date('2026-01-03T18:00:00'),
+    createdAt: new Date('2026-01-03T18:00:00').toISOString(),
   },
   {
     id: 'st-6',
@@ -579,7 +579,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2026.01.06. 19:00',
     amount: 40000,
-    createdAt: new Date('2026-01-06T19:00:00'),
+    createdAt: new Date('2026-01-06T19:00:00').toISOString(),
   },
   {
     id: 'st-7',
@@ -589,7 +589,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2026.01.08. 18:30',
     amount: 40000,
-    createdAt: new Date('2026-01-08T18:30:00'),
+    createdAt: new Date('2026-01-08T18:30:00').toISOString(),
   },
   {
     id: 'st-8',
@@ -599,7 +599,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2026.01.12. 17:00',
     amount: 40000,
-    createdAt: new Date('2026-01-12T17:00:00'),
+    createdAt: new Date('2026-01-12T17:00:00').toISOString(),
   },
   {
     id: 'st-9',
@@ -609,7 +609,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2026.01.16. 19:30',
     amount: 40000,
-    createdAt: new Date('2026-01-16T19:30:00'),
+    createdAt: new Date('2026-01-16T19:30:00').toISOString(),
   },
   {
     id: 'st-10',
@@ -619,7 +619,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '완료',
     dateTime: '2026.01.20. 18:00',
     amount: 20000,
-    createdAt: new Date('2026-01-20T18:00:00'),
+    createdAt: new Date('2026-01-20T18:00:00').toISOString(),
   },
   // 취소/환불 (총 10,000원)
   {
@@ -630,7 +630,7 @@ export const MOCK_SALES_TRANSACTIONS: SalesTransaction[] = [
     statusLabel: '환불',
     dateTime: '2026.01.18. 14:00',
     amount: -50000,
-    createdAt: new Date('2026-01-18T14:00:00'),
+    createdAt: new Date('2026-01-18T14:00:00').toISOString(),
   },
 ];
 

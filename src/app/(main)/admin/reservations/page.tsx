@@ -60,17 +60,14 @@ export default function AdminReservationsPage() {
         status: currentFilters.status !== '전체' ? currentFilters.status : undefined,
         keyword: currentFilters.search,
         searchType: currentFilters.search ? currentFilters.searchType : undefined,
-        // page: page,
-        // limit: take,
       });
 
-      const res = response as { data?: Reservation[]; total?: number; totalCount?: number };
-      const list = res?.data ?? [];
-      const total = res?.total ?? res?.totalCount ?? list.length;
+      const list = response.data ?? [];
+      const total = response.total ?? list.length;
 
       setReservations(list);
       setTotalCount(total);
-      setTotalPages(Math.ceil(total / ITEMS_PER_PAGE) || 1);
+      setTotalPages(response.totalPages ?? Math.ceil(total / ITEMS_PER_PAGE) ?? 1);
     } catch (error) {
       console.error('예약 조회 실패:', error);
     } finally {

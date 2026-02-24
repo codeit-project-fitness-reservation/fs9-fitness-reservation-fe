@@ -85,13 +85,13 @@ export default function PaymentPage() {
           capacity: classResponse.capacity,
           bannerUrl: classResponse.bannerUrl ?? null,
           imgUrls: classResponse.imgUrls || [],
-          status: classResponse.status as Class['status'],
+          status: classResponse.status,
           rejectReason: null,
           createdAt: classResponse.createdAt,
           updatedAt: classResponse.createdAt,
           currentReservation: 0,
           rating: 0,
-          reviewCount: classResponse._count.reviews || 0,
+          reviewCount: classResponse._count?.reviews || 0,
         };
 
         setClassData(mappedClass);
@@ -108,8 +108,8 @@ export default function PaymentPage() {
             businessHours: (centerResponse.businessHours as Record<string, unknown>) ?? undefined,
             lat: centerResponse.lat ?? undefined,
             lng: centerResponse.lng ?? undefined,
-            createdAt: new Date(centerResponse.createdAt),
-            updatedAt: new Date(centerResponse.updatedAt),
+            createdAt: centerResponse.createdAt,
+            updatedAt: centerResponse.updatedAt,
           };
           setCenterData(mappedCenter);
         } catch (centerError) {
@@ -120,8 +120,8 @@ export default function PaymentPage() {
             name: classResponse.center.name,
             address1: classResponse.center.address1 || '',
             address2: classResponse.center.address2 ?? undefined,
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
           };
           setCenterData(fallbackCenter);
         }
@@ -132,12 +132,15 @@ export default function PaymentPage() {
             const mappedSlot: ClassSlot = {
               id: slot.id,
               classId: classId,
-              startAt: new Date(slot.startAt),
-              endAt: new Date(slot.endAt),
+              startAt: typeof slot.startAt === 'string' ? slot.startAt : slot.startAt.toISOString(),
+              endAt: typeof slot.endAt === 'string' ? slot.endAt : slot.endAt.toISOString(),
               capacity: slot.capacity,
               currentReservation: slot.currentReservation ?? slot.currentReservations ?? 0,
               isOpen: slot.isOpen ?? true,
-              createdAt: slot.createdAt ? new Date(slot.createdAt) : new Date(),
+              createdAt:
+                typeof slot.createdAt === 'string'
+                  ? slot.createdAt
+                  : (slot.createdAt?.toISOString() ?? new Date().toISOString()),
             };
             setSlotData(mappedSlot);
           } else {
@@ -244,12 +247,12 @@ export default function PaymentPage() {
     if (!classId || !slotId || !classData || !slotData) return;
 
     const calculateCouponDiscount = (): number => {
-      if (!selectedCoupon?.template) return 0;
-      const { discountPoints, discountPercentage } = selectedCoupon.template;
-      if (discountPoints > 0) {
+      if (!selectedCoupon) return 0;
+      const { discountPoints, discountPercentage } = selectedCoupon;
+      if (discountPoints && discountPoints > 0) {
         return discountPoints;
       }
-      if (discountPercentage > 0) {
+      if (discountPercentage && discountPercentage > 0) {
         return Math.floor((classData.pricePoints * discountPercentage) / 100);
       }
       return 0;
@@ -286,12 +289,12 @@ export default function PaymentPage() {
   }
 
   const calculateCouponDiscount = (): number => {
-    if (!selectedCoupon?.template) return 0;
-    const { discountPoints, discountPercentage } = selectedCoupon.template;
-    if (discountPoints > 0) {
+    if (!selectedCoupon) return 0;
+    const { discountPoints, discountPercentage } = selectedCoupon;
+    if (discountPoints && discountPoints > 0) {
       return discountPoints;
     }
-    if (discountPercentage > 0) {
+    if (discountPercentage && discountPercentage > 0) {
       return Math.floor((classData.pricePoints * discountPercentage) / 100);
     }
     return 0;

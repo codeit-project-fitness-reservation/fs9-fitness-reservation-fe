@@ -1,30 +1,32 @@
 import { ScheduleEvent } from '@/types';
 
-/**
- * Customer 메인 페이지용 스케줄 이벤트
- */
 export const MOCK_SCHEDULES: ScheduleEvent[] = [
   {
     id: 'schedule-1',
     classId: 'class-1',
     slotId: 'slot-class-1-20260124-1000',
     title: '필라테스 기초',
-    start: new Date(new Date().setHours(10, 0, 0, 0)),
-    end: new Date(new Date().setHours(11, 0, 0, 0)),
+    start: new Date(new Date().setHours(10, 0, 0, 0)).toISOString(),
+    end: new Date(new Date().setHours(11, 0, 0, 0)).toISOString(),
   },
   {
     id: 'schedule-2',
     classId: 'class-2',
     slotId: 'slot-class-2-20260125-1400',
     title: '요가 중급',
-    start: new Date(new Date().setDate(new Date().getDate() + 1)),
-    end: new Date(new Date().setDate(new Date().getDate() + 1)),
+    start: (() => {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      return d.toISOString();
+    })(),
+    end: (() => {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      return d.toISOString();
+    })(),
   },
 ];
 
-/**
- * Customer 메인 페이지용 주변 센터 목록
- */
 export const MOCK_NEARBY_CENTERS = [
   {
     id: 'center-1',

@@ -99,7 +99,7 @@ export default function ReservationList({
                   >
                     <td className="px-6 py-4 font-medium text-gray-900">{createdAtTime}</td>
                     <td className="px-6 py-4 font-medium text-gray-900">
-                      {reservation.user?.nickname ?? reservation.user?.name ?? '-'}
+                      {reservation.user?.nickname ?? '-'}
                     </td>
                     <td className="px-6 py-4 text-gray-900">
                       {reservation.class?.center?.name ?? '-'}

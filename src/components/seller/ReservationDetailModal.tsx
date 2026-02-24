@@ -56,9 +56,8 @@ export default function ReservationDetailModal({
 
   const fetchDetail = useCallback(async () => {
     try {
-      const res = await classApi.getSellerReservationDetail(reservationId);
-      const reservationData = (res as { data?: ReservationItem } & ReservationItem).data || res;
-      setData(reservationData as ReservationItem);
+      const reservationData = await classApi.getSellerReservationDetail(reservationId);
+      setData(reservationData);
     } catch (error) {
       console.error('상세 정보 로드 실패:', error);
     } finally {
@@ -109,10 +108,14 @@ export default function ReservationDetailModal({
   }
   timelineItems.sort((a, b) => a.at.getTime() - b.at.getTime());
 
-  const pricePoints = data.pricePoints || data.payment?.pointsUsed || 0;
-  const couponDiscount = data.couponDiscountPoints || data.payment?.couponDiscount || 0;
-  const paidPoints = data.paidPoints || pricePoints - couponDiscount;
-  const displayStatus = data.status === 'CONFIRMED' ? 'BOOKED' : data.status;
+  const pricePoints = data.pricePoints ?? 0;
+  const couponDiscount = data.couponDiscountPoints ?? 0;
+  const paidPoints = data.paidPoints ?? Math.max(0, pricePoints - couponDiscount);
+  const displayStatus = data.status;
+
+  const useEntry = data.pointHistories?.find((ph) => ph.type === 'USE');
+  const paymentId = useEntry?.paymentKey ?? data.payment?.paymentId ?? data.id ?? '-';
+  const orderNumber = useEntry?.orderId ?? data.payment?.orderNumber ?? '-';
 
   return (
     <div
@@ -144,8 +147,8 @@ export default function ReservationDetailModal({
               </span>
             )}
           </InfoRow>
-          <InfoRow label="결제 ID">{data.payment?.paymentId || data.id || '-'}</InfoRow>
-          <InfoRow label="주문번호">{data.payment?.orderNumber || '-'}</InfoRow>
+          <InfoRow label="결제 ID">{paymentId}</InfoRow>
+          <InfoRow label="주문번호">{orderNumber}</InfoRow>
         </Section>
 
         <Section title="타임라인" isGray>

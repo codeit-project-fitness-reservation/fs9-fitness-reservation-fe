@@ -38,10 +38,9 @@ export default function CenterReviews({ centerId }: CenterReviewsProps) {
           rating: review.rating,
           content: review.content ?? undefined,
           imgUrls: review.imgUrls || [],
-          createdAt:
-            review.createdAt instanceof Date ? review.createdAt : new Date(review.createdAt),
-          userNickname: review.userNickname,
-          userProfileImg: review.userProfileImg,
+          createdAt: review.createdAt,
+          userNickname: review.user?.nickname ?? review.userNickname,
+          userProfileImg: review.user?.profileImgUrl ?? review.userProfileImg,
         }));
 
         setReviews(mappedReviews);
