@@ -39,16 +39,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Create env file from fe_env secret
+        env:
+          FE_ENV: ${{ secrets.fe_env }}
+        run: |
+          echo "$FE_ENV" > .env.local
+
       - name: Lint
         run: pnpm lint
 
       - name: Build
         run: pnpm build
-        env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
-          NEXT_PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
-          NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY: ${{ secrets.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY }}
-          TOSS_PAYMENTS_SECRET_KEY: ${{ secrets.TOSS_PAYMENTS_SECRET_KEY }}
 
       - name: Prepare standalone bundle
         run: |
