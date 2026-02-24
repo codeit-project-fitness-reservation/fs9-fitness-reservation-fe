@@ -6,6 +6,7 @@ import { ReservationItem, classApi } from '@/lib/api/class';
 import StatusChip from '@/components/StatusChip';
 import { format } from 'date-fns';
 import icXClose from '@/assets/images/x-close.svg';
+import ModalFooterButtons from '@/components/common/ModalFooterButtons';
 
 interface ReservationDetailModalProps {
   onClose: () => void;
@@ -91,11 +92,16 @@ export default function ReservationDetailModal({
     }
   };
 
+  const handleUserMemo = () => {
+    // TODO: 유저 메모 기능 구현
+    alert('유저 메모 기능은 준비 중입니다.');
+  };
+
   if (loading) return <div className="p-10 text-center">정보를 불러오는 중...</div>;
   if (!data) return null;
 
-  // 비활성화 조건 정의
-  const isCancelDisabled = isCanceling || data.status === 'CANCELED' || data.status === 'COMPLETED';
+  // 취소 가능 여부: 완료되거나 취소된 예약은 취소 불가
+  const canCancel = data.status !== 'CANCELED' && data.status !== 'COMPLETED';
 
   const timelineItems: { at: Date; status: string }[] = [];
   if (data.createdAt) {
@@ -116,7 +122,7 @@ export default function ReservationDetailModal({
 
   return (
     <div
-      className="s relative flex max-h-[90vh] w-85.75 flex-col overflow-hidden bg-white p-6 shadow-xl md:w-100 md:p-8"
+      className="s relative flex max-h-[90vh] w-85.75 flex-col overflow-hidden rounded-2xl bg-white p-6 shadow-xl md:w-100 md:p-8"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="mb-6 flex shrink-0 items-center justify-between">
@@ -161,22 +167,16 @@ export default function ReservationDetailModal({
         </Section>
       </div>
 
-      <div className="mt-8 flex gap-3">
-        <button
-          className={`flex-1 rounded-xl border py-3 text-sm font-semibold transition-colors md:py-3.5 ${
-            isCancelDisabled
-              ? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300'
-              : 'border-gray-200 bg-white text-red-500 hover:bg-red-50'
-          }`}
-          onClick={handleCancelReservation}
-          disabled={isCancelDisabled}
-        >
-          {isCanceling ? '처리 중...' : '예약 취소'}
-        </button>
-        <button className="flex-1 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 md:py-3.5">
-          유저 메모
-        </button>
-      </div>
+      <ModalFooterButtons
+        cancelLabel="유저 메모"
+        submitLabel="예약 취소"
+        submitLoadingLabel="처리 중..."
+        onCancel={handleUserMemo}
+        onSubmit={handleCancelReservation}
+        isSubmitting={isCanceling}
+        isValid={canCancel}
+        className="mt-8"
+      />
     </div>
   );
 }

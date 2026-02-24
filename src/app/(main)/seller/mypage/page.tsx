@@ -1,54 +1,78 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { InfoItem } from '@/components/InfoItem';
 import { MenuListItem } from '@/components/MenuListItem';
 import { centerApi, CenterItem } from '@/lib/api/center';
-import { MOCK_MEMBER_DATA } from '@/mocks/centers';
+import { authApi, MeResponse } from '@/lib/api/auth';
+import { formatPhoneNumber } from '@/lib/utils/format';
 import markerPin from '@/assets/images/marker-pin.svg';
 import phoneIcon from '@/assets/images/phone.svg';
 
 export default function SellerMyPage() {
+  const pathname = usePathname();
   const [center, setCenter] = useState<CenterItem | null>(null);
+  const [user, setUser] = useState<MeResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    try {
+      // User 정보와 Center 정보를 병렬로 가져오기
+      const [userData, centerData] = await Promise.all([authApi.me(), centerApi.getMyCenter()]);
+      setUser(userData);
+      setCenter(centerData);
+    } catch (error) {
+      console.error('정보를 불러오는데 실패했습니다:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchMyCenter = async () => {
-      try {
-        const data = await centerApi.getMyCenter();
-        setCenter(data);
-      } catch (error) {
-        console.error('내 센터 정보를 불러오는데 실패했습니다:', error);
-      } finally {
-        setLoading(false);
+    fetchData();
+  }, []);
+
+  // pathname 변경 시 데이터 새로고침 (프로필 수정 후 돌아왔을 때)
+  useEffect(() => {
+    if (pathname === '/seller/mypage') {
+      setLoading(true);
+      fetchData();
+    }
+  }, [pathname]);
+
+  // 페이지 포커스 시 데이터 새로고침 (다른 탭에서 돌아왔을 때)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (pathname === '/seller/mypage') {
+        fetchData();
       }
     };
-
-    fetchMyCenter();
-  }, []);
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [pathname]);
 
   if (loading) return <div className="p-10 text-center">정보를 불러오는 중입니다...</div>;
   if (!center) return <div className="p-10 text-center">등록된 센터 정보가 없습니다.</div>;
+  if (!user) return <div className="p-10 text-center">사용자 정보를 불러올 수 없습니다.</div>;
 
   const centerData = {
     name: center.name,
-    ownerName: center.owner?.nickname,
+    ownerName: user.nickname,
     address: `${center.address1} ${center.address2 || ''}`,
-
-    //TODO: 추후 전화번호 mock data 제거 필요(백엔드 쪽 코드 확인 후)
-    phone: center.owner?.phone || MOCK_MEMBER_DATA.contact || '연락처 미등록',
+    // User의 phone과 profileImage 사용 (전화번호 포맷팅 적용)
+    phone: user.phone ? formatPhoneNumber(user.phone) : '연락처 미등록',
     introduction: center.introduction || '등록된 소개글이 없습니다.',
-    //TODO: 추후 프로필이미지 mock data 제거 필요(백엔드 쪽 코드 확인 후)
-
-    profileImgUrl: center.owner?.profileImgUrl || MOCK_MEMBER_DATA.profileImage || null,
+    // API 응답에서 profileImgUrl 또는 profileImage 사용
+    profileImgUrl: user.profileImgUrl || user.profileImage || null,
   };
 
   const menuItems = [
     { title: '회원 정보 수정', href: '/seller/profile/edit' },
     { title: '클래스 관리', href: '/seller/classes' },
-
-    { title: '정산', href: '/seller/settlement' },
+    { title: '정산', href: '/seller/sales' },
+    { title: '쿠폰 관리', href: '/seller/coupons' },
   ];
 
   return (
@@ -59,10 +83,13 @@ export default function SellerMyPage() {
           <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-100 bg-gray-100 shadow-sm">
             {centerData.profileImgUrl ? (
               <Image
-                src={centerData.profileImgUrl}
+                key={centerData.profileImgUrl} // key를 추가하여 이미지 변경 시 강제 리렌더링
+                src={`${centerData.profileImgUrl}?t=${Date.now()}`}
                 alt={centerData.name}
                 fill
                 className="object-cover"
+                unoptimized
+                priority
               />
             ) : (
               <span className="text-xs font-medium text-gray-400">No Image</span>

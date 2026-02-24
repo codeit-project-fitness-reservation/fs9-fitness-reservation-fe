@@ -3,20 +3,33 @@ import Image from 'next/image';
 
 interface ImageUploadProps {
   selectedImages: File[];
+  existingImageUrls?: string[];
+  removedImageUrls?: string[];
   fileInputRef: RefObject<HTMLInputElement | null>;
   onImageSelect: (file: File) => void;
   onImageRemove: (index: number) => void;
+  onExistingImageRemove?: (url: string) => void;
+  onExistingImageRestore?: (url: string) => void;
 }
 
 const MAX_IMAGES = 3;
 
 export function ImageUpload({
   selectedImages,
+  existingImageUrls = [],
+  removedImageUrls = [],
   fileInputRef,
   onImageSelect,
   onImageRemove,
+  onExistingImageRemove,
+  // onExistingImageRestore는 향후 이미지 복원 기능을 위해 예약되어 있으나 현재는 사용하지 않음
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onExistingImageRestore,
 }: ImageUploadProps) {
-  const canAddMore = selectedImages.length < MAX_IMAGES;
+  // 삭제되지 않은 기존 이미지만 표시
+  const visibleExistingImages = existingImageUrls.filter((url) => !removedImageUrls.includes(url));
+  const totalImages = selectedImages.length + visibleExistingImages.length;
+  const canAddMore = totalImages < MAX_IMAGES;
 
   return (
     <section className="flex flex-col gap-1.5">
@@ -42,7 +55,14 @@ export function ImageUpload({
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  onImageSelect(file);
+                  // 파일명이 없거나 비어있으면 새 File 객체 생성
+                  let fileToAdd = file;
+                  if (!file.name || file.name.trim() === '') {
+                    const extension = file.type.split('/')[1] || 'jpg';
+                    const fileName = `image-${Date.now()}.${extension}`;
+                    fileToAdd = new File([file], fileName, { type: file.type });
+                  }
+                  onImageSelect(fileToAdd);
 
                   e.target.value = '';
                 }
@@ -50,6 +70,30 @@ export function ImageUpload({
             />
           </>
         )}
+        {/* 기존 이미지 표시 */}
+        {visibleExistingImages.map((url, index) => (
+          <div
+            key={`existing-${url}-${index}`}
+            className="relative h-20 w-20 overflow-hidden rounded-lg border border-gray-200"
+          >
+            <Image
+              src={url}
+              alt={`Existing image ${index + 1}`}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+            <button
+              type="button"
+              onClick={() => onExistingImageRemove?.(url)}
+              className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 text-[10px] text-white hover:bg-black/70"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+
+        {/* 새로 선택한 이미지 표시 */}
         {selectedImages.map((file, index) => (
           <div
             key={`${file.name}-${index}`}

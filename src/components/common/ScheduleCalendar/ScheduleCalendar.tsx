@@ -9,7 +9,6 @@ import koLocale from '@fullcalendar/core/locales/ko';
 import Image from 'next/image';
 import icUser from '@/assets/images/user-02.svg';
 import { ScheduleCalendarProps } from './types';
-import EventTags from '../EventTags';
 
 export default function ScheduleCalendar({
   events,
@@ -37,7 +36,7 @@ export default function ScheduleCalendar({
     start: event.start,
     end: event.end,
     extendedProps: {
-      ...event.resource,
+      ...(event.resource || {}),
     },
   }));
 
@@ -74,8 +73,9 @@ export default function ScheduleCalendar({
       if (originalEvent) return renderEvent(originalEvent);
     }
 
+    const extendedProps = eventInfo.event.extendedProps || {};
     const { capacity, instructor, status, category, level, currentReservations, maxCapacity } =
-      eventInfo.event.extendedProps;
+      extendedProps;
     const isDayView = view === 'timeGridDay';
 
     if (!isDayView) {
@@ -93,12 +93,21 @@ export default function ScheduleCalendar({
           ? 'bg-blue-50 text-blue-600'
           : 'bg-[#f5f5f5] text-[#414651]';
 
-    const capacityText =
-      currentReservations != null && maxCapacity != null
-        ? `${currentReservations}/${maxCapacity}`
-        : capacity
-          ? capacity
-          : null;
+    // currentReservations와 maxCapacity가 있으면 "n/n" 형식으로 표시
+    // 없으면 capacity 또는 maxCapacity가 있으면 "0/capacity" 형식으로 표시
+    let capacityText: string | null = null;
+
+    if (
+      typeof currentReservations === 'number' &&
+      typeof maxCapacity === 'number' &&
+      maxCapacity > 0
+    ) {
+      capacityText = `${currentReservations}/${maxCapacity}`;
+    } else if (typeof maxCapacity === 'number' && maxCapacity > 0) {
+      capacityText = `0/${maxCapacity}`;
+    } else if (typeof capacity === 'number' && capacity > 0) {
+      capacityText = `0/${capacity}`;
+    }
 
     return (
       <div className="flex h-full w-full flex-col px-1.5 py-1">
@@ -108,17 +117,32 @@ export default function ScheduleCalendar({
           {instructor && (
             <div className="mt-1 text-[12px] font-medium text-gray-500">{instructor}</div>
           )}
-
-          {capacityText && (
-            <div className="mt-2 flex items-center gap-1 text-[11px] text-gray-500">
-              <Image src={icUser} alt="" width={10} height={10} className="opacity-70" />
-              <span>{capacityText}</span>
-            </div>
-          )}
         </div>
 
         <div className="flex shrink-0 flex-wrap items-end justify-between gap-1">
-          <EventTags category={category} level={level} />
+          <div className="flex items-center gap-1.5">
+            {/* 아이콘 n/n */}
+            {capacityText && (
+              <div className="flex items-center gap-1 text-[11px] text-gray-500">
+                <Image src={icUser} alt="" width={10} height={10} className="opacity-70" />
+                <span>{capacityText}</span>
+              </div>
+            )}
+
+            {/* 카테고리 칩 */}
+            {category && (
+              <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700">
+                {category}
+              </span>
+            )}
+
+            {/* 레벨 칩 */}
+            {level && (
+              <span className="rounded bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-700">
+                {level}
+              </span>
+            )}
+          </div>
 
           {status && (
             <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${statusStyles}`}>

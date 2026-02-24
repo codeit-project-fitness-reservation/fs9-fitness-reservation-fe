@@ -5,12 +5,20 @@ import Image from 'next/image';
 import InputField from '@/components/Field/InputField';
 import TextAreaField from '@/components/Field/TextAreaField';
 import SimpleHeader from '@/components/layout/SimpleHeader';
+import CreateButton from '@/components/common/CreateButton';
 import { useMemberForm } from './useMemberEditForm';
 import editIcon from '@/assets/images/edit.svg';
 
 export default function MemberEditPage() {
-  const { register, handleSubmit, errors, onSubmit, profilePreview, handleImageChange } =
-    useMemberForm();
+  const {
+    register,
+    handleSubmit,
+    errors,
+    onSubmit,
+    profilePreview,
+    handleImageChange,
+    handlePhoneChange,
+  } = useMemberForm();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEditClick = () => {
@@ -22,7 +30,7 @@ export default function MemberEditPage() {
       <main className="relative w-full max-w-232 bg-gray-50 shadow-sm">
         <SimpleHeader title="회원 정보 수정" />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-8 pb-40">
+        <form id="member-edit-form" onSubmit={handleSubmit(onSubmit)} className="p-8 pb-40">
           <div className="mb-10 flex justify-center">
             <div className="relative aspect-square h-26 w-26 md:h-32 md:w-32">
               <input
@@ -35,10 +43,13 @@ export default function MemberEditPage() {
               <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-gray-100 bg-gray-100 shadow-inner">
                 {profilePreview ? (
                   <Image
+                    key={profilePreview} // key 추가로 이미지 변경 시 리렌더링
                     src={profilePreview}
                     alt="프로필 이미지"
                     fill
                     className="rounded-full object-cover"
+                    unoptimized
+                    priority
                   />
                 ) : (
                   <span className="text-xs font-medium text-gray-400">No Image</span>
@@ -72,7 +83,9 @@ export default function MemberEditPage() {
               placeholder="010-0000-0000"
               required
               error={errors.contact?.message}
-              {...register('contact')}
+              {...register('contact', {
+                onChange: handlePhoneChange,
+              })}
             />
 
             <InputField
@@ -111,16 +124,9 @@ export default function MemberEditPage() {
               {...register('passwordConfirm')}
             />
           </div>
-
-          <div className="fixed bottom-0 left-1/2 z-10 w-full max-w-232 -translate-x-1/2 border-t bg-white p-4">
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-blue-600 py-4 text-[16px] font-bold text-white shadow-lg transition-all hover:bg-blue-700"
-            >
-              수정하기
-            </button>
-          </div>
         </form>
+
+        <CreateButton type="submit" form="member-edit-form" label="수정하기" />
       </main>
     </div>
   );
