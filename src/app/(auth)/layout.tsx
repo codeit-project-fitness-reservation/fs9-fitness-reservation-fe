@@ -1,7 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import { useEffect } from 'react';
+import { type ReactNode, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 
@@ -18,7 +17,7 @@ function canAccess(role: Role, path: string): boolean {
   return true;
 }
 
-export default function AuthLayout({ children }: { children: ReactNode }) {
+function AuthRedirectGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextParam = searchParams.get('next');
@@ -46,4 +45,12 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   if (status === 'authenticated') return null;
 
   return <section className="flex min-h-dvh flex-col bg-white">{children}</section>;
+}
+
+export default function AuthLayout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<section className="flex min-h-dvh flex-col bg-white">{children}</section>}>
+      <AuthRedirectGuard>{children}</AuthRedirectGuard>
+    </Suspense>
+  );
 }

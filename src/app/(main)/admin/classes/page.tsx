@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import AdminFilter, { classFilterConfigs, FilterValues } from '../_components/AdminFilter';
 import ClassList from './_components/ClassList';
 import { classApi, ClassStats, ClassItem } from '@/lib/api/class';
+import Pagination from '@/components/Pagination';
 
 export default function AdminClassesPage() {
   const [stats, setStats] = useState<ClassStats>({
@@ -16,6 +17,8 @@ export default function AdminClassesPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [filters, setFilters] = useState<FilterValues>({});
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const fetchStats = async () => {
     try {
@@ -32,8 +35,8 @@ export default function AdminClassesPage() {
       const params = {
         ...filters,
         level: filters.difficulty,
-        page: 1,
-        limit: 100,
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
       };
 
       const cleanParams = Object.fromEntries(
@@ -48,7 +51,7 @@ export default function AdminClassesPage() {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, currentPage]);
 
   useEffect(() => {
     fetchStats();
@@ -60,7 +63,14 @@ export default function AdminClassesPage() {
 
   const handleFilterChange = (newFilters: FilterValues) => {
     setFilters(newFilters);
+    setCurrentPage(1);
   };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE) || 1;
 
   return (
     <div className="space-y-6">
@@ -103,6 +113,16 @@ export default function AdminClassesPage() {
         </div>
         <ClassList classes={classes} loading={loading} onRefresh={fetchClasses} noCard />
       </div>
+
+      {classes.length > 0 && (
+        <div className="mt-4 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import logoImg from '@/assets/images/FITMATCH.svg';
+import { useAuth } from '@/lib/auth';
 
 const navItems = [
   { href: '/admin', label: '관리자 홈' },
@@ -16,9 +17,10 @@ const navItems = [
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    localStorage.removeItem('accessToken');
+  const handleLogout = async () => {
+    await logout();
     router.replace('/login');
   };
 

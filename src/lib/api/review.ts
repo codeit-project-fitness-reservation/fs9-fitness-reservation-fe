@@ -15,13 +15,31 @@ export interface ReviewListResponse {
   limit: number;
 }
 
+export interface CenterReviewResponse {
+  reviews: Review[];
+  pagination: {
+    totalCount: number;
+    totalPage: number;
+    currentPage: number;
+    limit: number;
+  };
+}
+
 export const reviewApi = {
+  // [공통] 센터별 리뷰 목록 조회
+  getCenterReviews: async (centerId: string, params?: { page?: number; limit?: number }) => {
+    return apiClient.get<CenterReviewResponse>(`/api/reviews/center/${centerId}`, { params });
+  },
+
+  // [공통] 클래스별 리뷰 목록 조회
   getReviewsByClass: (classId: string, params?: { page?: number; limit?: number }) =>
-    apiClient.get<ReviewListResponse>(`/api/classes/${classId}/reviews`, { params }),
+    apiClient.get<CenterReviewResponse>(`/api/reviews/class/${classId}`, { params }),
 
-  getMyReviews: (params?: { page?: number; limit?: number }) =>
-    apiClient.get<ReviewListResponse>('/api/reviews/me', { params }),
+  // [고객] 특정 예약의 내 리뷰 조회
+  getMyReviewByReservation: (reservationId: string) =>
+    apiClient.get<Review | null>(`/api/reviews/my/${reservationId}`),
 
+  // [고객] 리뷰 생성
   createReview: (data: CreateReviewData) => {
     const formData = new FormData();
     formData.append('reservationId', data.reservationId);
@@ -37,10 +55,6 @@ export const reviewApi = {
     return apiClient.post<Review>('/api/reviews', formData);
   },
 
+  // [고객] 리뷰 삭제
   deleteReview: (reviewId: string) => apiClient.delete(`/api/reviews/${reviewId}`),
-  getCenterReviews: (centerId: string, params?: { page?: number; limit?: number }) =>
-    apiClient.get<ReviewListResponse>(`/api/reviews/center/${centerId}`, { params }),
-
-  // 클래스별 리뷰 조회 (백엔드에 명시되지 않았지만 필요시 사용)
-  // 백엔드에서 클래스별 리뷰를 제공하지 않으면, centerId로 필터링하거나 다른 방법 사용
 };

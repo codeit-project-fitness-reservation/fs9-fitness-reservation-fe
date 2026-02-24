@@ -72,12 +72,10 @@ export default function CouponSelectModal({
 
           {availableCoupons.map((coupon) => {
             const isSelected = selectedCoupon?.id === coupon.id;
-            const {
-              name = '쿠폰',
-              discountPoints = 0,
-              discountPercentage = 0,
-              expiresAt,
-            } = coupon.template ?? {};
+            const name = coupon.couponName || '쿠폰';
+            const discountPoints = coupon.discountPoints ?? 0;
+            const discountPercentage = coupon.discountPercentage ?? 0;
+            const expiresAt = coupon.expiresAt;
 
             return (
               <button

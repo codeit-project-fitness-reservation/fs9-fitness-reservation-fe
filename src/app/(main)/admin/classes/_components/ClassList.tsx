@@ -42,7 +42,7 @@ export default function ClassList({
               <th className="px-6 py-3">클래스</th>
               <th className="px-6 py-3">{isApproval ? '결제 포인트' : '가격'}</th>
               <th className="px-6 py-3">상태</th>
-              <th className="px-6 py-3">인원</th>
+              <th className="px-6 py-3">정원</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -82,9 +82,7 @@ export default function ClassList({
                   <td className="px-6 py-4">
                     <StatusChip status={row.status} />
                   </td>
-                  <td className="px-6 py-4 text-gray-900">
-                    {row._count.reservations}/{row.capacity}
-                  </td>
+                  <td className="px-6 py-4 text-gray-900">{row.capacity}명</td>
                 </tr>
               ))
             )}

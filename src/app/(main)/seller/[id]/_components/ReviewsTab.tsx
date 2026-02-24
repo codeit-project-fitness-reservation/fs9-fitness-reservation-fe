@@ -31,16 +31,7 @@ export default function ReviewsTab({ classId, centerId, onReviewCountChange }: R
 
         const response = await reviewApi.getCenterReviews(centerId);
 
-        let allReviews: Review[] = [];
-        if (Array.isArray(response)) {
-          allReviews = response;
-        } else if (response && typeof response === 'object') {
-          if ('reviews' in response && Array.isArray((response as { reviews: unknown }).reviews)) {
-            allReviews = (response as { reviews: Review[] }).reviews;
-          } else if ('data' in response && Array.isArray((response as { data: unknown }).data)) {
-            allReviews = (response as { data: Review[] }).data;
-          }
-        }
+        const allReviews: Review[] = response.reviews ?? [];
 
         const reviewsData = classId
           ? allReviews.filter((review) => review.classId === classId)

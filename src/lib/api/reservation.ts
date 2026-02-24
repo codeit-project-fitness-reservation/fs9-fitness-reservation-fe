@@ -3,7 +3,7 @@ import { apiClient, buildQueryParams } from '../api';
 // --- 1. 가용한 모든 예약 상태 정의 (Union Type) ---
 export type ReservationStatus = 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED' | 'BOOKED';
 
-// --- 2. 검색 파라미터 (전용 인터페이스) ---
+// --- 2. 검색 파라미터 (HEAD의 확장된 필드 유지) ---
 export interface ReservationSearchParams {
   page?: number | string;
   limit?: number | string;
@@ -20,7 +20,7 @@ export interface ReservationSearchParams {
   slotId?: string;
 }
 
-// --- 3. 데이터 모델 (통합 및 정밀화) ---
+// --- 3. 데이터 모델 (중복 제거 및 통합) ---
 export interface ReservationDetail {
   id: string;
   userId: string;
@@ -81,10 +81,11 @@ export interface ReservationListResponse {
   totalPages?: number;
 }
 
+/** 통계 데이터 인터페이스 통합 */
 export interface ReservationStats {
   period: { startDate: string; endDate: string };
   totalReservations: number;
-  statusBreakdown: Record<ReservationStatus, number>; // Enum/Union 기반 매핑
+  statusBreakdown: Record<ReservationStatus, number>;
   dailyReservations?: Array<{ date: string; count: number }>;
   totalRevenue?: number;
   totalRefund?: number;
@@ -101,9 +102,7 @@ export interface CreateReservationRequest {
 // --- 4. API Methods ---
 
 export const reservationApi = {
-  /**
-   * [Customer] 유저 본인 예약 관련
-   */
+  /** [Customer] 유저 본인 예약 관련 */
   getMyReservations: (params?: { status?: ReservationStatus; page?: number; limit?: number }) =>
     apiClient.get<ReservationListResponse>('/api/reservations', {
       params: buildQueryParams(params as Record<string, string | number | undefined>),
@@ -117,10 +116,7 @@ export const reservationApi = {
   cancelReservation: (id: string, cancelNote?: string) =>
     apiClient.patch<void>(`/api/reservations/${id}/cancel`, { cancelNote }),
 
-  /**
-   * [Seller] 판매자 전용
-   * Note: getSellerSlots와 getSellerReservations는 classApi를 통해 사용됩니다.
-   */
+  /** [Seller] 판매자 전용 */
   getSellerReservationDetail: (id: string) =>
     apiClient.get<ReservationDetail>(`/api/reservations/seller/reservations/${id}`),
 
@@ -129,22 +125,13 @@ export const reservationApi = {
       cancelNote: cancelNote || null,
     }),
 
-  completeReservation: (id: string) =>
-    apiClient.patch<void>(`/api/reservations/seller/reservations/${id}/complete`, {}),
-
-  /**
-   * [Admin] 관리자 전용
-   */
-  getAdminReservations: (params?: ReservationSearchParams) =>
-    apiClient.get<ReservationListResponse>('/api/reservations/admin/reservations', {
+  /** [Admin] 통계 조회 */
+  getStats: async (params?: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<ReservationStats> => {
+    return apiClient.get<ReservationStats>('/api/reservations/admin/reservations/stats', {
       params: buildQueryParams(params as Record<string, string | number | undefined>),
-    }),
-
-  cancelReservationByAdmin: (id: string, cancelNote: string) =>
-    apiClient.delete<void>(`/api/reservations/admin/reservations/${id}`, { data: { cancelNote } }),
-
-  getStats: (params?: { startDate?: string; endDate?: string }) =>
-    apiClient.get<ReservationStats>('/api/reservations/admin/reservations/stats', {
-      params: buildQueryParams(params as Record<string, string | undefined>),
-    }),
+    });
+  },
 };

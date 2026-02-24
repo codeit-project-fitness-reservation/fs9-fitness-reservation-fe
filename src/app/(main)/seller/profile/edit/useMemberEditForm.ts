@@ -83,6 +83,7 @@ export function useMemberForm() {
         return;
       }
 
+      // 통합 API 호출용 데이터 생성 (기존 로직 유지)
       const sellerProfileData: FormData | Record<string, string> = profileFile
         ? (() => {
             const formData = new FormData();
@@ -110,6 +111,7 @@ export function useMemberForm() {
             introduction: data.description,
           };
 
+      // authApi.updateSellerProfile로 통합 업데이트 수행
       await authApi.updateSellerProfile(sellerProfileData);
 
       alert('성공적으로 수정되었습니다.');

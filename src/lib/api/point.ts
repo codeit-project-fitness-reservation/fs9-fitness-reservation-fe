@@ -13,6 +13,12 @@ export type SettlementTransactionType = 'USE' | 'REFUND';
 
 // --- 2. Customer Interfaces ---
 
+export interface AdjustPointInput {
+  userId: string;
+  amount: number;
+  memo: string;
+}
+
 export interface PointBalance {
   pointBalance: number;
 }
@@ -134,4 +140,8 @@ export const pointApi = {
       }),
     });
   },
+  adjustPoint: (data: AdjustPointInput) => apiClient.post('/api/points/admin/adjust', data),
+
+  getHistory: (params: { page?: number; limit?: number; userId?: string }) =>
+    apiClient.get('/api/points/admin/history', { params }),
 };

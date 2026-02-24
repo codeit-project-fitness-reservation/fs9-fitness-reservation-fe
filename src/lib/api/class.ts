@@ -1,4 +1,5 @@
 import { apiClient, QueryParams } from '../api';
+import { Reservation } from '@/types';
 
 export interface ClassStats {
   total: number;
@@ -28,9 +29,8 @@ export interface ClassItem {
     address2?: string;
   };
 
-  _count: {
-    reservations: number;
-    reviews: number;
+  _count?: {
+    reviews?: number;
   };
 }
 
@@ -46,7 +46,7 @@ export interface SlotItemResponse {
   id: string;
   startAt: string | Date;
   endAt: string | Date;
-  capacity: number; // 총 정원
+  capacity: number;
   currentReservations?: number;
   currentReservation?: number;
 
@@ -90,7 +90,7 @@ export interface ReservationItem {
   };
   reservationDate: string;
   slotStartAt?: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED' | 'BOOKED';
+  status: 'BOOKED' | 'CANCELED' | 'COMPLETED';
   createdAt: string;
   canceledAt?: string | null;
   completedAt?: string | null;
