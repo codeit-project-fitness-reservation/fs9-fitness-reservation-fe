@@ -70,11 +70,11 @@ export default function ClassDetailPage() {
           updatedAt: classResponse.createdAt,
           currentReservation: 0, // TODO: 백엔드에서 제공되면 추가
           rating: 0, // TODO: 백엔드에서 제공되면 추가
-          reviewCount: classResponse._count.reviews || 0,
+          reviewCount: classResponse._count?.reviews || 0,
         };
 
         setClassData(mappedClass);
-        setReviewCount(classResponse._count.reviews || 0);
+        setReviewCount(classResponse._count?.reviews || 0);
 
         // 센터 정보 조회
         try {

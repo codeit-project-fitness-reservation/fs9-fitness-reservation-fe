@@ -42,8 +42,7 @@ export default function ReviewsTab({ classId, onReviewCountChange }: ReviewsTabP
           rating: review.rating,
           content: review.content ?? undefined,
           imgUrls: review.imgUrls || [],
-          createdAt:
-            review.createdAt instanceof Date ? review.createdAt : new Date(review.createdAt),
+          createdAt: review.createdAt,
           userNickname: review.userNickname,
           userProfileImg: review.userProfileImg,
         }));

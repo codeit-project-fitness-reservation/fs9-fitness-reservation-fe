@@ -146,9 +146,9 @@ export default function ClassesPage() {
           rejectReason: null,
           createdAt: item.createdAt,
           updatedAt: item.createdAt,
-          currentReservation: item._count?.reservations ?? 0,
-          rating: 0, // TODO: 백엔드에서 제공되면 추가
-          reviewCount: item._count?.reviews ?? 0,
+          currentReservation: 0,
+          rating: item.rating ?? 0,
+          reviewCount: item.reviewCount ?? 0,
         }));
 
         // 필터 적용 (클라이언트 사이드)

@@ -66,7 +66,7 @@ export default function CenterDetailPage() {
             updatedAt: item.createdAt,
             currentReservation: 0,
             rating: 0,
-            reviewCount: item._count.reviews || 0,
+            reviewCount: item._count?.reviews || 0,
           }));
 
         setCenterClasses(mappedClasses);

@@ -107,13 +107,13 @@ export default function ReservationsPage() {
           classId: res.classId,
           slotId: res.slotId,
           status: res.status as Reservation['status'],
-          slotStartAt: new Date(res.slotStartAt),
+          slotStartAt: res.slotStartAt,
           pricePoints: res.pricePoints,
           couponDiscountPoints: res.couponDiscountPoints ?? 0,
           paidPoints: res.paidPoints ?? res.pricePoints,
-          createdAt: new Date(res.createdAt),
-          updatedAt: new Date(res.updatedAt),
-          canceledAt: res.canceledAt ? new Date(res.canceledAt) : undefined,
+          createdAt: res.createdAt,
+          updatedAt: res.updatedAt,
+          canceledAt: res.canceledAt ?? undefined,
           class: {
             title: res.class.title,
             center: {
@@ -122,8 +122,8 @@ export default function ReservationsPage() {
           },
           slot: res.slot
             ? {
-                startAt: new Date(res.slot.startAt),
-                endAt: new Date(res.slot.endAt),
+                startAt: res.slot.startAt,
+                endAt: res.slot.endAt,
                 capacity: res.slot.capacity,
                 _count: {
                   reservations: res.slot._count.reservations,
@@ -190,7 +190,7 @@ export default function ReservationsPage() {
       setReservations((prev) =>
         prev.map((res) =>
           res.id === cancelReservationId
-            ? { ...res, status: 'CANCELED' as const, canceledAt: new Date() }
+            ? { ...res, status: 'CANCELED' as const, canceledAt: new Date().toISOString() }
             : res,
         ),
       );

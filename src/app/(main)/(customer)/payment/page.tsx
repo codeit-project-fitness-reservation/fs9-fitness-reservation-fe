@@ -91,7 +91,7 @@ export default function PaymentPage() {
           updatedAt: classResponse.createdAt,
           currentReservation: 0,
           rating: 0,
-          reviewCount: classResponse._count.reviews || 0,
+          reviewCount: classResponse._count?.reviews || 0,
         };
 
         setClassData(mappedClass);
@@ -244,12 +244,12 @@ export default function PaymentPage() {
     if (!classId || !slotId || !classData || !slotData) return;
 
     const calculateCouponDiscount = (): number => {
-      if (!selectedCoupon?.template) return 0;
-      const { discountPoints, discountPercentage } = selectedCoupon.template;
-      if (discountPoints > 0) {
+      if (!selectedCoupon) return 0;
+      const { discountPoints, discountPercentage } = selectedCoupon;
+      if (discountPoints && discountPoints > 0) {
         return discountPoints;
       }
-      if (discountPercentage > 0) {
+      if (discountPercentage && discountPercentage > 0) {
         return Math.floor((classData.pricePoints * discountPercentage) / 100);
       }
       return 0;
@@ -286,12 +286,12 @@ export default function PaymentPage() {
   }
 
   const calculateCouponDiscount = (): number => {
-    if (!selectedCoupon?.template) return 0;
-    const { discountPoints, discountPercentage } = selectedCoupon.template;
-    if (discountPoints > 0) {
+    if (!selectedCoupon) return 0;
+    const { discountPoints, discountPercentage } = selectedCoupon;
+    if (discountPoints && discountPoints > 0) {
       return discountPoints;
     }
-    if (discountPercentage > 0) {
+    if (discountPercentage && discountPercentage > 0) {
       return Math.floor((classData.pricePoints * discountPercentage) / 100);
     }
     return 0;

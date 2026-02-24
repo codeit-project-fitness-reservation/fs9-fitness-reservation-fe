@@ -5,7 +5,7 @@ import Modal from './Modal';
 import xClose from '@/assets/images/x-close.svg';
 
 interface ConfirmationModalProps {
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose: () => void;
   onConfirm: () => void;
   message: string;
@@ -20,7 +20,7 @@ export default function ConfirmationModal({
   confirmText,
 }: ConfirmationModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen ?? true} onClose={onClose}>
       <div
         className="relative w-85.75 rounded-4xl bg-white shadow-xl md:w-115"
         onClick={(e) => e.stopPropagation()}

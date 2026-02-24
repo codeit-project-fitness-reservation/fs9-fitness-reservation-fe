@@ -112,7 +112,7 @@ export default function ReservationDetailModal({
   const pricePoints = data.pricePoints || data.payment?.pointsUsed || 0;
   const couponDiscount = data.couponDiscountPoints || data.payment?.couponDiscount || 0;
   const paidPoints = data.paidPoints || pricePoints - couponDiscount;
-  const displayStatus = data.status === 'CONFIRMED' ? 'BOOKED' : data.status;
+  const displayStatus = data.status;
 
   return (
     <div

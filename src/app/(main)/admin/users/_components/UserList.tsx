@@ -67,7 +67,9 @@ export default function UserList({ users, loading, onUserClick }: UserListProps)
                   <td className="px-6 py-4 text-gray-900">{user.email}</td>
                   <td className="px-6 py-4 text-gray-900">{user.phone}</td>
                   <td className="px-6 py-4 text-gray-900">{user.pointBalance.toLocaleString()}P</td>
-                  <td className="px-6 py-4 text-gray-900">{user.couponCount.toLocaleString()}개</td>
+                  <td className="px-6 py-4 text-gray-900">
+                    {(user.couponCount ?? 0).toLocaleString()}개
+                  </td>
                 </tr>
               ))
             )}

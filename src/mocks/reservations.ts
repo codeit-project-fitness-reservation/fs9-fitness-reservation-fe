@@ -10,12 +10,12 @@ export const MOCK_RESERVATIONS: Reservation[] = [
     classId: 'class-1',
     slotId: 'slot-class-1-20260124-1300',
     status: 'BOOKED' as ReservationStatus,
-    slotStartAt: new Date('2026-01-24T13:00:00'),
+    slotStartAt: '2026-01-24T13:00:00.000Z',
     pricePoints: 5000,
     couponDiscountPoints: 0,
     paidPoints: 5000,
-    createdAt: new Date('2026-01-20T10:00:00'),
-    updatedAt: new Date('2026-01-20T10:00:00'),
+    createdAt: '2026-01-20T10:00:00.000Z',
+    updatedAt: '2026-01-20T10:00:00.000Z',
     class: {
       title: '30분 순환 근력 운동',
       center: {
@@ -23,8 +23,8 @@ export const MOCK_RESERVATIONS: Reservation[] = [
       },
     },
     slot: {
-      startAt: new Date('2026-01-24T13:00:00'),
-      endAt: new Date('2026-01-24T14:00:00'),
+      startAt: '2026-01-24T13:00:00.000Z',
+      endAt: '2026-01-24T14:00:00.000Z',
       capacity: 10,
       _count: {
         reservations: 5,
@@ -37,12 +37,12 @@ export const MOCK_RESERVATIONS: Reservation[] = [
     classId: 'class-1',
     slotId: 'slot-class-1-20260124-1400',
     status: 'BOOKED' as ReservationStatus,
-    slotStartAt: new Date('2026-01-24T14:00:00'),
+    slotStartAt: '2026-01-24T14:00:00.000Z',
     pricePoints: 5000,
     couponDiscountPoints: 0,
     paidPoints: 5000,
-    createdAt: new Date('2026-01-20T11:00:00'),
-    updatedAt: new Date('2026-01-20T11:00:00'),
+    createdAt: '2026-01-20T11:00:00.000Z',
+    updatedAt: '2026-01-20T11:00:00.000Z',
     class: {
       title: '30분 순환 근력 운동',
       center: {
@@ -50,8 +50,8 @@ export const MOCK_RESERVATIONS: Reservation[] = [
       },
     },
     slot: {
-      startAt: new Date('2026-01-24T14:00:00'),
-      endAt: new Date('2026-01-24T15:00:00'),
+      startAt: '2026-01-24T14:00:00.000Z',
+      endAt: '2026-01-24T15:00:00.000Z',
       capacity: 10,
       _count: {
         reservations: 5,
@@ -64,12 +64,12 @@ export const MOCK_RESERVATIONS: Reservation[] = [
     classId: 'class-1',
     slotId: 'slot-class-1-20260124-1500',
     status: 'BOOKED' as ReservationStatus,
-    slotStartAt: new Date('2026-01-24T15:00:00'),
+    slotStartAt: '2026-01-24T15:00:00.000Z',
     pricePoints: 5000,
     couponDiscountPoints: 0,
     paidPoints: 5000,
-    createdAt: new Date('2026-01-20T12:00:00'),
-    updatedAt: new Date('2026-01-20T12:00:00'),
+    createdAt: '2026-01-20T12:00:00.000Z',
+    updatedAt: '2026-01-20T12:00:00.000Z',
     class: {
       title: '30분 순환 근력 운동',
       center: {
@@ -77,8 +77,8 @@ export const MOCK_RESERVATIONS: Reservation[] = [
       },
     },
     slot: {
-      startAt: new Date('2026-01-24T15:00:00'),
-      endAt: new Date('2026-01-24T16:00:00'),
+      startAt: '2026-01-24T15:00:00.000Z',
+      endAt: '2026-01-24T16:00:00.000Z',
       capacity: 10,
       _count: {
         reservations: 5,
@@ -91,12 +91,12 @@ export const MOCK_RESERVATIONS: Reservation[] = [
     classId: 'class-1',
     slotId: 'slot-class-1-20260124-1600',
     status: 'BOOKED' as ReservationStatus,
-    slotStartAt: new Date('2026-01-24T16:00:00'),
+    slotStartAt: '2026-01-24T16:00:00.000Z',
     pricePoints: 5000,
     couponDiscountPoints: 0,
     paidPoints: 5000,
-    createdAt: new Date('2026-01-20T13:00:00'),
-    updatedAt: new Date('2026-01-20T13:00:00'),
+    createdAt: '2026-01-20T13:00:00.000Z',
+    updatedAt: '2026-01-20T13:00:00.000Z',
     class: {
       title: '30분 순환 근력 운동',
       center: {
@@ -104,8 +104,8 @@ export const MOCK_RESERVATIONS: Reservation[] = [
       },
     },
     slot: {
-      startAt: new Date('2026-01-24T16:00:00'),
-      endAt: new Date('2026-01-24T17:00:00'),
+      startAt: '2026-01-24T16:00:00.000Z',
+      endAt: '2026-01-24T17:00:00.000Z',
       capacity: 10,
       _count: {
         reservations: 10,
@@ -125,13 +125,13 @@ export const MOCK_HISTORY: Reservation[] = [
     classId: 'class-1',
     slotId: 'slot-class-1-20260120-1000',
     status: 'COMPLETED' as ReservationStatus,
-    slotStartAt: new Date('2026-01-20T10:00:00'),
+    slotStartAt: '2026-01-20T10:00:00.000Z',
     pricePoints: 3000,
     couponDiscountPoints: 0,
     paidPoints: 3000,
-    createdAt: new Date('2026-01-15T10:00:00'),
-    updatedAt: new Date('2026-01-20T11:00:00'),
-    completedAt: new Date('2026-01-20T11:00:00'),
+    createdAt: '2026-01-15T10:00:00.000Z',
+    updatedAt: '2026-01-20T11:00:00.000Z',
+    completedAt: '2026-01-20T11:00:00.000Z',
     class: {
       title: '30분 순환 근력 운동',
       center: {
@@ -139,8 +139,8 @@ export const MOCK_HISTORY: Reservation[] = [
       },
     },
     slot: {
-      startAt: new Date('2026-01-20T10:00:00'),
-      endAt: new Date('2026-01-20T11:00:00'),
+      startAt: '2026-01-20T10:00:00.000Z',
+      endAt: '2026-01-20T11:00:00.000Z',
       capacity: 10,
       _count: {
         reservations: 5,
@@ -153,13 +153,13 @@ export const MOCK_HISTORY: Reservation[] = [
     classId: 'class-2',
     slotId: 'slot-class-2-20260124-1200',
     status: 'COMPLETED' as ReservationStatus,
-    slotStartAt: new Date('2026-01-24T12:00:00'),
+    slotStartAt: '2026-01-24T12:00:00.000Z',
     pricePoints: 5000,
     couponDiscountPoints: 0,
     paidPoints: 5000,
-    createdAt: new Date('2026-01-20T10:00:00'),
-    updatedAt: new Date('2026-01-24T13:00:00'),
-    completedAt: new Date('2026-01-24T13:00:00'),
+    createdAt: '2026-01-20T10:00:00.000Z',
+    updatedAt: '2026-01-24T13:00:00.000Z',
+    completedAt: '2026-01-24T13:00:00.000Z',
     class: {
       title: '요가 클래스',
       center: {
@@ -167,8 +167,8 @@ export const MOCK_HISTORY: Reservation[] = [
       },
     },
     slot: {
-      startAt: new Date('2026-01-24T12:00:00'),
-      endAt: new Date('2026-01-24T13:00:00'),
+      startAt: '2026-01-24T12:00:00.000Z',
+      endAt: '2026-01-24T13:00:00.000Z',
       capacity: 10,
       _count: {
         reservations: 5,
@@ -181,13 +181,13 @@ export const MOCK_HISTORY: Reservation[] = [
     classId: 'class-3',
     slotId: 'slot-class-3-20260128-1400',
     status: 'COMPLETED' as ReservationStatus,
-    slotStartAt: new Date('2026-01-28T14:00:00'),
+    slotStartAt: '2026-01-28T14:00:00.000Z',
     pricePoints: 8000,
     couponDiscountPoints: 0,
     paidPoints: 8000,
-    createdAt: new Date('2026-01-25T10:00:00'),
-    updatedAt: new Date('2026-01-28T15:00:00'),
-    completedAt: new Date('2026-01-28T15:00:00'),
+    createdAt: '2026-01-25T10:00:00.000Z',
+    updatedAt: '2026-01-28T15:00:00.000Z',
+    completedAt: '2026-01-28T15:00:00.000Z',
     class: {
       title: '필라테스 클래스',
       center: {
@@ -195,8 +195,8 @@ export const MOCK_HISTORY: Reservation[] = [
       },
     },
     slot: {
-      startAt: new Date('2026-01-28T14:00:00'),
-      endAt: new Date('2026-01-28T15:00:00'),
+      startAt: '2026-01-28T14:00:00.000Z',
+      endAt: '2026-01-28T15:00:00.000Z',
       capacity: 10,
       _count: {
         reservations: 5,
@@ -209,13 +209,13 @@ export const MOCK_HISTORY: Reservation[] = [
     classId: 'class-4',
     slotId: 'slot-class-4-20260122-1600',
     status: 'COMPLETED' as ReservationStatus,
-    slotStartAt: new Date('2026-01-22T16:00:00'),
+    slotStartAt: '2026-01-22T16:00:00.000Z',
     pricePoints: 10000,
     couponDiscountPoints: 0,
     paidPoints: 10000,
-    createdAt: new Date('2026-01-18T10:00:00'),
-    updatedAt: new Date('2026-01-22T17:00:00'),
-    completedAt: new Date('2026-01-22T17:00:00'),
+    createdAt: '2026-01-18T10:00:00.000Z',
+    updatedAt: '2026-01-22T17:00:00.000Z',
+    completedAt: '2026-01-22T17:00:00.000Z',
     class: {
       title: '크로스핏 클래스',
       center: {
@@ -223,8 +223,8 @@ export const MOCK_HISTORY: Reservation[] = [
       },
     },
     slot: {
-      startAt: new Date('2026-01-22T16:00:00'),
-      endAt: new Date('2026-01-22T17:00:00'),
+      startAt: '2026-01-22T16:00:00.000Z',
+      endAt: '2026-01-22T17:00:00.000Z',
       capacity: 10,
       _count: {
         reservations: 5,
@@ -237,13 +237,13 @@ export const MOCK_HISTORY: Reservation[] = [
     classId: 'class-5',
     slotId: 'slot-class-5-20260126-0900',
     status: 'COMPLETED' as ReservationStatus,
-    slotStartAt: new Date('2026-01-26T09:00:00'),
+    slotStartAt: '2026-01-26T09:00:00.000Z',
     pricePoints: 2000,
     couponDiscountPoints: 0,
     paidPoints: 2000,
-    createdAt: new Date('2026-01-22T10:00:00'),
-    updatedAt: new Date('2026-01-26T10:00:00'),
-    completedAt: new Date('2026-01-26T10:00:00'),
+    createdAt: '2026-01-22T10:00:00.000Z',
+    updatedAt: '2026-01-26T10:00:00.000Z',
+    completedAt: '2026-01-26T10:00:00.000Z',
     class: {
       title: '스트레칭 클래스',
       center: {
@@ -251,8 +251,8 @@ export const MOCK_HISTORY: Reservation[] = [
       },
     },
     slot: {
-      startAt: new Date('2026-01-26T09:00:00'),
-      endAt: new Date('2026-01-26T10:00:00'),
+      startAt: '2026-01-26T09:00:00.000Z',
+      endAt: '2026-01-26T10:00:00.000Z',
       capacity: 10,
       _count: {
         reservations: 5,

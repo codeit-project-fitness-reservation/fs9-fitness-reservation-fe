@@ -32,6 +32,8 @@ export interface ClassItem {
   _count?: {
     reviews?: number;
   };
+  reviewCount?: number;
+  rating?: number;
 }
 
 export interface ClassListResponse {

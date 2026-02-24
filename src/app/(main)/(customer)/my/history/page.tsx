@@ -69,13 +69,13 @@ export default function HistoryPage() {
           classId: res.classId,
           slotId: res.slotId,
           status: res.status as Reservation['status'],
-          slotStartAt: new Date(res.slotStartAt),
+          slotStartAt: res.slotStartAt,
           pricePoints: res.pricePoints,
           couponDiscountPoints: res.couponDiscountPoints ?? 0,
           paidPoints: res.paidPoints ?? res.pricePoints,
-          createdAt: new Date(res.createdAt),
-          updatedAt: new Date(res.updatedAt),
-          completedAt: res.completedAt ? new Date(res.completedAt) : undefined,
+          createdAt: res.createdAt,
+          updatedAt: res.updatedAt,
+          completedAt: res.completedAt ?? undefined,
           class: {
             title: res.class.title,
             center: {
@@ -84,8 +84,8 @@ export default function HistoryPage() {
           },
           slot: res.slot
             ? {
-                startAt: new Date(res.slot.startAt),
-                endAt: new Date(res.slot.endAt),
+                startAt: res.slot.startAt,
+                endAt: res.slot.endAt,
                 capacity: res.slot.capacity,
                 _count: {
                   reservations: res.slot._count.reservations,

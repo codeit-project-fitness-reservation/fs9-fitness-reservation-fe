@@ -19,8 +19,8 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     password: 'password123',
     pointBalance: 10000,
     couponCount: 2,
-    createdAt: new Date('2026-01-01'),
-    updatedAt: new Date('2026-01-20'),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-20T00:00:00.000Z',
   },
   'seller@test.com': {
     id: 'seller-1',
@@ -31,8 +31,8 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     password: 'sellerpassword',
     pointBalance: 0,
     couponCount: 0,
-    createdAt: new Date('2026-01-01'),
-    updatedAt: new Date('2026-01-20'),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-20T00:00:00.000Z',
   },
   'admin@test.com': {
     id: 'admin-1',
@@ -43,8 +43,8 @@ export const MOCK_ACCOUNTS: Record<string, User> = {
     password: 'adminpassword',
     pointBalance: 0,
     couponCount: 0,
-    createdAt: new Date('2026-01-01'),
-    updatedAt: new Date('2026-01-20'),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-20T00:00:00.000Z',
   },
 };
 
