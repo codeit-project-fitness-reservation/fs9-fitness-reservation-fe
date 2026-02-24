@@ -202,15 +202,6 @@ export const apiClient = {
     return result.data;
   },
 
-  put: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
-    const result = await authFetch<T>(endpoint, {
-      method: 'PUT',
-      body: body as Record<string, unknown> | FormData,
-    });
-    if (!result.ok) throw new Error(result.error);
-    return result.data;
-  },
-
   patch: async <T = unknown, B = unknown>(endpoint: string, body: B) => {
     const result = await authFetch<T>(endpoint, {
       method: 'PATCH',
