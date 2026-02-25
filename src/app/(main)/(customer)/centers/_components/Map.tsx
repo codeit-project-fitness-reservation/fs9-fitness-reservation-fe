@@ -29,6 +29,13 @@ export default function KakaoMap() {
   const [isKakaoMapsReady, setIsKakaoMapsReady] = useState(false);
   const [scriptError, setScriptError] = useState(false);
 
+  useEffect(() => {
+    if (isKakaoScriptLoaded) return;
+    if (typeof window !== 'undefined' && window.kakao?.maps) {
+      queueMicrotask(() => setIsKakaoScriptLoaded(true));
+    }
+  }, [isKakaoScriptLoaded]);
+
   const ensureMapReady = useCallback(() => {
     if (!mapRef.current) return null;
     if (!isKakaoMapsReady) return null;
@@ -110,8 +117,6 @@ export default function KakaoMap() {
     if (!mapRef.current) return;
 
     window.kakao.maps.load(() => {
-      // setState 반영 전에 ensureMapReady()가 호출되면 isKakaoMapsReady가 아직 false라
-      // 지도가 생성되지 않음. 콜백 안에서 직접 지도 인스턴스를 생성한 뒤 상태 갱신.
       if (!mapInstanceRef.current && mapRef.current) {
         const options = {
           center: new window.kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng),
