@@ -101,11 +101,8 @@ export interface ReservationStats {
 }
 
 export interface CreateReservationRequest {
-  classId: string;
   slotId: string;
-  couponId?: string;
-  usedPoints?: number;
-  requestNote?: string;
+  userCouponId?: string;
 }
 
 // --- 4. API Methods ---

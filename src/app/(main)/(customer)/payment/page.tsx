@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import SimpleHeader from '@/components/layout/SimpleHeader/SimpleHeader';
 import TextAreaField from '@/components/Field/TextAreaField';
@@ -10,14 +10,14 @@ import PaymentCoupon from './_components/PaymentCoupon';
 import PaymentPoints from './_components/PaymentPoints';
 import PaymentSummary from './_components/PaymentSummary';
 import CouponSelectModal from './_components/CouponSelectModal';
-import PaymentWidget from '@/components/payment/PaymentWidget';
 import { Class, ClassSlot } from '@/types/class';
 import { Center, UserCoupon } from '@/types';
 import { classApi } from '@/lib/api/class';
 import { centerApi } from '@/lib/api/center';
 import { userApi } from '@/lib/api/user';
 import { pointApi } from '@/lib/api/point';
-import { MOCK_USER_COUPONS } from '@/mocks/coupons';
+import { couponApi } from '@/lib/api/coupon';
+import { reservationApi } from '@/lib/api/reservation';
 
 export default function PaymentPage() {
   const router = useRouter();
@@ -30,18 +30,11 @@ export default function PaymentPage() {
   const [slotData, setSlotData] = useState<ClassSlot | null>(null);
   const [requestNote, setRequestNote] = useState('');
   const [selectedCoupon, setSelectedCoupon] = useState<UserCoupon | null>(null);
-  const [usedPoints, setUsedPoints] = useState(0);
   const [availablePoints, setAvailablePoints] = useState(0);
   const [availableCoupons, setAvailableCoupons] = useState<UserCoupon[]>([]);
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isWidgetReady, setIsWidgetReady] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<{ method: string } | null>(
-    null,
-  );
-  const [userId, setUserId] = useState<string | null>(null);
-  const paymentWidgetsRef = useRef<unknown>(null);
-  const paymentMethodWidgetRef = useRef<unknown>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!classId || !slotId) {
@@ -52,26 +45,31 @@ export default function PaymentPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+        const [userResult, pointResult, couponsResult] = await Promise.all([
+          userApi.getMyProfile(),
+          pointApi.getMyBalance(),
+          couponApi.getMyCoupons(),
+        ]);
+        setAvailablePoints(pointResult.pointBalance);
+        setAvailableCoupons(couponsResult);
+      } catch (userError) {
+        console.error('사용자/포인트/쿠폰 조회 실패:', userError);
         try {
-          const [userResult, pointResult] = await Promise.all([
-            userApi.getMyProfile(),
-            pointApi.getMyBalance(),
-          ]);
-          setUserId(userResult.id);
+          const pointResult = await pointApi.getMyBalance();
           setAvailablePoints(pointResult.pointBalance);
-        } catch (userError) {
-          console.error('사용자 정보 조회 실패:', userError);
-          try {
-            const pointResult = await pointApi.getMyBalance();
-            setAvailablePoints(pointResult.pointBalance);
-          } catch (pointError) {
-            console.error('포인트 조회 실패:', pointError);
-          }
+        } catch {
+          // ignore
         }
+        try {
+          const couponsResult = await couponApi.getMyCoupons();
+          setAvailableCoupons(couponsResult);
+        } catch {
+          // ignore
+        }
+      }
 
+      try {
         const classResponse = await classApi.getClassDetail(classId);
-
-        const coupons = MOCK_USER_COUPONS.filter((coupon) => !coupon.usedAt);
 
         const mappedClass: Class = {
           id: classResponse.id,
@@ -112,9 +110,8 @@ export default function PaymentPage() {
             updatedAt: centerResponse.updatedAt,
           };
           setCenterData(mappedCenter);
-        } catch (centerError) {
-          console.error('센터 정보 조회 실패:', centerError);
-          const fallbackCenter: Center = {
+        } catch {
+          setCenterData({
             id: classResponse.center.id,
             ownerId: '',
             name: classResponse.center.name,
@@ -122,14 +119,13 @@ export default function PaymentPage() {
             address2: classResponse.center.address2 ?? undefined,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          };
-          setCenterData(fallbackCenter);
+          });
         }
 
         if (classResponse.slots) {
           const slot = classResponse.slots.find((s) => s.id === slotId);
           if (slot) {
-            const mappedSlot: ClassSlot = {
+            setSlotData({
               id: slot.id,
               classId: classId,
               startAt: typeof slot.startAt === 'string' ? slot.startAt : slot.startAt.toISOString(),
@@ -141,8 +137,7 @@ export default function PaymentPage() {
                 typeof slot.createdAt === 'string'
                   ? slot.createdAt
                   : (slot.createdAt?.toISOString() ?? new Date().toISOString()),
-            };
-            setSlotData(mappedSlot);
+            });
           } else {
             router.push('/classes');
             return;
@@ -151,11 +146,8 @@ export default function PaymentPage() {
           router.push('/classes');
           return;
         }
-
-        setAvailableCoupons(coupons);
-        setSelectedCoupon((prev) => (prev && coupons.some((c) => c.id === prev.id) ? prev : null));
       } catch (error) {
-        console.error('데이터 로드 실패:', error);
+        console.error('클래스/센터 로드 실패:', error);
         alert('데이터를 불러오는데 실패했습니다.');
         router.push('/classes');
       } finally {
@@ -166,118 +158,38 @@ export default function PaymentPage() {
     void fetchData();
   }, [classId, slotId, router]);
 
-  const handlePayment = async () => {
-    if (!classData || !slotData || !paymentWidgetsRef.current || !classId || !slotId) return;
+  const handleReservation = async () => {
+    if (!slotId || isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
-      const widgets = paymentWidgetsRef.current as {
-        requestPayment: (options: {
-          orderId: string;
-          orderName: string;
-          customerName: string;
-          customerEmail: string;
-          successUrl: string;
-          failUrl: string;
-        }) => Promise<void>;
-      };
-      const orderId = `order-${classId}-${slotId}-${Date.now()}`;
-
-      const paymentMethodWidget = paymentMethodWidgetRef.current as {
-        getSelectedPaymentMethod: () => Promise<{ method: string } | null>;
-      } | null;
-
-      let paymentMethod = selectedPaymentMethod;
-      if (!paymentMethod && paymentMethodWidget) {
-        try {
-          paymentMethod = await paymentMethodWidget.getSelectedPaymentMethod();
-        } catch (error) {
-          console.error('Failed to get selected payment method:', error);
-        }
-      }
-
-      console.log('Final selectedPaymentMethod before requestPayment: ', paymentMethod);
-      console.log('State selectedPaymentMethod: ', selectedPaymentMethod);
-
-      const successParams = new URLSearchParams(window.location.search);
-      successParams.set('classId', classId);
-      successParams.set('slotId', slotId);
-      if (selectedCoupon) {
-        successParams.set('couponId', selectedCoupon.id);
-      }
-      if (usedPoints > 0) {
-        successParams.set('usedPoints', String(usedPoints));
-      }
-      if (requestNote.trim()) {
-        successParams.set('requestNote', requestNote);
-      }
-
-      await widgets.requestPayment({
-        orderId,
-        orderName: `${classData.title} - ${slotData.startAt}`,
-        customerName: '홍길동',
-        customerEmail: 'customer@example.com',
-        successUrl: `${window.location.origin}/payment/success?${successParams.toString()}`,
-        failUrl: `${window.location.origin}/payment/fail${window.location.search}`,
+      await reservationApi.createReservation({
+        slotId,
+        userCouponId: selectedCoupon?.id,
       });
+      router.push('/my/reservations');
     } catch (error) {
-      console.error('Payment request error:', error);
-      alert('결제 요청 중 오류가 발생했습니다.');
-    }
-  };
-
-  const handlePaymentWidgetReady = (widgets: unknown, paymentMethodWidget: unknown) => {
-    paymentWidgetsRef.current = widgets;
-    paymentMethodWidgetRef.current = paymentMethodWidget;
-    setIsWidgetReady(true);
-  };
-
-  const handlePaymentMethodSelect = (paymentMethod: unknown) => {
-    console.log('handlePaymentMethodSelect called with:', paymentMethod);
-    // Payment method selection handled by widget
-    if (paymentMethod && typeof paymentMethod === 'object' && 'method' in paymentMethod) {
-      const method = paymentMethod as { method: string };
-      console.log('Setting selected payment method:', method.method);
-      setSelectedPaymentMethod(method);
-    } else {
-      console.log('Invalid payment method format:', paymentMethod);
-    }
-  };
-
-  const handleTestMode = () => {
-    if (!classId || !slotId || !classData || !slotData) return;
-
-    const calculateCouponDiscount = (): number => {
-      if (!selectedCoupon) return 0;
-      const { discountPoints, discountPercentage } = selectedCoupon;
-      if (discountPoints && discountPoints > 0) {
-        return discountPoints;
+      const message = error instanceof Error ? error.message : '예약에 실패했습니다.';
+      if (
+        message.includes('포인트') ||
+        message.includes('INSUFFICIENT') ||
+        message.includes('부족')
+      ) {
+        alert('포인트가 부족합니다. 포인트를 충전한 뒤 다시 시도해주세요.');
+        return;
       }
-      if (discountPercentage && discountPercentage > 0) {
-        return Math.floor((classData.pricePoints * discountPercentage) / 100);
+      if (message.includes('쿠폰') || message.includes('COUPON') || message.includes('만료')) {
+        alert('선택한 쿠폰을 사용할 수 없습니다. 쿠폰을 다시 선택하거나 제거해주세요.');
+        return;
       }
-      return 0;
-    };
-
-    const couponDiscount = calculateCouponDiscount();
-    const finalAmount = Math.max(0, classData.pricePoints - couponDiscount - usedPoints);
-
-    const orderId = `order-test-${classId}-${slotId}-${Date.now()}`;
-    const successParams = new URLSearchParams(window.location.search);
-    successParams.set('classId', classId);
-    successParams.set('slotId', slotId);
-    successParams.set('orderId', orderId);
-    successParams.set('amount', String(finalAmount));
-    if (selectedCoupon) {
-      successParams.set('couponId', selectedCoupon.id);
+      if (message.includes('정원') || message.includes('FULL') || message.includes('마감')) {
+        alert('해당 시간대 예약이 마감되었습니다. 다른 시간을 선택해주세요.');
+        return;
+      }
+      alert(message);
+    } finally {
+      setIsSubmitting(false);
     }
-    if (usedPoints > 0) {
-      successParams.set('usedPoints', String(usedPoints));
-    }
-    if (requestNote.trim()) {
-      successParams.set('requestNote', requestNote);
-    }
-
-    router.push(`/payment/success?${successParams.toString()}`);
   };
 
   if (isLoading || !classData || !centerData || !slotData) {
@@ -291,17 +203,15 @@ export default function PaymentPage() {
   const calculateCouponDiscount = (): number => {
     if (!selectedCoupon) return 0;
     const { discountPoints, discountPercentage } = selectedCoupon;
-    if (discountPoints && discountPoints > 0) {
-      return discountPoints;
-    }
-    if (discountPercentage && discountPercentage > 0) {
+    if (discountPoints != null && discountPoints > 0) return discountPoints;
+    if (discountPercentage != null && discountPercentage > 0) {
       return Math.floor((classData.pricePoints * discountPercentage) / 100);
     }
     return 0;
   };
 
   const couponDiscount = calculateCouponDiscount();
-  const finalAmount = Math.max(0, classData.pricePoints - couponDiscount - usedPoints);
+  const finalAmount = Math.max(0, classData.pricePoints - couponDiscount);
 
   return (
     <div className="flex min-h-[calc(100vh-56px)] flex-col bg-gray-50">
@@ -325,33 +235,18 @@ export default function PaymentPage() {
           selectedCoupon={selectedCoupon}
           onCouponSelect={setSelectedCoupon}
           onCouponModalOpen={() => setIsCouponModalOpen(true)}
+          couponDiscountDisplay={couponDiscount}
         />
 
-        <PaymentPoints
-          availablePoints={availablePoints}
-          usedPoints={usedPoints}
-          onPointsChange={setUsedPoints}
-        />
+        <PaymentPoints availablePoints={availablePoints} paymentPoints={finalAmount} />
 
         <div className="rounded-lg bg-white p-4">
           <PaymentSummary
             originalPrice={classData.pricePoints}
             couponDiscount={couponDiscount}
-            pointsUsed={usedPoints}
+            finalAmount={finalAmount}
           />
         </div>
-
-        {finalAmount > 0 && (
-          <div className="rounded-lg bg-white p-4">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">결제 수단 선택</h2>
-            <PaymentWidget
-              customerKey={userId || undefined}
-              amount={finalAmount}
-              onReady={handlePaymentWidgetReady}
-              onPaymentMethodSelect={handlePaymentMethodSelect}
-            />
-          </div>
-        )}
       </div>
 
       <div className="sticky bottom-0 z-30 w-full border-t border-gray-200 bg-white p-4">
@@ -359,23 +254,12 @@ export default function PaymentPage() {
           <BaseButton
             type="button"
             variant="primary"
-            onClick={handlePayment}
+            onClick={handleReservation}
             className="w-full py-4 text-lg"
-            disabled={finalAmount <= 0 || !isWidgetReady}
+            disabled={isSubmitting}
           >
-            {finalAmount > 0 ? `${finalAmount.toLocaleString()}원 결제하기` : '결제하기'}
+            {isSubmitting ? '예약 처리 중...' : '예약하기'}
           </BaseButton>
-          {process.env.NODE_ENV === 'development' && (
-            <BaseButton
-              type="button"
-              variant="secondary"
-              onClick={handleTestMode}
-              className="w-full py-2 text-sm"
-              disabled={!classData || !slotData || !classId || !slotId}
-            >
-              테스트 모드: 성공 페이지로 이동
-            </BaseButton>
-          )}
         </div>
       </div>
 

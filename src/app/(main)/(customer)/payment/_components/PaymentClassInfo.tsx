@@ -27,21 +27,23 @@ export default function PaymentClassInfo({
   const timeStr = `${format(startDate, 'HH:mm')}-${format(endDate, 'HH:mm')}`;
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg bg-white p-4">
-      <h2 className="text-xl font-bold text-gray-900">{classData.title}</h2>
-
-      <div className="flex items-start gap-2">
-        <Image src={mapPinIcon} alt="위치" width={20} height={20} className="mt-0.5 shrink-0" />
-        <p className="text-base text-gray-700">
-          {centerData.address1} {centerData.address2 || ''}
-        </p>
-      </div>
-
-      <div className="flex items-start gap-2">
-        <Image src={clockIcon} alt="시간" width={20} height={20} className="mt-0.5 shrink-0" />
-        <p className="text-base text-gray-700">
-          {dateStr} {timeStr}
-        </p>
+    <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white p-6">
+      <div className="flex flex-col gap-2">
+        <p className="text-lg leading-7 font-bold text-gray-900">{classData.title}</p>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5">
+            <Image src={mapPinIcon} alt="" width={16} height={16} className="shrink-0" />
+            <p className="text-sm leading-5 font-normal text-gray-500">
+              {centerData.address1} {centerData.address2 || ''}
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Image src={clockIcon} alt="" width={16} height={16} className="shrink-0" />
+            <p className="text-sm leading-5 font-normal text-gray-500">
+              {dateStr} {timeStr}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

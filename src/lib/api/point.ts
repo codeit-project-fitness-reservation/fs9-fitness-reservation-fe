@@ -1,7 +1,5 @@
 import { apiClient, buildQueryParams } from '../api';
 
-// --- 1. Common Types ---
-
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -10,8 +8,6 @@ export interface ApiResponse<T> {
 
 export type PointTransactionType = 'CHARGE' | 'USE' | 'REFUND' | 'ADMIN';
 export type SettlementTransactionType = 'USE' | 'REFUND';
-
-// --- 2. Customer Interfaces ---
 
 export interface AdjustPointInput {
   userId: string;
@@ -48,8 +44,6 @@ export interface ChargePointRequest {
   paymentKey: string;
   orderId: string;
 }
-
-// --- 3. Seller (Settlement) Interfaces ---
 
 export interface SettlementSummary {
   totalRevenue: number;
@@ -103,9 +97,7 @@ export interface SellerTransactionResponse {
 // --- 4. Point API Methods ---
 
 export const pointApi = {
-  /**
-   * [Customer] 내 포인트 잔액 및 내역
-   */
+  // [고객] 내 포인트 잔액 및 내역
   getMyBalance: () => apiClient.get<PointBalance>('/api/points/me'),
 
   getMyHistory: (params?: { page?: number; limit?: number }) =>
@@ -115,9 +107,11 @@ export const pointApi = {
 
   charge: (data: ChargePointRequest) => apiClient.post<PointBalance>('/api/points/charge', data),
 
-  /**
-   * [Seller] 정산 및 매출 관리
-   */
+  // [고객] 토스 승인 + 포인트 충전
+  chargeConfirm: (data: ChargePointRequest) =>
+    apiClient.post<PointBalance>('/api/points/charge/confirm', data),
+
+  // [판매자] 매출 정산 요약 + 클래스별 매출
   getSellerSettlement: (params: { year: number; month: number }) => {
     return apiClient.get<SellerSettlementResponse>('/api/points/seller/settlement', {
       params: buildQueryParams(params),
@@ -136,9 +130,7 @@ export const pointApi = {
     });
   },
 
-  /**
-   * [Admin] 포인트 조정 및 내역 관리
-   */
+  // [관리자] 포인트 조정 및 내역 관리
   adjustPoint: (data: AdjustPointInput) => apiClient.post('/api/points/admin/adjust', data),
 
   getHistory: (params: { page?: number; limit?: number; userId?: string }) =>

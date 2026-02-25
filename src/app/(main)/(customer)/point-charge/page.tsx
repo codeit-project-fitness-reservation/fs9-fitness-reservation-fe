@@ -51,6 +51,8 @@ export default function PointChargePage() {
   );
   const [isProcessing, setIsProcessing] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
   const paymentWidgetsRef = useRef<unknown>(null);
   const paymentMethodWidgetRef = useRef<unknown>(null);
 
@@ -59,6 +61,8 @@ export default function PointChargePage() {
       try {
         const userResult = await userApi.getMyProfile();
         setUserId(userResult.id);
+        setCustomerName(userResult.nickname || '고객');
+        setCustomerEmail(userResult.email || '');
       } catch (error) {
         console.error('사용자 정보 조회 실패:', error);
       }
@@ -175,8 +179,8 @@ export default function PointChargePage() {
       await widgets.requestPayment({
         orderId,
         orderName: `포인트 충전 ${amountNumber.toLocaleString()}원`,
-        customerName: '홍길동',
-        customerEmail: 'customer@example.com',
+        customerName: customerName || '고객',
+        customerEmail: customerEmail || 'customer@example.com',
         successUrl: `${window.location.origin}/payment/success?orderId=${orderId}&amount=${amountNumber}`,
         failUrl: `${window.location.origin}/payment/fail?orderId=${orderId}`,
       });

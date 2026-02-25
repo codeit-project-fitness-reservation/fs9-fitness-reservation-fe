@@ -63,10 +63,12 @@ export default function PaymentWidget({
           value: amount,
         });
 
+        const variantKey = process.env.NEXT_PUBLIC_TOSS_PAYMENTS_VARIANT_KEY ?? 'DEFAULT';
+
         const [paymentMethodWidget] = await Promise.all([
           widgetsInstance.renderPaymentMethods({
             selector: `#${widgetId}`,
-            variantKey: 'DEFAULT',
+            variantKey,
           }),
           widgetsInstance.renderAgreement({
             selector: `#${agreementId}`,
@@ -121,7 +123,7 @@ export default function PaymentWidget({
 
   return (
     <div className="flex flex-col gap-4">
-      <div id={widgetId} className="w-full" />
+      <div id={widgetId} className="min-h-[120px] w-full" aria-label="토스페이먼츠 결제수단 선택" />
       <div id={agreementId} className="w-full" />
     </div>
   );
