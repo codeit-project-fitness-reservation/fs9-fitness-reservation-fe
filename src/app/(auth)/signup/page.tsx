@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -9,6 +10,7 @@ import SimpleHeader from '@/components/layout/SimpleHeader/SimpleHeader';
 import InputField from '@/components/Field/InputField';
 import { authFetch } from '@/lib/api';
 import { parseValidationErrors } from '@/lib/parseValidationErrors';
+import { setSellerDraft } from '@/lib/signupSellerDraft';
 import fitmatchLogo from '@/assets/images/FITMATCH.svg';
 
 type SignupFormInput = {
@@ -22,16 +24,18 @@ type SignupFormInput = {
 
 export default function SignupPage() {
   const router = useRouter();
+  const [selectedRole, setSelectedRole] = useState<'CUSTOMER' | 'SELLER'>('CUSTOMER');
 
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     setError,
+    trigger,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<SignupFormInput>({
-    mode: 'onChange', // 입력하는 동안 실시간 검증
+    mode: 'onChange',
     defaultValues: {
       email: '',
       password: '',
@@ -42,11 +46,15 @@ export default function SignupPage() {
     },
   });
 
-  const password = watch('password');
-
   const onSubmit = async (data: SignupFormInput) => {
     try {
-      const { passwordConfirm, ...payload } = data;
+      const payload = {
+        email: data.email,
+        nickname: data.nickname,
+        password: data.password,
+        phone: data.phone,
+        role: data.role,
+      };
       const result = await authFetch('/api/auth/signup', { method: 'POST', body: payload });
 
       if (!result.ok) {
@@ -68,26 +76,57 @@ export default function SignupPage() {
       }
 
       router.push('/login');
-    } catch (error) {
+    } catch {
       setError('root', { message: '네트워크 오류가 발생했습니다. 다시 시도해주세요.' });
     }
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-white">
+    <div className="flex h-dvh flex-col overflow-hidden bg-[#FAFAFA]">
       <SimpleHeader title="회원가입" />
-      <div className="flex flex-1 flex-col px-6 py-10">
-        <div className="mx-auto flex w-full max-w-[420px] flex-col items-center gap-[40px]">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-10">
+        <div className="mx-auto flex w-full max-w-[480px] flex-col items-center gap-[40px]">
           <div className="flex w-full flex-col items-center gap-[24px]">
-            {/* Logo */}
-            <Link href="/" className="flex items-center justify-center">
+            {/* Logo - Figma: 64px height, blue #2970FF */}
+            <Link href="/" className="flex h-16 items-center justify-center">
               <Image src={fitmatchLogo} alt="FITMATCH" width={240} height={64} priority />
             </Link>
 
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-[32px]">
-              {/* role은 CTA 버튼 클릭으로 설정 */}
               <input type="hidden" {...register('role')} />
+
+              {/* 이용자 / 사업자 선택 */}
+              <div className="flex w-full gap-[8px] rounded-[8px] border border-[#D5D7DA] p-[4px]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue('role', 'CUSTOMER');
+                    setSelectedRole('CUSTOMER');
+                  }}
+                  className={`flex-1 rounded-[6px] py-[10px] text-[14px] leading-5 font-medium transition-colors ${
+                    selectedRole === 'CUSTOMER'
+                      ? 'bg-[#2970FF] text-white'
+                      : 'text-gray-600 hover:bg-[#F5F6F8]'
+                  }`}
+                >
+                  이용자
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue('role', 'SELLER');
+                    setSelectedRole('SELLER');
+                  }}
+                  className={`flex-1 rounded-[6px] py-[10px] text-[14px] leading-5 font-medium transition-colors ${
+                    selectedRole === 'SELLER'
+                      ? 'bg-[#2970FF] text-white'
+                      : 'text-gray-600 hover:bg-[#F5F6F8]'
+                  }`}
+                >
+                  사업자
+                </button>
+              </div>
 
               <div className="flex w-full flex-col gap-[12px]">
                 <InputField
@@ -149,7 +188,7 @@ export default function SignupPage() {
                   showPasswordToggle={false}
                   {...register('passwordConfirm', {
                     required: '비밀번호 확인을 입력해주세요',
-                    validate: (v) => v === password || '비밀번호가 일치하지 않습니다',
+                    validate: (v) => v === getValues('password') || '비밀번호가 일치하지 않습니다',
                   })}
                 />
 
@@ -180,10 +219,28 @@ export default function SignupPage() {
 
               <div className="flex w-full gap-[8px]">
                 <button
-                  type="submit"
+                  type="button"
                   disabled={isSubmitting}
-                  onClick={() => setValue('role', 'SELLER')}
-                  className="flex h-[48px] flex-1 items-center justify-center rounded-[8px] border border-[#D5D7DA] bg-white px-[18px] py-[12px] text-[16px] leading-6 font-semibold text-[#414651] disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={async () => {
+                    setValue('role', 'SELLER');
+                    const valid = await trigger([
+                      'email',
+                      'nickname',
+                      'password',
+                      'passwordConfirm',
+                      'phone',
+                    ]);
+                    if (!valid) return;
+                    const v = getValues();
+                    setSellerDraft({
+                      email: v.email,
+                      nickname: v.nickname,
+                      password: v.password,
+                      phone: v.phone,
+                    });
+                    router.push('/signup/seller');
+                  }}
+                  className="flex h-12 flex-1 items-center justify-center rounded-[8px] border border-[#D5D7DA] bg-white px-[18px] py-3 text-base leading-6 font-semibold text-gray-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   사업자 가입하기
                 </button>
@@ -191,7 +248,7 @@ export default function SignupPage() {
                   type="submit"
                   disabled={isSubmitting}
                   onClick={() => setValue('role', 'CUSTOMER')}
-                  className="flex h-[48px] flex-1 items-center justify-center rounded-[8px] bg-[#2970FF] px-[18px] py-[12px] text-[16px] leading-6 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex h-12 flex-1 items-center justify-center rounded-[8px] border-2 border-white/10 bg-[#2970FF] px-[18px] py-3 text-base leading-6 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   이용자 가입하기
                 </button>
@@ -201,7 +258,7 @@ export default function SignupPage() {
 
           {/* Login link */}
           <div className="flex items-center justify-center gap-[4px] text-[14px] leading-5">
-            <span className="text-[#535862]">이미 회원이신가요?</span>
+            <span className="text-gray-600">이미 회원이신가요?</span>
             <Link href="/login" className="text-[#155EEF] underline underline-offset-2">
               로그인하기
             </Link>

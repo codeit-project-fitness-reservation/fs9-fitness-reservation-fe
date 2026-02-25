@@ -32,7 +32,10 @@ export function proxy(req: NextRequest) {
   const needsAdmin = pathname.startsWith('/admin');
 
   // 이미 로그인한 사용자가 로그인/회원가입 페이지로 접근하면 홈으로 보냄
-  if ((pathname === '/login' || pathname === '/signup') && accessToken) {
+  if (
+    (pathname === '/login' || pathname === '/signup' || pathname.startsWith('/signup/')) &&
+    accessToken
+  ) {
     const url = req.nextUrl.clone();
     url.pathname = role === 'SELLER' ? '/seller' : role === 'ADMIN' ? '/admin' : '/';
     return NextResponse.redirect(url);
@@ -61,5 +64,13 @@ export function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/seller/:path*', '/admin/:path*', '/my/:path*', '/my', '/login', '/signup'],
+  matcher: [
+    '/seller/:path*',
+    '/admin/:path*',
+    '/my/:path*',
+    '/my',
+    '/login',
+    '/signup',
+    '/signup/:path*',
+  ],
 };

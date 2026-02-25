@@ -68,9 +68,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-white">
+    <div className="flex h-dvh flex-col overflow-hidden bg-white">
       <SimpleHeader title="로그인" />
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-10">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-10">
         <div className="flex w-full max-w-[400px] flex-col items-center gap-10">
           {/* Logo */}
           <Link href="/" className="flex items-center justify-center">
