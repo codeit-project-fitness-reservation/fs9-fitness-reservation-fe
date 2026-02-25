@@ -27,6 +27,7 @@ export default function KakaoMap() {
   const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY;
   const [isKakaoScriptLoaded, setIsKakaoScriptLoaded] = useState(false);
   const [isKakaoMapsReady, setIsKakaoMapsReady] = useState(false);
+  const [scriptError, setScriptError] = useState(false);
 
   const ensureMapReady = useCallback(() => {
     if (!mapRef.current) return null;
@@ -106,18 +107,41 @@ export default function KakaoMap() {
   useEffect(() => {
     if (!isKakaoScriptLoaded) return;
     if (!window.kakao?.maps) return;
+    if (!mapRef.current) return;
 
     window.kakao.maps.load(() => {
+      // setState 반영 전에 ensureMapReady()가 호출되면 isKakaoMapsReady가 아직 false라
+      // 지도가 생성되지 않음. 콜백 안에서 직접 지도 인스턴스를 생성한 뒤 상태 갱신.
+      if (!mapInstanceRef.current && mapRef.current) {
+        const options = {
+          center: new window.kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng),
+          level: 5,
+        };
+        mapInstanceRef.current = new window.kakao.maps.Map(mapRef.current, options);
+      }
       setIsKakaoMapsReady(true);
-      ensureMapReady();
       if (!hasAutoLocatedRef.current) {
         hasAutoLocatedRef.current = true;
         if (!centerIdFromQuery) moveToCurrentLocation();
       }
     });
-  }, [centerIdFromQuery, ensureMapReady, isKakaoScriptLoaded, moveToCurrentLocation]);
+  }, [centerIdFromQuery, isKakaoScriptLoaded, moveToCurrentLocation]);
 
-  if (!apiKey) return null;
+  if (!apiKey) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-gray-100 text-center text-sm text-gray-500">
+        지도를 불러오려면 NEXT_PUBLIC_KAKAO_MAP_API_KEY 환경 변수를 설정해 주세요.
+      </div>
+    );
+  }
+
+  if (scriptError) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-gray-100 text-center text-sm text-gray-500">
+        지도 스크립트를 불러오지 못했습니다. API 키와 네트워크를 확인해 주세요.
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-full w-full">
@@ -125,6 +149,7 @@ export default function KakaoMap() {
         src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`}
         strategy="afterInteractive"
         onLoad={() => setIsKakaoScriptLoaded(true)}
+        onError={() => setScriptError(true)}
       />
       <CurrentLocationButton onClick={moveToCurrentLocation} />
       <AroundFitness
