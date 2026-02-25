@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import SimpleHeader from '@/components/layout/SimpleHeader/SimpleHeader';
+import Header from '@/components/layout/Header/Header';
 import InputField from '@/components/Field/InputField';
 import { authFetch } from '@/lib/api';
 import { parseValidationErrors } from '@/lib/parseValidationErrors';
@@ -82,8 +82,8 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-[#FAFAFA]">
-      <SimpleHeader title="회원가입" />
+    <div className="mx-auto flex min-h-dvh w-full max-w-[960px] flex-col overflow-hidden bg-gray-50">
+      <Header />
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-10">
         <div className="mx-auto flex w-full max-w-[480px] flex-col items-center gap-[40px]">
           <div className="flex w-full flex-col items-center gap-[24px]">
