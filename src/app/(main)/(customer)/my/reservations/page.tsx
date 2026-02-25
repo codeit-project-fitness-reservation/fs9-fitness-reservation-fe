@@ -69,51 +69,22 @@ export default function ReservationsPage() {
           console.log('Response keys:', response ? Object.keys(response) : 'null');
         }
 
-        // 응답 구조 확인: ReservationListResponse는 { data: ReservationDetail[], total, page, limit } 형태
-        let reservationsData: typeof response.data = [];
-
-        if (response && response.data) {
-          if (Array.isArray(response.data)) {
-            reservationsData = response.data;
-          } else if (
-            response.data &&
-            typeof response.data === 'object' &&
-            'data' in response.data &&
-            Array.isArray((response.data as { data: unknown }).data)
-          ) {
-            reservationsData = (response.data as { data: typeof response.data }).data;
-          }
-        }
-
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Reservations data:', reservationsData);
-          console.log('Reservations data length:', reservationsData?.length);
-        }
-
-        if (!Array.isArray(reservationsData)) {
-          console.error('Invalid response structure:', {
-            response,
-            reservationsData,
-            responseDataType: typeof reservationsData,
-          });
-          setReservations([]);
-          setHasMore(false);
-          return;
-        }
+        const reservationsData = Array.isArray(response?.data) ? response.data : [];
+        const total = response?.total ?? 0;
 
         const mappedReservations: Reservation[] = reservationsData.map((res) => ({
           id: res.id,
           userId: res.userId || '',
           classId: res.classId,
           slotId: res.slotId,
-          status: res.status as Reservation['status'],
-          slotStartAt: new Date(res.slotStartAt),
+          status: res.status,
+          slotStartAt: res.slotStartAt,
           pricePoints: res.pricePoints,
           couponDiscountPoints: res.couponDiscountPoints ?? 0,
           paidPoints: res.paidPoints ?? res.pricePoints,
-          createdAt: new Date(res.createdAt),
-          updatedAt: new Date(res.updatedAt),
-          canceledAt: res.canceledAt ? new Date(res.canceledAt) : undefined,
+          createdAt: res.createdAt,
+          updatedAt: res.updatedAt,
+          canceledAt: res.canceledAt ?? undefined,
           class: {
             title: res.class.title,
             center: {
@@ -122,11 +93,11 @@ export default function ReservationsPage() {
           },
           slot: res.slot
             ? {
-                startAt: new Date(res.slot.startAt),
-                endAt: new Date(res.slot.endAt),
+                startAt: res.slot.startAt,
+                endAt: res.slot.endAt,
                 capacity: res.slot.capacity,
                 _count: {
-                  reservations: res.slot._count.reservations,
+                  reservations: res.slot._count?.reservations ?? 0,
                 },
               }
             : undefined,
@@ -138,7 +109,6 @@ export default function ReservationsPage() {
           setReservations((prev) => [...prev, ...mappedReservations]);
         }
 
-        const total = (response as { total?: number }).total;
         const hasMoreData = total
           ? reservationsData.length < total
           : reservationsData.length === 10;
@@ -190,7 +160,7 @@ export default function ReservationsPage() {
       setReservations((prev) =>
         prev.map((res) =>
           res.id === cancelReservationId
-            ? { ...res, status: 'CANCELED' as const, canceledAt: new Date() }
+            ? { ...res, status: 'CANCELED' as const, canceledAt: new Date().toISOString() }
             : res,
         ),
       );

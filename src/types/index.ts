@@ -27,7 +27,7 @@ export interface NotificationItem {
   body?: string;
   linkUrl?: string;
   isRead: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
 
 // --- [3. Center] ---
@@ -42,8 +42,8 @@ export interface Center {
   businessHours?: Record<string, unknown>;
   lat?: number;
   lng?: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // --- [4. Class] ---
@@ -64,8 +64,8 @@ export interface Class {
   status: ClassStatus;
   rejectReason?: string;
 
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ClassItem extends Class {
@@ -75,6 +75,7 @@ export interface ClassItem extends Class {
   };
   _count?: {
     reviews?: number;
+    reservations?: number;
   };
   displayCapacity?: string;
   statusLabel?: string;
@@ -84,12 +85,12 @@ export interface ClassItem extends Class {
 export interface ClassSlot {
   id: string;
   classId: string;
-  startAt: Date;
-  endAt: Date;
+  startAt: string;
+  endAt: string;
   capacity: number;
   currentReservation: number;
   isOpen: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface ScheduleEvent {
@@ -97,8 +98,8 @@ export interface ScheduleEvent {
   classId: string;
   slotId: string;
   title: string;
-  start: Date;
-  end: Date;
+  start: string;
+  end: string;
   resource?: {
     className: string;
     category: string;
@@ -112,7 +113,7 @@ export interface ScheduleEvent {
 }
 
 // --- [6. Reservation] ---
-export type ReservationStatus = 'BOOKED' | 'CANCELED' | 'COMPLETED';
+export type ReservationStatus = 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED' | 'BOOKED';
 
 export interface Reservation {
   id: string;
@@ -166,7 +167,7 @@ export interface PointHistory {
   reservationId?: string;
   orderId?: string;
   paymentKey?: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 // --- [8. Coupon (NEW)] ---
@@ -237,5 +238,5 @@ export interface SalesTransaction {
   statusLabel: string;
   dateTime: string;
   amount: number;
-  createdAt: Date;
+  createdAt: string;
 }

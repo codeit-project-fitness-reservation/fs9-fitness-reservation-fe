@@ -161,10 +161,13 @@ export default function SignupPage() {
                   required
                   inputMode="numeric"
                   density="sm"
-                  maxLength={10}
+                  maxLength={11}
                   {...register('phone', {
                     required: '연락처를 입력해주세요',
-                    pattern: { value: /^\d{10}$/, message: '연락처는 숫자 10자리여야 합니다' },
+                    pattern: {
+                      value: /^\d{10,11}$/,
+                      message: '올바른 전화번호 형식이 아닙니다.',
+                    },
                   })}
                 />
 

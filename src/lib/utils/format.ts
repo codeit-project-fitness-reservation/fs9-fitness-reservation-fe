@@ -43,7 +43,7 @@ export const formatPhoneInput = (value: string): string => {
   // 숫자만 추출
   const numbers = value.replace(/[^0-9]/g, '');
 
-  // 11자리 제한
+  // 10~11자리 제한
   const limitedNumbers = numbers.slice(0, 11);
 
   // 하이픈 추가

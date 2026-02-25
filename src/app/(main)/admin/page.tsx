@@ -42,15 +42,12 @@ export default function AdminHomePage() {
       const { startDate, endDate } = calculateDateRange('전체기간');
 
       const response = await reservationApi.getAdminReservations({
-        // page: 1,
-        // limit: PREVIEW_LIMIT,
         startDate,
         endDate,
       });
 
-      const res = response as { data?: Reservation[]; total?: number; totalCount?: number };
-      const list = (res?.data ?? []).slice(0, PREVIEW_LIMIT);
-      const total = res?.total ?? res?.totalCount ?? list.length;
+      const list = (response.data ?? []).slice(0, PREVIEW_LIMIT);
+      const total = response.total ?? list.length;
 
       setReservations(list);
       setTotalReservationCount(total);

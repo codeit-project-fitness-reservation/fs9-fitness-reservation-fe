@@ -1,8 +1,5 @@
 import { Review } from '@/types';
 
-/**
- * 클래스 리뷰 목록 Mock 데이터
- */
 export const MOCK_REVIEWS: Review[] = [
   {
     id: 'review-1',
@@ -14,7 +11,7 @@ export const MOCK_REVIEWS: Review[] = [
     imgUrls: [
       'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=400&q=80',
     ],
-    createdAt: new Date('2026-01-25T10:00:00'),
+    createdAt: '2026-01-25T10:00:00.000Z',
     userNickname: '김철수',
     userProfileImg: undefined,
   },
@@ -26,7 +23,7 @@ export const MOCK_REVIEWS: Review[] = [
     rating: 4,
     content: '운동 강도가 적당해서 초보자도 따라하기 좋았어요. 다음에도 또 신청할 예정입니다!',
     imgUrls: [],
-    createdAt: new Date('2026-01-24T15:30:00'),
+    createdAt: '2026-01-24T15:30:00.000Z',
     userNickname: '이영희',
     userProfileImg: undefined,
   },
@@ -41,7 +38,7 @@ export const MOCK_REVIEWS: Review[] = [
       'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=400&q=80',
       'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=400&q=80',
     ],
-    createdAt: new Date('2026-01-23T09:20:00'),
+    createdAt: '2026-01-23T09:20:00.000Z',
     userNickname: '박민수',
     userProfileImg: undefined,
   },
@@ -53,7 +50,7 @@ export const MOCK_REVIEWS: Review[] = [
     rating: 4,
     content: '시간대가 좋고 강사님이 설명을 잘 해주셔서 이해하기 쉬웠어요.',
     imgUrls: [],
-    createdAt: new Date('2026-01-22T14:00:00'),
+    createdAt: '2026-01-22T14:00:00.000Z',
     userNickname: '최지영',
     userProfileImg: undefined,
   },
@@ -67,15 +64,12 @@ export const MOCK_REVIEWS: Review[] = [
     imgUrls: [
       'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=400&q=80',
     ],
-    createdAt: new Date('2026-01-21T11:15:00'),
+    createdAt: '2026-01-21T11:15:00.000Z',
     userNickname: '정수진',
     userProfileImg: undefined,
   },
 ];
 
-/**
- * 클래스 ID로 리뷰 목록 조회
- */
 export function getMockReviewsForClass(classId: string): Review[] {
   return MOCK_REVIEWS.filter((review) => review.classId === classId);
 }

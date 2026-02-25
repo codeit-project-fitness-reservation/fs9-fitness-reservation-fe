@@ -7,7 +7,7 @@ import Image from 'next/image';
 import InputField from '@/components/Field/InputField';
 import DatePicker from '@/components/common/DatePicker';
 import ModalFooterButtons from '@/components/common/ModalFooterButtons';
-import { couponApi, CreateCouponData, CouponTemplate, UpdateCouponData } from '@/lib/api/coupon';
+import { couponApi, CreateCouponInput, CouponTemplate, UpdateCouponInput } from '@/lib/api/coupon';
 import { couponFormSchema, CouponFormInput } from './couponSchema';
 import icClose from '@/assets/images/x-close.svg';
 
@@ -51,9 +51,9 @@ export default function CreateCouponModal({
         ? data.usageValue
         : undefined
       : (data as { discountPercentage?: number | null }).discountPercentage;
-    const discountPoints = rawPoints != null && rawPoints > 0 ? rawPoints : undefined;
+    const discountPoints = typeof rawPoints === 'number' && rawPoints > 0 ? rawPoints : undefined;
     const discountPercentage =
-      rawPercentage != null && rawPercentage > 0 ? rawPercentage : undefined;
+      typeof rawPercentage === 'number' && rawPercentage > 0 ? rawPercentage : undefined;
     const discountType: 'amount' | 'percentage' =
       isApiFormat && (data as { discountType?: string }).discountType === 'PERCENTAGE'
         ? 'percentage'
@@ -118,7 +118,7 @@ export default function CreateCouponModal({
       const expiresAtStr = data.expiresAt ? data.expiresAt.toISOString() : undefined;
 
       if (isEditMode && couponId) {
-        const updateData: UpdateCouponData = {
+        const updateData: UpdateCouponInput = {
           name: data.name,
           discountType: discountTypeApi,
           usageValue,
@@ -126,7 +126,7 @@ export default function CreateCouponModal({
         };
         await couponApi.updateCouponTemplate(couponId, updateData);
       } else {
-        const submitData: CreateCouponData = {
+        const submitData: CreateCouponInput = {
           name: data.name,
           discountType: discountTypeApi,
           usageValue,

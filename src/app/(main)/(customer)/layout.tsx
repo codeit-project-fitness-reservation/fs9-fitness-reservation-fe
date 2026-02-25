@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 
 // 1. 공개 경로 설정
-const PUBLIC_PATHS = ['/main', '/classes', '/centers'];
+const PUBLIC_PATHS = ['/', '/main', '/classes', '/centers'];
 const PUBLIC_PATH_PREFIXES = ['/classes/', '/centers/'];
 
 interface CustomerLayoutProps {

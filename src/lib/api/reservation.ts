@@ -1,4 +1,13 @@
 import { apiClient, buildQueryParams } from '../api';
+import type { Reservation } from '@/types';
+
+export interface AdminReservationListResponse {
+  data: Reservation[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages?: number;
+}
 
 // --- 1. 가용한 모든 예약 상태 정의 (Union Type) ---
 export type ReservationStatus = 'PENDING' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED' | 'BOOKED';
@@ -115,6 +124,19 @@ export const reservationApi = {
 
   cancelReservation: (id: string, cancelNote?: string) =>
     apiClient.patch<void>(`/api/reservations/${id}/cancel`, { cancelNote }),
+
+  /** [Admin] 관리자 예약 목록 */
+  getAdminReservations: (params?: ReservationSearchParams) => {
+    const queryParams: Record<string, string> = {};
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value) queryParams[key] = value;
+      });
+    }
+    return apiClient.get<AdminReservationListResponse>('/api/reservations/admin/reservations', {
+      params: queryParams,
+    });
+  },
 
   /** [Seller] 판매자 전용 */
   getSellerReservationDetail: (id: string) =>

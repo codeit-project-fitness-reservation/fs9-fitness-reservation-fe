@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import SearchBar from './_components/SearchBar';
@@ -14,7 +14,7 @@ import { classApi } from '@/lib/api/class';
 import filterLinesIcon from '@/assets/images/filter-lines.svg';
 import filterIcon from '@/assets/images/filter.svg';
 
-export default function ClassesPage() {
+function ClassesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -142,13 +142,13 @@ export default function ClassesPage() {
           capacity: item.capacity,
           bannerUrl: item.bannerUrl ?? null,
           imgUrls: item.imgUrls || [],
-          status: item.status as Class['status'],
+          status: item.status,
           rejectReason: null,
           createdAt: item.createdAt,
           updatedAt: item.createdAt,
-          currentReservation: item._count?.reservations ?? 0,
-          rating: 0, // TODO: 백엔드에서 제공되면 추가
-          reviewCount: item._count?.reviews ?? 0,
+          currentReservation: 0,
+          rating: item.rating ?? 0,
+          reviewCount: item.reviewCount ?? 0,
         }));
 
         // 필터 적용 (클라이언트 사이드)
@@ -370,5 +370,17 @@ export default function ClassesPage() {
         />
       </div>
     </>
+  );
+}
+
+export default function ClassesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[calc(100vh-56px)] items-center justify-center">로딩 중...</div>
+      }
+    >
+      <ClassesPageContent />
+    </Suspense>
   );
 }

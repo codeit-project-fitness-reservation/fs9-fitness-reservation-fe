@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { couponApi, CouponTemplate, CreateCouponTemplateInput } from '@/lib/api/coupon';
+import { couponApi, CouponTemplate, CreateCouponInput } from '@/lib/api/coupon';
 import CouponCard from './_components/CouponCard';
 import CreateCouponModal from '../users/_components/CreateCouponModal';
 
@@ -33,7 +33,7 @@ function EditCouponModal({ coupon, onClose, onUpdated }: EditCouponModalProps) {
     if (!name.trim()) return;
     try {
       setLoading(true);
-      await couponApi.updateCoupon(coupon.id, { name });
+      await couponApi.updateCouponTemplate(coupon.id, { name });
       onUpdated();
       onClose();
     } catch {
@@ -101,7 +101,7 @@ export default function AdminCouponsPage() {
   const fetchCoupons = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await couponApi.getMyCoupons();
+      const data = await couponApi.getCouponTemplates();
       setCoupons(Array.isArray(data) ? data : []);
     } catch {
       setCoupons([]);
@@ -117,7 +117,7 @@ export default function AdminCouponsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('정말 삭제하시겠습니까?\n삭제된 쿠폰은 복구할 수 없습니다.')) return;
     try {
-      await couponApi.deleteCoupon(id);
+      await couponApi.deleteCouponTemplate(id);
       await fetchCoupons();
     } catch {
       alert('쿠폰 삭제 실패');

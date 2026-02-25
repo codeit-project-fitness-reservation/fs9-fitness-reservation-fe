@@ -1,5 +1,4 @@
 import { apiClient, QueryParams } from '../api';
-import { Reservation } from '@/types';
 
 export interface ClassStats {
   total: number;
@@ -8,20 +7,23 @@ export interface ClassStats {
   rejected: number;
 }
 
+export type ClassStatusLiteral = 'PENDING' | 'APPROVED' | 'REJECTED';
+
 export interface ClassItem {
   id: string;
   createdAt: string;
+  updatedAt?: string;
   title: string;
   pricePoints: number;
   capacity: number;
-  status: string;
+  status: ClassStatusLiteral;
   description: string;
   notice?: string | null;
   category: string;
   level: string;
   bannerUrl?: string | null;
   imgUrls?: string[];
-  schedule?: string | null; // 반복 스케줄 (JSON 문자열, 예: { "화목": "19:00", "월수금": "10:00, 19:00" })
+  schedule?: string | null;
   center: {
     id: string;
     name: string;
@@ -31,7 +33,10 @@ export interface ClassItem {
 
   _count?: {
     reviews?: number;
+    reservations?: number;
   };
+  reviewCount?: number;
+  rating?: number;
 }
 
 export interface ClassListResponse {
@@ -80,21 +85,22 @@ export interface SlotItem {
 export interface ReservationItem {
   id: string;
   classId: string;
-  classTitle: string;
+  classTitle?: string;
+  class?: { title: string; [key: string]: unknown };
   user: {
     id: string;
-    name: string;
+    name?: string;
     nickname?: string;
-    phoneNumber: string;
+    phone?: string;
+    phoneNumber?: string;
     profileImgUrl?: string | null;
   };
-  reservationDate: string;
+  reservationDate?: string;
   slotStartAt?: string;
   status: 'BOOKED' | 'CANCELED' | 'COMPLETED';
   createdAt: string;
   canceledAt?: string | null;
   completedAt?: string | null;
-  // 결제 정보
   pricePoints?: number;
   paidPoints?: number;
   couponDiscountPoints?: number;
@@ -105,6 +111,17 @@ export interface ReservationItem {
     paymentId: string;
     orderNumber: string;
   };
+  pointHistories?: {
+    id: string;
+    type: 'CHARGE' | 'USE' | 'REFUND' | 'ADMIN';
+    amount: number;
+    balanceBefore: number;
+    balanceAfter: number;
+    orderId?: string | null;
+    paymentKey?: string | null;
+    memo?: string | null;
+    createdAt: string;
+  }[];
 }
 export interface ReservationListResponse {
   data: ReservationItem[];

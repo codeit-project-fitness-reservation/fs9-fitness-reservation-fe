@@ -105,7 +105,8 @@ const Header = () => {
             body: n.body ?? undefined,
             linkUrl: n.linkUrl ?? undefined,
             isRead: n.isRead,
-            createdAt: new Date(n.createdAt),
+            createdAt:
+              typeof n.createdAt === 'string' ? n.createdAt : new Date(n.createdAt).toISOString(),
           })),
         );
       }
@@ -126,7 +127,10 @@ const Header = () => {
           body: payload.body ?? undefined,
           linkUrl: payload.linkUrl ?? undefined,
           isRead: false,
-          createdAt: new Date(payload.createdAt),
+          createdAt:
+            typeof payload.createdAt === 'string'
+              ? payload.createdAt
+              : new Date(payload.createdAt).toISOString(),
         },
         ...prev,
       ]);

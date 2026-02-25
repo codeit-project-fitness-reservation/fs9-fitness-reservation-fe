@@ -25,13 +25,13 @@ export default function PaymentCoupon({
         <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4">
           <div className="flex items-center gap-2">
             <span className="text-base font-medium text-blue-600">
-              {selectedCoupon.template?.discountPoints
-                ? `-${selectedCoupon.template.discountPoints.toLocaleString()}P`
-                : selectedCoupon.template?.discountPercentage
-                  ? `-${selectedCoupon.template.discountPercentage}%`
+              {selectedCoupon.discountPoints
+                ? `-${selectedCoupon.discountPoints.toLocaleString()}P`
+                : selectedCoupon.discountPercentage
+                  ? `-${selectedCoupon.discountPercentage}%`
                   : ''}
             </span>
-            <span className="text-sm text-gray-600">{selectedCoupon.template?.name}</span>
+            <span className="text-sm text-gray-600">{selectedCoupon.couponName}</span>
             <button
               type="button"
               onClick={() => onCouponSelect(null)}

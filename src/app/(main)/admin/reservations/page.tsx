@@ -4,10 +4,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import AdminFilter, { reservationFilterConfigs, FilterValues } from '../_components/AdminFilter';
 import ReservationList from './_components/ReservationList';
 import { reservationApi } from '@/lib/api/reservation';
-import { Reservation } from '@/types';
+import { Reservation, ReservationStatus } from '@/types';
 
 import { calculateDateRange } from '@/lib/utils/filterDate';
 import Pagination from '@/components/Pagination';
+
+const RESERVATION_STATUSES: ReservationStatus[] = [
+  'PENDING',
+  'CONFIRMED',
+  'CANCELED',
+  'COMPLETED',
+  'BOOKED',
+];
+
+function isReservationStatus(s: string): s is ReservationStatus {
+  return RESERVATION_STATUSES.includes(s as ReservationStatus);
+}
 
 export default function AdminReservationsPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -57,20 +69,20 @@ export default function AdminReservationsPage() {
       const response = await reservationApi.getAdminReservations({
         startDate,
         endDate,
-        status: currentFilters.status !== '전체' ? currentFilters.status : undefined,
+        status:
+          currentFilters.status !== '전체' && isReservationStatus(currentFilters.status)
+            ? currentFilters.status
+            : undefined,
         keyword: currentFilters.search,
         searchType: currentFilters.search ? currentFilters.searchType : undefined,
-        // page: page,
-        // limit: take,
       });
 
-      const res = response as { data?: Reservation[]; total?: number; totalCount?: number };
-      const list = res?.data ?? [];
-      const total = res?.total ?? res?.totalCount ?? list.length;
+      const list = response.data ?? [];
+      const total = response.total ?? list.length;
 
       setReservations(list);
       setTotalCount(total);
-      setTotalPages(Math.ceil(total / ITEMS_PER_PAGE) || 1);
+      setTotalPages(response.totalPages ?? Math.ceil(total / ITEMS_PER_PAGE) ?? 1);
     } catch (error) {
       console.error('예약 조회 실패:', error);
     } finally {

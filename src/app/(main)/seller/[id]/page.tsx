@@ -90,9 +90,9 @@ export default function SellerClassDetailPage() {
           notice: apiDetail.notice || undefined,
           bannerUrl: apiDetail.bannerUrl || undefined,
           imgUrls: apiDetail.imgUrls || [],
-          status: apiDetail.status as ClassItem['status'],
-          createdAt: new Date(apiDetail.createdAt),
-          updatedAt: new Date(apiDetail.createdAt),
+          status: apiDetail.status,
+          createdAt: apiDetail.createdAt,
+          updatedAt: apiDetail.updatedAt ?? apiDetail.createdAt,
           center: apiDetail.center,
           _count: {
             reviews: apiDetail._count?.reviews,
@@ -111,7 +111,7 @@ export default function SellerClassDetailPage() {
           capacity: apiDetail.capacity,
           bannerUrl: apiDetail.bannerUrl || null,
           imgUrls: apiDetail.imgUrls || [],
-          status: apiDetail.status as ClassType['status'],
+          status: apiDetail.status,
           rejectReason: null,
           createdAt: apiDetail.createdAt,
           updatedAt: apiDetail.createdAt,
@@ -123,8 +123,8 @@ export default function SellerClassDetailPage() {
           name: apiDetail.center.name,
           address1: apiDetail.center.address1 || '',
           address2: apiDetail.center.address2,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         };
 
         const parsedSchedule = parseSchedule(apiDetail.schedule);
@@ -241,12 +241,16 @@ export default function SellerClassDetailPage() {
     const convertedSlot: ClassSlot = {
       id: slot.id,
       classId: slot.classId,
-      startAt: slot.startAt instanceof Date ? slot.startAt : new Date(slot.startAt),
-      endAt: slot.endAt instanceof Date ? slot.endAt : new Date(slot.endAt),
+      startAt:
+        typeof slot.startAt === 'string' ? slot.startAt : new Date(slot.startAt).toISOString(),
+      endAt: typeof slot.endAt === 'string' ? slot.endAt : new Date(slot.endAt).toISOString(),
       capacity: slot.capacity,
       currentReservation: slot.currentReservation,
       isOpen: slot.isOpen,
-      createdAt: slot.createdAt instanceof Date ? slot.createdAt : new Date(slot.createdAt),
+      createdAt:
+        typeof slot.createdAt === 'string'
+          ? slot.createdAt
+          : new Date(slot.createdAt).toISOString(),
     };
     setSelectedTimeSlot(convertedSlot);
   };

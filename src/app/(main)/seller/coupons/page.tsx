@@ -21,21 +21,15 @@ const formatDate = (date: Date | string | undefined): string => {
 };
 
 const formatDiscount = (coupon: CouponTemplate): string => {
-  // API 응답 형식: discountPoints, discountPercentage
   if (coupon.discountPoints != null && coupon.discountPoints > 0)
     return `${coupon.discountPoints.toLocaleString()}원 할인`;
   if (coupon.discountPercentage != null && coupon.discountPercentage > 0)
     return `${coupon.discountPercentage}% 할인`;
-  // discountType, usageValue 형식
-  if (coupon.discountType === 'PERCENTAGE' && (coupon.usageValue ?? 0) > 0)
-    return `${coupon.usageValue}% 할인`;
-  if (coupon.discountType === 'AMOUNT' && (coupon.usageValue ?? 0) > 0)
-    return `${(coupon.usageValue ?? 0).toLocaleString()}원 할인`;
   return '할인 정보 없음';
 };
 
 const formatCondition = (coupon: CouponTemplate): string => {
-  const amount = coupon.discountPoints ?? coupon.usageValue ?? 0;
+  const amount = coupon.discountPoints ?? 0;
   const isAmount = coupon.discountType === 'AMOUNT' || coupon.discountPoints != null;
   if (isAmount && amount >= 10000) return '20,000원 이상 결제 시';
   return '제한 없음';
