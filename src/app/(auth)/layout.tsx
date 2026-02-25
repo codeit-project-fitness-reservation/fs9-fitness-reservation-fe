@@ -44,12 +44,14 @@ function AuthRedirectGuard({ children }: { children: ReactNode }) {
   // loading 중엔 폼을 바로 보여줌 (지연 없음)
   if (status === 'authenticated') return null;
 
-  return <section className="flex min-h-dvh flex-col bg-white">{children}</section>;
+  return <section className="flex min-h-dvh flex-col bg-gray-200">{children}</section>;
 }
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <Suspense fallback={<section className="flex min-h-dvh flex-col bg-white">{children}</section>}>
+    <Suspense
+      fallback={<section className="flex min-h-dvh flex-col bg-gray-200">{children}</section>}
+    >
       <AuthRedirectGuard>{children}</AuthRedirectGuard>
     </Suspense>
   );

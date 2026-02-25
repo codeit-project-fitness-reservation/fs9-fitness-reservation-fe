@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import SimpleHeader from '@/components/layout/SimpleHeader/SimpleHeader';
+import Header from '@/components/layout/Header/Header';
 import InputField from '@/components/Field/InputField';
 import { BaseButton } from '@/components/common/BaseButton';
 import { authFetch } from '@/lib/api';
@@ -68,8 +68,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-white">
-      <SimpleHeader title="로그인" />
+    <div className="mx-auto flex min-h-dvh w-full max-w-[960px] flex-col overflow-hidden bg-gray-50">
+      <Header />
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-10">
         <div className="flex w-full max-w-[400px] flex-col items-center gap-10">
           {/* Logo */}
