@@ -213,7 +213,7 @@ const Header = () => {
                     alt=""
                     width={12}
                     height={12}
-                    className={`transition-transform ${isProfileOpen ? 'rotate-180' : ''}`}
+                    className={`transition-transform ${isProfileOpen}`}
                   />
                 </button>
 

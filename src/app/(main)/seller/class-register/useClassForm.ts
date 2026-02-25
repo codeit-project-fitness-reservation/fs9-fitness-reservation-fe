@@ -10,6 +10,8 @@ import { parseDayGroup, KOREAN_TO_ENGLISH_DAY, ENGLISH_TO_KOREAN_DAY } from '@/l
 export function useClassForm(classId?: string) {
   const router = useRouter();
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+  const [removedImageUrls, setRemovedImageUrls] = useState<string[]>([]);
 
   const {
     register,
@@ -65,6 +67,38 @@ export function useClassForm(classId?: string) {
         setValue('capacity', formatWithCommas(String(detail.capacity)));
         setValue('description', detail.description || '');
         setValue('precautions', detail.notice ?? '');
+
+        // 기존 이미지 URL 설정
+        // imgUrls 배열이 있으면 우선 사용, 없으면 bannerUrl 사용
+        let imageUrls: string[] = [];
+
+        if (detail.imgUrls && detail.imgUrls.length > 0) {
+          // imgUrls가 있으면 모든 이미지 사용
+          imageUrls = [...detail.imgUrls];
+
+          // bannerUrl이 있고 imgUrls에 없으면 추가 (중복 방지)
+          if (detail.bannerUrl && !imageUrls.includes(detail.bannerUrl)) {
+            imageUrls = [detail.bannerUrl, ...imageUrls];
+          }
+        } else if (detail.bannerUrl) {
+          // imgUrls가 없고 bannerUrl만 있으면 bannerUrl만 사용
+          imageUrls = [detail.bannerUrl];
+        }
+
+        // 빈 값 제거 및 중복 제거
+        const uniqueImageUrls = Array.from(new Set(imageUrls.filter(Boolean)));
+        setExistingImageUrls(uniqueImageUrls);
+        // 수정 모드 진입 시 삭제 목록 초기화 (새로 로드한 이미지 기준)
+        setRemovedImageUrls([]);
+
+        // 디버깅용 (개발 환경에서만)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('기존 이미지 로드:', {
+            bannerUrl: detail.bannerUrl,
+            imgUrls: detail.imgUrls,
+            uniqueImageUrls,
+          });
+        }
 
         if (detail.schedule) {
           try {
@@ -129,8 +163,33 @@ export function useClassForm(classId?: string) {
   }, [classId, setValue]);
 
   const onSubmit = async (data: ClassFormInput) => {
+    // 삭제되지 않은 기존 이미지 개수 계산
+    const visibleExistingImages = existingImageUrls.filter(
+      (url) => !removedImageUrls.includes(url),
+    );
+    const totalImages = visibleExistingImages.length + selectedImages.length;
+
+    // 디버깅용 (개발 환경에서만)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('이미지 검증:', {
+        existingImageUrls,
+        removedImageUrls,
+        visibleExistingImages,
+        selectedImages: selectedImages.length,
+        totalImages,
+        classId,
+      });
+    }
+
+    // 새 클래스 등록 시: 새 이미지가 필수
     if (!classId && selectedImages.length === 0) {
       alert('최소 1개의 이미지를 업로드해주세요.');
+      return;
+    }
+
+    // 수정 모드: 기존 이미지가 남아있거나 새 이미지가 있어야 함
+    if (classId && totalImages === 0) {
+      alert('최소 1개의 이미지가 필요합니다.');
       return;
     }
 
@@ -144,8 +203,55 @@ export function useClassForm(classId?: string) {
     formData.append('description', data.description);
     formData.append('notice', data.precautions);
 
-    selectedImages.forEach((file) => {
-      formData.append(`images`, file);
+    // 삭제할 이미지 URL 전송 (수정 모드일 때만)
+    if (classId && removedImageUrls.length > 0) {
+      formData.append('removedImageUrls', JSON.stringify(removedImageUrls));
+      // 디버깅용 (개발 환경에서만)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('삭제할 이미지 URL 전송:', removedImageUrls);
+      }
+    }
+
+    selectedImages.forEach((file, index) => {
+      // 파일명 정리 및 생성 함수
+      const sanitizeFileName = (originalName: string): string => {
+        // 파일명에서 확장자 추출
+        const lastDot = originalName.lastIndexOf('.');
+        const nameWithoutExt = lastDot > 0 ? originalName.substring(0, lastDot) : originalName;
+        const extension = lastDot > 0 ? originalName.substring(lastDot + 1) : 'jpg';
+
+        // 파일명 정리: 특수문자, 공백 제거, 안전한 문자만 사용
+        const sanitizedName = nameWithoutExt
+          .replace(/[^a-zA-Z0-9가-힣_-]/g, '-') // 특수문자를 하이픈으로 변경
+          .replace(/-+/g, '-') // 연속된 하이픈을 하나로
+          .replace(/^-|-$/g, ''); // 앞뒤 하이픈 제거
+
+        // 파일명이 비어있거나 너무 짧으면 타임스탬프 사용
+        const finalName = sanitizedName || `image-${Date.now()}-${index}`;
+
+        return `${finalName}.${extension}`;
+      };
+
+      // 파일명이 없거나 비어있거나 문제가 있으면 새 File 객체 생성
+      let fileToUpload = file;
+      let fileName = file.name;
+
+      if (!fileName || fileName.trim() === '' || fileName.includes('_____')) {
+        const extension = file.type.split('/')[1] || 'jpg';
+        fileName = `class-image-${Date.now()}-${index}.${extension}`;
+      } else {
+        // 파일명 정리
+        fileName = sanitizeFileName(fileName);
+      }
+
+      // 파일명이 원본과 다르면 새 File 객체 생성
+      if (fileName !== file.name) {
+        fileToUpload = new File([file], fileName, { type: file.type });
+      }
+
+      // FormData에 파일 추가 (multer가 기대하는 형식)
+      // multer는 보통 'images' 필드명으로 배열을 받음
+      formData.append('images', fileToUpload, fileName);
     });
 
     const dayScheduleMap: Record<string, string[]> = {};
@@ -214,6 +320,19 @@ export function useClassForm(classId?: string) {
 
   const isFormValid = classId ? true : isValid && selectedImages.length > 0;
 
+  const removeExistingImage = (url: string) => {
+    // removedImageUrls에만 추가 (existingImageUrls는 유지)
+    setRemovedImageUrls((prev) => {
+      if (prev.includes(url)) return prev;
+      return [...prev, url];
+    });
+  };
+
+  const restoreExistingImage = (url: string) => {
+    // removedImageUrls에서만 제거
+    setRemovedImageUrls((prev) => prev.filter((u) => u !== url));
+  };
+
   return {
     register,
     control,
@@ -223,6 +342,10 @@ export function useClassForm(classId?: string) {
     isValid,
     selectedImages,
     setSelectedImages,
+    existingImageUrls,
+    removedImageUrls,
+    removeExistingImage,
+    restoreExistingImage,
     formatWithCommas,
     onSubmit,
     isFormValid,

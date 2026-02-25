@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import Map from '../../centers/_components/Map';
 
 export default function MapSection() {
@@ -14,7 +15,9 @@ export default function MapSection() {
         </p>
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="relative h-[500px] w-full max-[640px]:h-[300px]">
-            <Map />
+            <Suspense fallback={<div className="h-full w-full animate-pulse bg-gray-200" />}>
+              <Map />
+            </Suspense>
           </div>
         </div>
       </div>

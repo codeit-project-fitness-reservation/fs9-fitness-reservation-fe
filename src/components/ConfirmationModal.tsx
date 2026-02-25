@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Modal from './Modal';
 import xClose from '@/assets/images/x-close.svg';
+import ModalFooterButtons from '@/components/common/ModalFooterButtons';
 
 interface ConfirmationModalProps {
   isOpen?: boolean;
@@ -12,6 +13,43 @@ interface ConfirmationModalProps {
   confirmText: string;
 }
 
+const ConfirmationModalContent = ({
+  onClose,
+  onConfirm,
+  message,
+  confirmText,
+}: Omit<ConfirmationModalProps, 'isOpen'>) => {
+  return (
+    <div
+      className="relative flex h-51 w-85.75 flex-col rounded-3xl bg-white p-6 shadow-xl md:h-59 md:w-105"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 z-10 flex h-6 w-6 items-center justify-center transition-opacity hover:opacity-70"
+      >
+        <Image src={xClose} alt="닫기" width={18} height={18} />
+      </button>
+
+      <div className="h-12 w-full md:h-13" aria-hidden="true" />
+
+      <div className="flex flex-1 items-center justify-center text-center">
+        <p className="text-base leading-relaxed font-medium whitespace-pre-wrap text-gray-900">
+          {message}
+        </p>
+      </div>
+
+      <ModalFooterButtons
+        cancelLabel="취소"
+        submitLabel={confirmText}
+        onCancel={onClose}
+        onSubmit={onConfirm}
+        className="mt-8 gap-2 md:mt-10"
+      />
+    </div>
+  );
+};
+
 export default function ConfirmationModal({
   isOpen,
   onClose,
@@ -19,49 +57,24 @@ export default function ConfirmationModal({
   message,
   confirmText,
 }: ConfirmationModalProps) {
-  return (
-    <Modal isOpen={isOpen ?? true} onClose={onClose}>
-      <div
-        className="relative w-85.75 rounded-4xl bg-white shadow-xl md:w-115"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* 헤더 */}
-        <div className="flex items-center justify-between px-6 py-4">
-          <h2 className="text-lg font-bold text-gray-900">확인</h2>
-          <button
-            onClick={onClose}
-            className="flex h-6 w-6 items-center justify-center transition-opacity hover:opacity-70"
-          >
-            <Image src={xClose} alt="닫기" width={24} height={24} />
-          </button>
-        </div>
-
-        {/* 본문 */}
-        <div className="px-6 pb-6">
-          {/* 메시지 */}
-          <div className="mb-8 text-center">
-            <p className="text-[15px] leading-relaxed font-medium whitespace-pre-wrap text-gray-800">
-              {message}
-            </p>
-          </div>
-
-          {/* 버튼 영역 */}
-          <div className="flex gap-2">
-            <button
-              onClick={onClose}
-              className="flex-1 rounded-xl border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-500 transition-colors hover:bg-gray-50"
-            >
-              취소
-            </button>
-            <button
-              onClick={onConfirm}
-              className="flex-1 rounded-xl bg-[#3182F6] py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
-            >
-              {confirmText}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Modal>
+  const content = (
+    <ConfirmationModalContent
+      onClose={onClose}
+      onConfirm={onConfirm}
+      message={message}
+      confirmText={confirmText}
+    />
   );
+
+  // isOpen이 제공되면 Modal로 래핑 (직접 렌더링 시)
+  // isOpen이 없으면 내용만 반환 (ModalProvider를 통해 사용 시)
+  if (isOpen !== undefined) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose}>
+        {content}
+      </Modal>
+    );
+  }
+
+  return content;
 }

@@ -1,32 +1,49 @@
-import { Control, useWatch, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
-import { ClassFormInput } from '../classschema';
+import {
+  Control,
+  useWatch,
+  UseFormSetValue,
+  UseFormTrigger,
+  FieldPath,
+  FieldValues,
+} from 'react-hook-form';
 
-interface RadioGroupProps {
+interface RadioGroupProps<T extends FieldValues> {
   label: string;
-  name: 'category' | 'level';
+  name: FieldPath<T>;
   options: readonly string[];
-  control: Control<ClassFormInput>;
-  setValue: UseFormSetValue<ClassFormInput>;
-  trigger: UseFormTrigger<ClassFormInput>;
+  optionLabels?: Record<string, string>;
+  control: Control<T>;
+  setValue: UseFormSetValue<T>;
+  trigger: UseFormTrigger<T>;
   error?: string;
+  required?: boolean;
+  allowDeselect?: boolean;
 }
 
-export function RadioGroup({
+export function RadioGroup<T extends FieldValues>({
   label,
   name,
   options,
+  optionLabels,
   control,
   setValue,
   trigger,
   error,
-}: RadioGroupProps) {
+  required = true,
+  allowDeselect = true,
+}: RadioGroupProps<T>) {
   const selectedValue = useWatch({ control, name });
 
   const handleClick = async (value: string) => {
     if (selectedValue === value) {
-      setValue(name, '');
+      if (allowDeselect) {
+        setValue(name, '' as T[FieldPath<T>]);
+      } else {
+        // 선택 해제하지 않음 (항상 하나는 선택되어야 함)
+        return;
+      }
     } else {
-      setValue(name, value as ClassFormInput[typeof name]);
+      setValue(name, value as T[FieldPath<T>]);
     }
     // 유효성 검사 트리거
     await trigger(name);
@@ -35,11 +52,12 @@ export function RadioGroup({
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm font-medium text-gray-800">
-        {label} <span className="text-blue-500">*</span>
+        {label} {required && <span className="text-blue-500">*</span>}
       </p>
       <div className="flex flex-wrap gap-3">
         {options.map((opt) => {
           const isChecked = selectedValue === opt;
+          const displayLabel = optionLabels?.[opt] || opt;
           return (
             <label key={opt} className="flex cursor-pointer items-center gap-2">
               <input
@@ -57,7 +75,7 @@ export function RadioGroup({
               >
                 <div className="h-2 w-2 rounded-full bg-white" />
               </div>
-              <span className="text-base text-gray-700">{opt}</span>
+              <span className="text-base text-gray-700">{displayLabel}</span>
             </label>
           );
         })}

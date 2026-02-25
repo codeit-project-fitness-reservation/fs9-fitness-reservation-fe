@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'standalone',
   reactCompiler: true,
   async rewrites() {
     // 브라우저에서 BE로 직접 호출(CORS)하지 않고, Next가 프록시로 전달
@@ -22,6 +22,28 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3001',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/uploads/**',
+      },
+      ...(process.env.NEXT_PUBLIC_S3_IMAGE_HOST
+        ? [
+            {
+              protocol: 'https' as const,
+              hostname: process.env.NEXT_PUBLIC_S3_IMAGE_HOST,
+              port: '',
+              pathname: '/**',
+            },
+          ]
+        : []),
     ],
   },
 };
