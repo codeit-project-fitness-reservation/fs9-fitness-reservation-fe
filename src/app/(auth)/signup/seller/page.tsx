@@ -19,6 +19,19 @@ type CenterFormInput = {
   address2?: string;
 };
 
+/** 주소로 위·경도 조회 (백엔드 지오코딩 API). 실패 시 null. */
+async function fetchGeocode(address: string): Promise<{ lat: number; lng: number } | null> {
+  const url = `/api/centers/geocode?address=${encodeURIComponent(address)}`;
+  try {
+    const res = await fetch(url);
+    const json = (await res.json()) as { success?: boolean; data?: { lat: number; lng: number } };
+    if (res.ok && json.success && json.data) return json.data;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export default function SignupSellerPage() {
   const router = useRouter();
   const [draft] = useState<ReturnType<typeof getSellerDraft>>(() => getSellerDraft());
@@ -46,14 +59,28 @@ export default function SignupSellerPage() {
     if (!draft) return;
     setRootError(null);
     try {
+      const center: {
+        name: string;
+        address1: string;
+        address2?: string;
+        lat?: number;
+        lng?: number;
+      } = {
+        name: data.centerName,
+        address1: data.address1,
+        address2: data.address2 || undefined,
+      };
+      if (data.address1?.trim()) {
+        const coords = await fetchGeocode(data.address1.trim());
+        if (coords) {
+          center.lat = coords.lat;
+          center.lng = coords.lng;
+        }
+      }
       const payload = {
         ...draft,
         role: 'SELLER' as const,
-        center: {
-          name: data.centerName,
-          address1: data.address1,
-          address2: data.address2 || undefined,
-        },
+        center,
       };
       const result = await authFetch('/api/auth/signup', { method: 'POST', body: payload });
 
