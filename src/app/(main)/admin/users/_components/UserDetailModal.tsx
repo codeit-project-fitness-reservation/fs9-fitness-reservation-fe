@@ -8,6 +8,7 @@ import { format, subMonths } from 'date-fns';
 import GivePointModal from './GivePointModal';
 import GiveCouponModal from './GiveCouponModal';
 import UserCouponsModal from './UserCouponsModal';
+import UserMemoModal from '../../reservations/_components/UserMemoModal';
 
 interface UserDetailModalProps {
   userId: string;
@@ -31,6 +32,7 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
   const [activeSubModal, setActiveSubModal] = useState<'NONE' | 'POINT' | 'COUPON' | 'COUPON_LIST'>(
     'NONE',
   );
+  const [showMemoModal, setShowMemoModal] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -40,7 +42,6 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
 
       const oneMonthAgo = format(subMonths(new Date(), 1), 'yyyy-MM-dd');
 
-      // 병렬 요청으로 최근 예약/취소 건수 조회
       const [bookedRes, completedRes, canceledRes] = await Promise.all([
         reservationApi.getAdminReservations({
           userId,
@@ -86,7 +87,7 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
     try {
       await pointApi.adjustPoint({ userId, amount, memo });
       alert('포인트가 지급/차감되었습니다.');
-      fetchData(); // 데이터 갱신
+      fetchData();
     } catch (error) {
       console.error('포인트 지급 실패:', error);
       alert('포인트 지급에 실패했습니다.');
@@ -97,7 +98,7 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
     try {
       await couponApi.issueCoupon({ userId, templateId: couponId });
       alert('쿠폰이 지급되었습니다.');
-      fetchData(); // 데이터 갱신
+      fetchData();
     } catch (error) {
       console.error('쿠폰 지급 실패:', error);
       alert('쿠폰 지급에 실패했습니다.');
@@ -168,7 +169,26 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
               </div>
             </div>
 
-            {/* 3. 쿠폰 목록 */}
+            {/* 3. 관리자 메모 */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">관리자 메모</h2>
+                <button
+                  type="button"
+                  onClick={() => setShowMemoModal(true)}
+                  className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                >
+                  수정
+                </button>
+              </div>
+              <div className="rounded-xl border border-gray-200 p-6">
+                <p className="text-sm whitespace-pre-wrap text-gray-700">
+                  {user?.note?.trim() ? user.note : '메모가 없습니다.'}
+                </p>
+              </div>
+            </div>
+
+            {/* 4. 쿠폰 목록 */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">보유 쿠폰</h2>
@@ -186,7 +206,7 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
               </div>
             </div>
 
-            {/* 4. 하단 버튼 */}
+            {/* 5. 하단 버튼 */}
             <div className="mt-2 flex gap-2">
               <button
                 onClick={() => setActiveSubModal('POINT')}
@@ -225,6 +245,16 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
           userId={userId}
           userNickname={user.nickname}
           onClose={() => setActiveSubModal('NONE')}
+        />
+      )}
+
+      {user && (
+        <UserMemoModal
+          userId={showMemoModal ? userId : null}
+          userNickname={user.nickname}
+          isOpen={showMemoModal}
+          onClose={() => setShowMemoModal(false)}
+          onSuccess={fetchData}
         />
       )}
     </>

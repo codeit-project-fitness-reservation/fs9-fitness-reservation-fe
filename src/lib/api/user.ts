@@ -64,4 +64,8 @@ export const userApi = {
   getUserById: async (userId: string) => {
     return apiClient.get<User>(`/api/users/${userId}`);
   },
+
+  // [관리자] 회원 메모 수정
+  patchNote: (userId: string, note: string | null) =>
+    apiClient.patch<User>(`/api/users/${userId}/note`, { note }),
 };

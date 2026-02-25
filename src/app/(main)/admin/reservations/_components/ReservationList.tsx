@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Reservation } from '@/types';
 import StatusChip from '@/components/StatusChip';
 import ReservationDetailModal from './ReservationDetailModal';
+import UserMemoModal from './UserMemoModal';
 
 interface ReservationListProps {
   reservations: Reservation[];
@@ -17,6 +18,10 @@ export default function ReservationList({
   noCard = false,
 }: ReservationListProps) {
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [userMemoTarget, setUserMemoTarget] = useState<{
+    userId: string;
+    userNickname: string;
+  } | null>(null);
 
   const handleOpenModal = (reservation: Reservation) => {
     setSelectedReservation(reservation);
@@ -29,6 +34,13 @@ export default function ReservationList({
   const handleCancelSuccess = () => {
     handleCloseModal();
     onRefresh();
+  };
+
+  const handleUserMemo = (reservation: Reservation) => {
+    setUserMemoTarget({
+      userId: reservation.userId,
+      userNickname: reservation.user?.nickname ?? '유저',
+    });
   };
 
   const tableContent = (
@@ -137,6 +149,14 @@ export default function ReservationList({
         isOpen={!!selectedReservation}
         onClose={handleCloseModal}
         onCancelSuccess={handleCancelSuccess}
+        onUserMemo={handleUserMemo}
+      />
+      <UserMemoModal
+        userId={userMemoTarget?.userId ?? null}
+        userNickname={userMemoTarget?.userNickname}
+        isOpen={!!userMemoTarget}
+        onClose={() => setUserMemoTarget(null)}
+        onSuccess={onRefresh}
       />
     </>
   );
