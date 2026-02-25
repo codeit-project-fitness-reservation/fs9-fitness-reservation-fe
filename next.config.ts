@@ -34,6 +34,16 @@ const nextConfig: NextConfig = {
         port: '3000',
         pathname: '/uploads/**',
       },
+      ...(process.env.NEXT_PUBLIC_S3_IMAGE_HOST
+        ? [
+            {
+              protocol: 'https' as const,
+              hostname: process.env.NEXT_PUBLIC_S3_IMAGE_HOST,
+              port: '',
+              pathname: '/**',
+            },
+          ]
+        : []),
     ],
   },
 };
