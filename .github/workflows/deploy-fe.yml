@@ -77,7 +77,6 @@ jobs:
           script: |
             set -e
             cd ~/fs9-fitness-reservation-fe
-            mkdir -p app
-            find app -mindepth 1 -delete 2>/dev/null || true
-            tar xzf deploy.tar.gz -C app
-            cd app && (pm2 restart fit-match-fe || pm2 start server.js --name fit-match-fe)
+            find . -mindepth 1 -maxdepth 1 ! -name 'deploy.tar.gz' -exec rm -rf {} +
+            tar xzf deploy.tar.gz -C .
+            PORT=3000 HOSTNAME=0.0.0.0 pm2 restart fitmatch-fe --update-env || PORT=3000 HOSTNAME=0.0.0.0 pm2 start server.js --name fitmatch-fe
