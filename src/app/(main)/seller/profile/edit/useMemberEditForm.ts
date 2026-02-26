@@ -9,6 +9,19 @@ import { authApi, MeResponse } from '@/lib/api/auth';
 import { memberFormSchema, MemberFormInput } from './memberSchema';
 import { formatPhoneNumber, formatPhoneInput } from '@/lib/utils/format';
 
+/** 주소로 위·경도 조회 (백엔드 지오코딩 API). 실패 시 null. */
+async function fetchGeocode(address: string): Promise<{ lat: number; lng: number } | null> {
+  const url = `/api/centers/geocode?address=${encodeURIComponent(address)}`;
+  try {
+    const res = await fetch(url);
+    const json = (await res.json()) as { success?: boolean; data?: { lat: number; lng: number } };
+    if (res.ok && json.success && json.data) return json.data;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function useMemberForm() {
   const router = useRouter();
   const [profilePreview, setProfilePreview] = useState<string>('');
@@ -83,6 +96,17 @@ export function useMemberForm() {
         return;
       }
 
+      let lat: number | undefined;
+      let lng: number | undefined;
+
+      if (data.roadAddress?.trim()) {
+        const coords = await fetchGeocode(data.roadAddress.trim());
+        if (coords) {
+          lat = coords.lat;
+          lng = coords.lng;
+        }
+      }
+
       // 통합 API 호출용 데이터 생성 (기존 로직 유지)
       const sellerProfileData: FormData | Record<string, string> = profileFile
         ? (() => {
@@ -92,23 +116,36 @@ export function useMemberForm() {
 
             if (shouldUpdatePassword) {
               formData.append('password', passwordValue);
+              if (passwordConfirmValue) {
+                formData.append('passwordConfirm', passwordConfirmValue);
+              }
             }
 
             formData.append('profileImage', profileFile);
             formData.append('centerName', data.companyName);
             formData.append('address1', data.roadAddress);
             formData.append('address2', data.detailAddress || '');
-            formData.append('introduction', data.description);
+            formData.append('introduction', data.description || '');
+            if (lat !== undefined && lng !== undefined) {
+              formData.append('lat', lat.toString());
+              formData.append('lng', lng.toString());
+            }
+
             return formData;
           })()
         : {
             nickname: data.nickname,
             phone: data.contact,
-            ...(shouldUpdatePassword ? { password: passwordValue } : {}),
+            ...(shouldUpdatePassword
+              ? { password: passwordValue, passwordConfirm: passwordConfirmValue }
+              : {}),
             centerName: data.companyName,
             address1: data.roadAddress,
             address2: data.detailAddress || '',
-            introduction: data.description,
+            introduction: data.description || '',
+            ...(lat !== undefined && lng !== undefined
+              ? { lat: lat.toString(), lng: lng.toString() }
+              : {}),
           };
 
       // authApi.updateSellerProfile로 통합 업데이트 수행

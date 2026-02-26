@@ -8,8 +8,8 @@ export const memberFormSchema = z
       .string()
       .refine((s) => /^\d{10,11}$/.test(s.replace(/\D/g, '')), '올바른 전화번호 형식이 아닙니다.'),
     roadAddress: z.string().min(1, '도로명 주소를 입력해주세요.'),
-    detailAddress: z.string().min(1, '상세 주소를 입력해주세요.'),
-    description: z.string().min(5, '소개글을 5자 이상 작성해주세요.'),
+    detailAddress: z.union([z.string(), z.literal('')]).optional(),
+    description: z.union([z.string(), z.literal('')]).optional(),
 
     password: z
       .union([z.string().min(8, '비밀번호는 8자 이상이어야 합니다.'), z.literal('')])

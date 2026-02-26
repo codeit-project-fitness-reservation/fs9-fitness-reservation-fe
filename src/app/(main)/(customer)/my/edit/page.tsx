@@ -64,21 +64,16 @@ export default function EditProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!password || password.trim() === '') {
-      alert('비밀번호를 입력해주세요.');
-      return;
-    }
+    const passwordValue = password?.trim();
+    const passwordConfirmValue = confirmPassword?.trim();
+    const shouldUpdatePassword = !!(passwordValue && passwordValue.length >= 8);
 
-    if (!confirmPassword || confirmPassword.trim() === '') {
-      alert('비밀번호 확인을 입력해주세요.');
-      return;
-    }
-    if (password !== confirmPassword) {
+    if (shouldUpdatePassword && passwordValue !== passwordConfirmValue) {
       alert('비밀번호가 일치하지 않습니다.');
       return;
     }
 
-    if (password.length < 8) {
+    if (passwordValue && passwordValue.length > 0 && passwordValue.length < 8) {
       alert('비밀번호는 8자 이상이어야 합니다.');
       return;
     }
@@ -91,7 +86,12 @@ export default function EditProfilePage() {
         formData.append('nickname', nickname);
         formData.append('phone', phone);
 
-        formData.append('password', password);
+        if (shouldUpdatePassword) {
+          formData.append('password', passwordValue);
+          if (passwordConfirmValue) {
+            formData.append('passwordConfirm', passwordConfirmValue);
+          }
+        }
 
         formData.append('profileImage', profileFile);
 
@@ -102,7 +102,12 @@ export default function EditProfilePage() {
           phone,
         };
 
-        jsonData.password = password;
+        if (shouldUpdatePassword) {
+          jsonData.password = passwordValue;
+          if (passwordConfirmValue) {
+            jsonData.passwordConfirm = passwordConfirmValue;
+          }
+        }
 
         await userApi.updateCustomerProfile(jsonData);
       }
@@ -195,18 +200,16 @@ export default function EditProfilePage() {
         <div className="flex flex-col gap-2 max-[640px]:gap-1.5">
           <InputField
             label="비밀번호"
-            required
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호를 입력해주세요"
+            placeholder="변경할 비밀번호를 입력해주세요"
           />
         </div>
 
         <div className="flex flex-col gap-2 max-[640px]:gap-1.5">
           <InputField
             label="비밀번호 확인"
-            required
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
