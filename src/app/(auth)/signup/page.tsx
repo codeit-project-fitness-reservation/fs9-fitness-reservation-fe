@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -24,7 +23,6 @@ type SignupFormInput = {
 
 export default function SignupPage() {
   const router = useRouter();
-  const [selectedRole, setSelectedRole] = useState<'CUSTOMER' | 'SELLER'>('CUSTOMER');
 
   const {
     register,
@@ -95,38 +93,6 @@ export default function SignupPage() {
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-[32px]">
               <input type="hidden" {...register('role')} />
-
-              {/* 이용자 / 사업자 선택 */}
-              <div className="flex w-full gap-[8px] rounded-[8px] border border-[#D5D7DA] p-[4px]">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setValue('role', 'CUSTOMER');
-                    setSelectedRole('CUSTOMER');
-                  }}
-                  className={`flex-1 rounded-[6px] py-[10px] text-[14px] leading-5 font-medium transition-colors ${
-                    selectedRole === 'CUSTOMER'
-                      ? 'bg-[#2970FF] text-white'
-                      : 'text-gray-600 hover:bg-[#F5F6F8]'
-                  }`}
-                >
-                  이용자
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setValue('role', 'SELLER');
-                    setSelectedRole('SELLER');
-                  }}
-                  className={`flex-1 rounded-[6px] py-[10px] text-[14px] leading-5 font-medium transition-colors ${
-                    selectedRole === 'SELLER'
-                      ? 'bg-[#2970FF] text-white'
-                      : 'text-gray-600 hover:bg-[#F5F6F8]'
-                  }`}
-                >
-                  사업자
-                </button>
-              </div>
 
               <div className="flex w-full flex-col gap-[12px]">
                 <InputField

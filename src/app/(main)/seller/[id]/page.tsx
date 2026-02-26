@@ -237,6 +237,11 @@ export default function SellerClassDetailPage() {
     });
   };
 
+  const handleReservation = () => {
+    if (!selectedDate || !selectedTimeSlot) return;
+    router.push(`/payment?classId=${classId}&slotId=${selectedTimeSlot.id}`);
+  };
+
   const handleTimeSlotSelect = (slot: ClassSlot) => {
     const convertedSlot: ClassSlot = {
       id: slot.id,
@@ -488,7 +493,7 @@ export default function SellerClassDetailPage() {
         <ReservationBottomBar
           selectedDate={selectedDate!}
           selectedTimeSlot={selectedTimeSlot!}
-          onReservation={() => {}}
+          onReservation={handleReservation}
         />
       )}
     </div>
