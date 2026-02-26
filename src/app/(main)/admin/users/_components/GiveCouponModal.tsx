@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { User } from '@/types';
 import { couponApi, CouponTemplate } from '@/lib/api/coupon';
-import CreateCouponModal from './CreateCouponModal';
 
 interface GiveCouponModalProps {
   user: User;
@@ -13,7 +12,6 @@ export default function GiveCouponModal({ user, onClose, onConfirm }: GiveCoupon
   const [selectedCouponId, setSelectedCouponId] = useState('');
   const [coupons, setCoupons] = useState<CouponTemplate[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const fetchCoupons = async () => {
     try {
@@ -43,12 +41,6 @@ export default function GiveCouponModal({ user, onClose, onConfirm }: GiveCoupon
     } finally {
       setLoading(false);
     }
-  };
-
-  // 쿠폰 생성 완료 시 호출될 콜백
-  const handleCouponCreated = async () => {
-    await fetchCoupons(); // 목록 갱신
-    // 방금 생성한 쿠폰을 자동으로 선택하거나, 목록 최상단에 올릴 수 있음
   };
 
   return (
@@ -92,20 +84,11 @@ export default function GiveCouponModal({ user, onClose, onConfirm }: GiveCoupon
                 </div>
               </div>
 
-              {/* 2. 지급 쿠폰 (Select + Create API) */}
+              {/* 2. 지급 쿠폰 (Select) */}
               <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-0.5 text-sm font-medium">
-                    <span className="text-gray-800">지급 쿠폰</span>
-                    <span className="text-blue-500">*</span>
-                  </div>
-                  {/* 쿠폰 생성 버튼 */}
-                  <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-800"
-                  >
-                    + 새 쿠폰 만들기
-                  </button>
+                <div className="flex items-center gap-0.5 text-sm font-medium">
+                  <span className="text-gray-800">지급 쿠폰</span>
+                  <span className="text-blue-500">*</span>
                 </div>
 
                 <div className="relative">
@@ -161,14 +144,6 @@ export default function GiveCouponModal({ user, onClose, onConfirm }: GiveCoupon
           </div>
         </div>
       </div>
-
-      {/* 쿠폰 생성 모달 */}
-      {isCreateModalOpen && (
-        <CreateCouponModal
-          onClose={() => setIsCreateModalOpen(false)}
-          onCreated={handleCouponCreated}
-        />
-      )}
     </>
   );
 }

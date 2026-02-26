@@ -78,9 +78,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     setError(null);
-    await authFetch('/api/auth/logout', { method: 'POST' });
-    setUserState(null);
-    setStatus('unauthenticated');
+    try {
+      await authFetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      // API 성공/실패와 관계없이 클라이언트 상태는 항상 로그아웃 처리
+      setUserState(null);
+      setStatus('unauthenticated');
+    }
   }, []);
 
   const value = useMemo<AuthContextValue>(() => {

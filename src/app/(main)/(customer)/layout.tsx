@@ -15,7 +15,7 @@ interface CustomerLayoutProps {
 export default function CustomerLayout({ children }: CustomerLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { status, user } = useAuth();
+  const { status } = useAuth();
 
   // 현재 경로가 공개 경로인지 계산 (Derived State)
   const isPublicPath = useMemo(() => {
@@ -25,26 +25,18 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
     return PUBLIC_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
   }, [pathname]);
 
-  // 권한 여부 계산: (인증된 고객이거나) 또는 (비인증 상태이되 공개 경로일 때)
-  const isAuthorized = status === 'authenticated' && user?.role === 'CUSTOMER';
+  // 고객 영역 권한: CUSTOMER만이 아니라 모든 계정이 customer 권한 이상을 가짐 (SELLER/ADMIN = customer+)
+  // 따라서 로그인만 되어 있으면 고객 영역(메인, /my 등) 접근 허용. CUSTOMER 전용 예외 권한은 없음.
+  const isAuthorized = status === 'authenticated';
   const shouldRender = isPublicPath || isAuthorized;
 
-  // [Side Effect] 권한이 없는 경우 리다이렉트만 담당
+  // [Side Effect] 비인증만 로그인으로 보냄. SELLER/ADMIN을 고객 영역에서 내쫓지 않음.
   useEffect(() => {
     if (status === 'loading') return;
-
     if (status === 'unauthenticated' && !isPublicPath) {
-      // 비인증 유저가 보호된 경로에 접속 시 로그인 페이지로
       router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-    } else if (status === 'authenticated' && user && user.role !== 'CUSTOMER') {
-      // 인증되었으나 CUSTOMER가 아닌 경우 (SELLER, ADMIN 등) 각자의 대시보드로
-      const roleRedirectMap: Record<string, string> = {
-        SELLER: '/seller',
-        ADMIN: '/admin',
-      };
-      router.replace(roleRedirectMap[user.role] || '/');
     }
-  }, [status, user, pathname, router, isPublicPath]);
+  }, [status, pathname, router, isPublicPath]);
 
   // --- Rendering Logic ---
 

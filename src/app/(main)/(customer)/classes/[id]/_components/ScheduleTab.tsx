@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import DatePicker from './DatePicker';
 import TimeSlotList from './TimeSlotList';
 import { ClassSlot } from '@/types/class';
-import { classApi } from '@/lib/api/class';
+import { classApi, type SlotItemResponse } from '@/lib/api/class';
 
 interface ScheduleTabProps {
   classId: string;
@@ -27,34 +27,40 @@ export default function ScheduleTab({
 }: ScheduleTabProps) {
   const [timeSlots, setTimeSlots] = useState<ClassSlot[]>([]);
   const [allSlots, setAllSlots] = useState<ClassSlot[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(true);
+  const [slotsError, setSlotsError] = useState(false);
 
-  // 클래스 상세 조회하여 슬롯 정보 가져오기
+  // 클래스 상세 조회
   useEffect(() => {
     const fetchSlots = async () => {
+      setSlotsError(false);
+      setSlotsLoading(true);
       try {
         const response = await classApi.getClassDetail(classId);
-        if (response.slots) {
-          const mappedSlots: ClassSlot[] = response.slots.map((slot) => ({
-            id: slot.id,
-            classId: classId,
-            startAt:
-              typeof slot.startAt === 'string'
-                ? slot.startAt
-                : new Date(slot.startAt).toISOString(),
-            endAt: typeof slot.endAt === 'string' ? slot.endAt : new Date(slot.endAt).toISOString(),
-            capacity: slot.capacity,
-            currentReservation: slot.currentReservation ?? slot.currentReservations ?? 0,
-            isOpen: slot.isOpen ?? true,
-            createdAt: slot.createdAt
-              ? typeof slot.createdAt === 'string'
-                ? slot.createdAt
-                : new Date(slot.createdAt).toISOString()
-              : new Date().toISOString(),
-          }));
-          setAllSlots(mappedSlots);
-        }
+        const rawSlots = response.slots ?? [];
+        const mappedSlots: ClassSlot[] = rawSlots.map((slot: SlotItemResponse) => ({
+          id: slot.id,
+          classId: classId,
+          startAt:
+            typeof slot.startAt === 'string' ? slot.startAt : new Date(slot.startAt).toISOString(),
+          endAt: typeof slot.endAt === 'string' ? slot.endAt : new Date(slot.endAt).toISOString(),
+          capacity: slot.capacity,
+          currentReservation:
+            slot.currentReservation ?? slot.currentReservations ?? slot._count?.reservations ?? 0,
+          isOpen: slot.isOpen ?? true,
+          createdAt: slot.createdAt
+            ? typeof slot.createdAt === 'string'
+              ? slot.createdAt
+              : new Date(slot.createdAt).toISOString()
+            : new Date().toISOString(),
+        }));
+        setAllSlots(mappedSlots);
       } catch (error) {
         console.error('슬롯 정보 조회 실패:', error);
+        setSlotsError(true);
+        setAllSlots([]);
+      } finally {
+        setSlotsLoading(false);
       }
     };
 
@@ -128,11 +134,25 @@ export default function ScheduleTab({
       {selectedDate && (
         <div className="flex flex-col gap-4">
           <h2 className="text-lg font-semibold text-gray-900">시간 선택</h2>
-          <TimeSlotList
-            timeSlots={timeSlots}
-            selectedTimeSlot={selectedTimeSlot}
-            onSelect={onTimeSlotSelect}
-          />
+          {slotsLoading ? (
+            <div className="flex items-center justify-center rounded-xl bg-gray-100 py-12">
+              <p className="text-sm text-gray-500">시간표 불러오는 중...</p>
+            </div>
+          ) : slotsError ? (
+            <div className="rounded-xl bg-red-50 py-8 text-center text-sm text-red-600">
+              시간표를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+            </div>
+          ) : timeSlots.length === 0 ? (
+            <div className="rounded-xl bg-gray-100 py-8 text-center text-sm text-gray-500">
+              예약 가능한 시간이 없습니다. 다른 날짜를 선택해 보세요.
+            </div>
+          ) : (
+            <TimeSlotList
+              timeSlots={timeSlots}
+              selectedTimeSlot={selectedTimeSlot}
+              onSelect={onTimeSlotSelect}
+            />
+          )}
         </div>
       )}
     </div>

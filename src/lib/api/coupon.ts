@@ -51,6 +51,8 @@ export const couponApi = {
   getCouponTemplates: async (): Promise<CouponTemplate[]> => {
     return apiClient.get<CouponTemplate[]>('/api/coupons');
   },
+  // [고객] 내 쿠폰함 조회 (미사용 쿠폰)
+  getMyCoupons: (): Promise<UserCoupon[]> => apiClient.get<UserCoupon[]>('/api/coupons/me'),
   issueCoupon: async (data: IssueCouponInput) => {
     return apiClient.post<{ id: string; issuedAt: string }, IssueCouponInput>(
       '/api/coupons/give',
