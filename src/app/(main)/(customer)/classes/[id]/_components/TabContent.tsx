@@ -1,5 +1,6 @@
 import { Class, ClassSlot } from '@/types/class';
 import { TabType } from './types';
+import type { SlotItemResponse } from '@/lib/api/class';
 import IntroTab from './IntroTab';
 import ScheduleTab from './ScheduleTab';
 import RulesTab from './RulesTab';
@@ -8,6 +9,7 @@ import ReviewsTab from './ReviewsTab';
 interface TabContentProps {
   activeTab: TabType;
   classData: Class;
+  classSlots?: SlotItemResponse[];
   selectedDate: Date | undefined;
   onDateSelect: (date: Date | undefined) => void;
   onTimeSlotSelect: (slot: ClassSlot) => void;
@@ -20,6 +22,7 @@ interface TabContentProps {
 export default function TabContent({
   activeTab,
   classData,
+  classSlots,
   selectedDate,
   onDateSelect,
   onTimeSlotSelect,
@@ -34,6 +37,7 @@ export default function TabContent({
       {activeTab === 'schedule' && (
         <ScheduleTab
           classId={classData.id}
+          slots={classSlots}
           selectedDate={selectedDate}
           onDateSelect={onDateSelect}
           onTimeSlotSelect={onTimeSlotSelect}

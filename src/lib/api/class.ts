@@ -138,7 +138,9 @@ export const classApi = {
   approveClass: (id: string) => apiClient.patch<ClassItem>(`/api/classes/${id}/approve`, {}),
   updateClass: (id: string, data: FormData) => apiClient.patch<void>(`/api/classes/${id}`, data),
   deleteClass: (id: string) => apiClient.delete<void>(`/api/classes/${id}`),
-  getClassDetail: (id: string) => apiClient.get<ClassDetailResponse>(`/api/classes/${id}`),
+  getClassDetail: (id: string, params?: QueryParams) =>
+    apiClient.get<ClassDetailResponse>(`/api/classes/${id}`, { params }),
+
   rejectClass: (id: string, reason: string) =>
     apiClient.patch<ClassItem>(`/api/classes/${id}/reject`, { rejectReason: reason }),
 

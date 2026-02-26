@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Class, ClassSlot } from '@/types/class';
 import { Center } from '@/types';
-import { classApi } from '@/lib/api/class';
+import { classApi, type SlotItemResponse } from '@/lib/api/class';
 import { centerApi } from '@/lib/api/center';
 import { TabType } from './_components/types';
 import ClassImage from './_components/ClassImage';
@@ -23,6 +23,7 @@ export default function ClassDetailPage() {
   const classId = params.id as string;
 
   const [classData, setClassData] = useState<Class | null>(null);
+  const [classSlots, setClassSlots] = useState<SlotItemResponse[] | undefined>(undefined);
   const [centerData, setCenterData] = useState<Center | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('intro');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -74,6 +75,7 @@ export default function ClassDetailPage() {
         };
 
         setClassData(mappedClass);
+        setClassSlots(classResponse.slots ?? []);
         setReviewCount(classResponse._count?.reviews || 0);
 
         // 센터 정보 조회
@@ -109,6 +111,7 @@ export default function ClassDetailPage() {
         }
       } catch (error) {
         console.error('클래스 정보 조회 실패:', error);
+        setClassSlots([]);
         alert('클래스 정보를 불러오는데 실패했습니다.');
       } finally {
         setIsLoading(false);
@@ -165,6 +168,7 @@ export default function ClassDetailPage() {
       <TabContent
         activeTab={activeTab}
         classData={classData}
+        classSlots={classSlots}
         selectedDate={selectedDate}
         onDateSelect={setSelectedDate}
         onTimeSlotSelect={setSelectedTimeSlot}
