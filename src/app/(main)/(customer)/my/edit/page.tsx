@@ -88,6 +88,9 @@ export default function EditProfilePage() {
 
         if (shouldUpdatePassword) {
           formData.append('password', passwordValue);
+          if (passwordConfirmValue) {
+            formData.append('passwordConfirm', passwordConfirmValue);
+          }
         }
 
         formData.append('profileImage', profileFile);
@@ -101,6 +104,9 @@ export default function EditProfilePage() {
 
         if (shouldUpdatePassword) {
           jsonData.password = passwordValue;
+          if (passwordConfirmValue) {
+            jsonData.passwordConfirm = passwordConfirmValue;
+          }
         }
 
         await userApi.updateCustomerProfile(jsonData);

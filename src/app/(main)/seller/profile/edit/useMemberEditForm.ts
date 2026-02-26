@@ -116,6 +116,9 @@ export function useMemberForm() {
 
             if (shouldUpdatePassword) {
               formData.append('password', passwordValue);
+              if (passwordConfirmValue) {
+                formData.append('passwordConfirm', passwordConfirmValue);
+              }
             }
 
             formData.append('profileImage', profileFile);
@@ -133,7 +136,9 @@ export function useMemberForm() {
         : {
             nickname: data.nickname,
             phone: data.contact,
-            ...(shouldUpdatePassword ? { password: passwordValue } : {}),
+            ...(shouldUpdatePassword
+              ? { password: passwordValue, passwordConfirm: passwordConfirmValue }
+              : {}),
             centerName: data.companyName,
             address1: data.roadAddress,
             address2: data.detailAddress || '',
