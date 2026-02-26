@@ -55,6 +55,7 @@ jobs:
         run: |
           [ -d public ] && cp -r public .next/standalone/ || true
           cp -r .next/static .next/standalone/.next/
+          cp .env.local .next/standalone/.env.production
           cd .next/standalone && tar czf ../../deploy.tar.gz .
 
       - name: Upload bundle via SCP
@@ -79,4 +80,5 @@ jobs:
             cd ~/fs9-fitness-reservation-fe
             find . -mindepth 1 -maxdepth 1 ! -name 'deploy.tar.gz' -exec rm -rf {} +
             tar xzf deploy.tar.gz -C .
-            PORT=3000 HOSTNAME=0.0.0.0 pm2 restart fitmatch-fe --update-env || PORT=3000 HOSTNAME=0.0.0.0 pm2 start server.js --name fitmatch-fe
+            pm2 delete fitmatch-fe || true
+            PORT=3000 HOSTNAME=0.0.0.0 pm2 start server.js --name fitmatch-fe
