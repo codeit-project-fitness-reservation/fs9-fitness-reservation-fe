@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- 서비스 대표 이미지 -->
-<img alt="FitMatch 서비스 대표 이미지" src="./docs/service-representative.png" />
+<img alt="FitMatch 서비스 대표 이미지" src="https://github.com/jyoon00-cloud/fs9-fitness-reservation-fe/blob/dev/docs/service-representative.png" />
 
 # 가까운 피트니스 센터의 수업을 🏋️ FitMatch로 예약하세요!
 
