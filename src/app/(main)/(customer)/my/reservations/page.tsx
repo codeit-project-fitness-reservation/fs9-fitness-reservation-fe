@@ -134,7 +134,10 @@ export default function ReservationsPage() {
   const handleViewDetails = (reservation: Reservation) => {
     if (reservation.slot) {
       const slotDate = new Date(reservation.slot.startAt);
-      const dateStr = slotDate.toISOString().split('T')[0];
+      const year = slotDate.getFullYear();
+      const month = String(slotDate.getMonth() + 1).padStart(2, '0');
+      const day = String(slotDate.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
       const hour = String(slotDate.getHours()).padStart(2, '0');
       const dateKey = `${slotDate.getFullYear()}${String(slotDate.getMonth() + 1).padStart(2, '0')}${String(slotDate.getDate()).padStart(2, '0')}`;
       const actualSlotId = `slot-${reservation.classId}-${dateKey}-${hour}00`;
