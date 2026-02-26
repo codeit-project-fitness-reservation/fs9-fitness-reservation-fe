@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { classApi, ClassItem as ApiClassItem, SlotItem, SlotItemResponse } from '@/lib/api/class';
@@ -25,6 +25,7 @@ import TabNavigation from '@/app/(main)/(customer)/classes/[id]/_components/TabN
 import DatePicker from '@/app/(main)/(customer)/classes/[id]/_components/DatePicker';
 import ReservationBottomBar from '@/app/(main)/(customer)/classes/[id]/_components/ReservationBottomBar';
 import TabContent from './_components/TabContent';
+import SlotCreateModal from './_components/SlotCreateModal';
 import EventTags from '@/components/common/EventTags';
 import KebabMenu from '@/components/seller/KebabMenu';
 import ConfirmationModal from '@/components/ConfirmationModal';
@@ -54,6 +55,35 @@ export default function SellerClassDetailPage() {
   const [rawSlotsData, setRawSlotsData] = useState<SlotItemResponse[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [classSchedule, setClassSchedule] = useState<Record<string, string> | null>(null);
+  const [showSlotCreateModal, setShowSlotCreateModal] = useState(false);
+
+  const fetchSlots = useCallback(async () => {
+    if (!classId || !selectedDate) {
+      setSlotsData([]);
+      setRawSlotsData([]);
+      return;
+    }
+    try {
+      setIsLoadingSlots(true);
+      const { monday, sunday } = getWeekRange(selectedDate);
+      const startDateStr = formatDateStr(monday);
+      const endDateStr = formatDateStr(sunday);
+      const slots = await classApi.getSellerSlots({
+        classId,
+        startDate: startDateStr,
+        endDate: endDateStr,
+      });
+      const rawSlots: SlotItemResponse[] = Array.isArray(slots) ? slots : [];
+      const convertedSlots = convertSlotsToSlotItems(rawSlots);
+      setRawSlotsData(rawSlots);
+      setSlotsData(convertedSlots);
+    } catch {
+      setSlotsData([]);
+      setRawSlotsData([]);
+    } finally {
+      setIsLoadingSlots(false);
+    }
+  }, [classId, selectedDate]);
 
   useEffect(() => {
     const fetchClassDetail = async () => {
@@ -152,41 +182,8 @@ export default function SellerClassDetailPage() {
   }, [mounted, selectedDate]);
 
   useEffect(() => {
-    const fetchSlots = async () => {
-      if (!classId || !selectedDate) {
-        setSlotsData([]);
-        setRawSlotsData([]);
-        return;
-      }
-
-      try {
-        setIsLoadingSlots(true);
-
-        const { monday, sunday } = getWeekRange(selectedDate);
-        const startDateStr = formatDateStr(monday);
-        const endDateStr = formatDateStr(sunday);
-
-        const slots = await classApi.getSellerSlots({
-          classId,
-          startDate: startDateStr,
-          endDate: endDateStr,
-        });
-
-        const rawSlots: SlotItemResponse[] = Array.isArray(slots) ? slots : [];
-        const convertedSlots = convertSlotsToSlotItems(rawSlots);
-
-        setRawSlotsData(rawSlots);
-        setSlotsData(convertedSlots);
-      } catch {
-        setSlotsData([]);
-        setRawSlotsData([]);
-      } finally {
-        setIsLoadingSlots(false);
-      }
-    };
-
     fetchSlots();
-  }, [classId, selectedDate]);
+  }, [fetchSlots]);
 
   const handleDeleteClass = async () => {
     if (
@@ -438,7 +435,16 @@ export default function SellerClassDetailPage() {
 
                   {selectedDate && (
                     <section className="flex flex-1 flex-col gap-4">
-                      <h2 className="text-lg font-semibold text-gray-900">시간 선택</h2>
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold text-gray-900">시간 선택</h2>
+                        <button
+                          type="button"
+                          onClick={() => setShowSlotCreateModal(true)}
+                          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                          슬롯 생성
+                        </button>
+                      </div>
                       <div className="max-h-87 overflow-y-auto rounded-xl bg-gray-200 p-5">
                         {isLoadingSlots ? (
                           <div className="flex items-center justify-center py-8">
@@ -496,6 +502,17 @@ export default function SellerClassDetailPage() {
           onReservation={handleReservation}
         />
       )}
+
+      <SlotCreateModal
+        classId={classId}
+        classCapacity={classData?.capacity ?? 10}
+        hasSchedule={classSchedule !== null && Object.keys(classSchedule).length > 0}
+        isOpen={showSlotCreateModal}
+        onClose={() => setShowSlotCreateModal(false)}
+        onSuccess={() => {
+          fetchSlots();
+        }}
+      />
     </div>
   );
 }
