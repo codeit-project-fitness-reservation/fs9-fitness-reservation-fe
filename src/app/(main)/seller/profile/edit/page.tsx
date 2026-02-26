@@ -96,15 +96,14 @@ export default function MemberEditPage() {
             />
             <InputField
               label="상세 주소"
-              required
               placeholder="상세 주소를 입력하세요"
               error={errors.detailAddress?.message}
               {...register('detailAddress')}
             />
             <TextAreaField
               label="업체 소개"
-              required
               className="min-h-32"
+              placeholder="소개를 입력하세요"
               error={errors.description?.message}
               {...register('description')}
             />
