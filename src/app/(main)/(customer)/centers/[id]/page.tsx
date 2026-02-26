@@ -37,6 +37,7 @@ export default function CenterDetailPage() {
           address1: centerResponse.address1,
           address2: centerResponse.address2 ?? undefined,
           introduction: centerResponse.introduction ?? undefined,
+          profileImgUrl: centerResponse.owner?.profileImage ?? undefined,
           businessHours: (centerResponse.businessHours as Record<string, unknown>) ?? undefined,
           lat: centerResponse.lat ?? undefined,
           lng: centerResponse.lng ?? undefined,
