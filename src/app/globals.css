@@ -1,0 +1,213 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: var(--font-pretendard), ui-sans-serif, system-ui, sans-serif;
+
+  --color-gray-25: #fdfdfd;
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e9eaeb;
+  --color-gray-300: #d5d7da;
+  --color-gray-400: #a4a7ae;
+  --color-gray-500: #717680;
+  --color-gray-600: #535862;
+  --color-gray-700: #414651;
+  --color-gray-800: #252b37;
+  --color-gray-900: #181d27;
+  --color-gray-950: #0a0d12;
+
+  --color-blue-25: #f5f8ff;
+  --color-blue-50: #eff4ff;
+  --color-blue-100: #d1e0ff;
+  --color-blue-200: #b2ccff;
+  --color-blue-300: #84adff;
+  --color-blue-400: #528bff;
+  --color-blue-500: #2970ff;
+  --color-blue-600: #155eef;
+  --color-blue-700: #004eeb;
+  --color-blue-800: #0040c1;
+  --color-blue-900: #00359e;
+  --color-blue-950: #002266;
+
+  --color-error-25: #fffbfa;
+  --color-error-50: #fef3f2;
+  --color-error-100: #fee4e2;
+  --color-error-200: #fecdca;
+  --color-error-300: #fda29b;
+  --color-error-400: #f97066;
+  --color-error-500: #f04438;
+  --color-error-600: #d92d20;
+  --color-error-700: #b42318;
+  --color-error-800: #912018;
+  --color-error-900: #7a271a;
+  --color-error-950: #55160c;
+
+  --text-display-2xl: 4.5rem;
+  --text-display-2xl--line-height: 5.625rem;
+  --text-display-2xl--letter-spacing: -0.02em;
+
+  --text-display-xl: 3.75rem;
+  --text-display-xl--line-height: 4.5rem;
+  --text-display-xl--letter-spacing: -0.02em;
+
+  --text-display-lg: 3rem;
+  --text-display-lg--line-height: 3.75rem;
+  --text-display-lg--letter-spacing: -0.02em;
+
+  --text-display-md: 2.25rem;
+  --text-display-md--line-height: 2.75rem;
+  --text-display-md--letter-spacing: -0.02em;
+
+  --text-display-sm: 1.875rem;
+  --text-display-sm--line-height: 2.375rem;
+  --text-display-sm--letter-spacing: -0.02em;
+
+  --text-display-xs: 1.5rem;
+  --text-display-xs--line-height: 2rem;
+  --text-display-xs--letter-spacing: -0.02em;
+
+  --text-text-xl: 1.25rem;
+  --text-text-xl--line-height: 1.875rem;
+
+  --text-text-lg: 1.125rem;
+  --text-text-lg--line-height: 1.75rem;
+
+  --text-text-md: 1rem;
+  --text-text-md--line-height: 1.5rem;
+
+  --text-text-sm: 0.875rem;
+  --text-text-sm--line-height: 1.25rem;
+
+  --text-text-xs: 0.75rem;
+  --text-text-xs--line-height: 1.125rem;
+
+  --text-text-2xs: 0.625rem;
+  --text-text-2xs--line-height: 0.875rem;
+}
+@layer components {
+  /* 캘린더 컨테이너*/
+  .schedule-calendar {
+    @apply overflow-hidden rounded-xl border border-gray-200 bg-white;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .schedule-calendar .fc {
+    --fc-border-color: var(--color-gray-200);
+    --fc-today-bg-color: transparent;
+    --fc-now-indicator-color: var(--color-blue-500);
+    width: 100% !important;
+  }
+
+  /*스크롤바/테두리 정리*/
+  .schedule-calendar .fc-theme-standard .fc-scrollgrid {
+    border: none !important;
+  }
+  .schedule-calendar .fc-scroller {
+    overflow: hidden !important;
+  }
+
+  /*헤더 (요일/날짜) */
+  .schedule-calendar .fc .fc-col-header-cell {
+    background: white !important;
+    padding: 8px 0 !important;
+    border: none !important;
+    border-bottom: 1px solid var(--color-gray-200) !important;
+    border-right: 1px solid var(--color-gray-200) !important;
+  }
+
+  .schedule-calendar .fc .fc-col-header-cell:last-child {
+    border-right: none !important;
+  }
+
+  /* 주간 뷰 세로 구분선 */
+
+  .schedule-calendar .fc .fc-col-header-cell {
+    border-right: 1px solid var(--color-gray-200) !important;
+  }
+
+  .schedule-calendar .fc-timeGridWeek-view .fc-timegrid-col {
+    border-right: 1px solid var(--color-gray-200) !important;
+    background-color: transparent !important;
+  }
+
+  .schedule-calendar .fc .fc-col-header-cell:last-child,
+  .schedule-calendar .fc-timeGridWeek-view .fc-timegrid-col:last-child {
+    border-right: none !important;
+  }
+
+  /*왼쪽 시간축 */
+  .schedule-calendar .fc .fc-timegrid-axis,
+  .schedule-calendar .fc .fc-timegrid-slot-label {
+    background-color: var(--color-gray-50) !important;
+    border-right: 1px solid var(--color-gray-200) !important;
+    border-bottom: none !important;
+    border-color: transparent !important;
+  }
+
+  /* 시간 텍스트 내부 프레임 */
+  .schedule-calendar .fc .fc-timegrid-slot-label-frame {
+    text-align: center !important;
+  }
+
+  /* 시간 텍스트 (숫자) */
+  .schedule-calendar .fc .fc-timegrid-slot-label-cushion {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: var(--color-gray-500) !important;
+    background-color: transparent !important;
+    padding-right: 0 !important;
+    display: inline-block !important;
+    transform: translateY(8px) !important;
+  }
+
+  /*. 이벤트 카드 스타일 */
+  .schedule-calendar .fc-v-event {
+    background-color: var(--color-blue-25) !important;
+    border: 1px solid var(--color-blue-200) !important;
+    border-radius: 6px !important;
+    margin: 1px 2px !important;
+    opacity: 1 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .schedule-calendar .fc-event-main {
+    padding: 0 !important;
+    color: inherit;
+  }
+
+  /*일간(Day) */
+  .schedule-calendar .fc-timeGridDay-view .fc-col-header th.fc-timegrid-axis {
+    display: none !important;
+  }
+
+  .schedule-calendar .fc-timeGridDay-view .fc-col-header th.fc-col-header-cell {
+    width: 100% !important;
+    border-left: none !important;
+  }
+
+  /* 드롭다운 스크롤바 스타일 */
+  .dropdown-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .dropdown-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dropdown-scroll::-webkit-scrollbar-thumb {
+    background-color: var(--color-gray-300);
+    border-radius: 9999px;
+  }
+
+  .dropdown-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-gray-400);
+  }
+
+  /* Firefox */
+  .dropdown-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-300) transparent;
+  }
+}

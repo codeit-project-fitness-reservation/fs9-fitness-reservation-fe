@@ -1,0 +1,41 @@
+import { apiClient } from '../api';
+
+export interface CenterItem {
+  id: string;
+  ownerId: string;
+  name: string;
+  phone: string | null; // 센터 연락처
+  address1: string;
+  address2: string | null;
+  introduction: string | null;
+  businessHours?: Record<string, unknown> | null;
+  lat?: number | null;
+  lng?: number | null;
+  createdAt: string;
+  updatedAt: string;
+
+  owner: {
+    nickname: string;
+    phone: string | null; // 판매자 연락처
+    profileImage: string | null; // 프로필 이미지
+  };
+}
+
+export interface CenterListResponse {
+  data: CenterItem[];
+  total: number;
+  page?: number;
+  limit?: number;
+}
+
+export const centerApi = {
+  getMyCenter: () => apiClient.get<CenterItem>('/api/centers/me'),
+
+  getCenters: (params?: { page?: number; limit?: number; search?: string }) =>
+    apiClient.get<CenterListResponse>('/api/centers', { params }),
+
+  getCenterDetail: (id: string) => apiClient.get<CenterItem>(`/api/centers/${id}`),
+
+  updateCenter: (id: string, data: FormData | Record<string, string>) =>
+    apiClient.patch<CenterItem>(`/api/centers/${id}`, data),
+};
