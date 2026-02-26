@@ -153,4 +153,17 @@ export const classApi = {
 
   cancelReservationBySeller: (id: string) =>
     apiClient.patch<void>(`/api/reservations/seller/reservations/${id}/cancel`, {}),
+
+  /** [판매자] 단일 슬롯 생성 */
+  createSlot: (
+    classId: string,
+    data: { date: string; hour: number; capacity: number; isOpen?: boolean },
+  ) => apiClient.post<SlotItemResponse>(`/api/classes/${classId}/slots`, data),
+
+  /** [판매자] 스케줄 기반 슬롯 일괄 생성 */
+  generateSlots: (classId: string, data: { startDate: string; endDate: string }) =>
+    apiClient.post<{ message: string; createdCount: number; skippedCount: number }>(
+      `/api/classes/${classId}/slots/generate`,
+      data,
+    ),
 };
