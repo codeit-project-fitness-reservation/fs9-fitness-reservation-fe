@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import DatePicker from './DatePicker';
 import TimeSlotList from './TimeSlotList';
 import { ClassSlot } from '@/types/class';
-import { classApi, type SlotItemResponse } from '@/lib/api/class';
+import type { SlotItemResponse } from '@/lib/api/class';
 
 interface ScheduleTabProps {
   classId: string;
+  /** page에서 getClassDetail 한 번 호출해서 받은 slots (그대로 내려줌) */
+  slots?: SlotItemResponse[];
   selectedDate: Date | undefined;
   onDateSelect: (date: Date | undefined) => void;
   onTimeSlotSelect: (slot: ClassSlot) => void;
@@ -16,8 +18,37 @@ interface ScheduleTabProps {
   reservationHour?: string | null;
 }
 
+function formatLocalDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function mapSlotToClassSlot(slot: SlotItemResponse, classId: string): ClassSlot {
+  const startAt =
+    typeof slot.startAt === 'string' ? slot.startAt : new Date(slot.startAt).toISOString();
+  const endAt = typeof slot.endAt === 'string' ? slot.endAt : new Date(slot.endAt).toISOString();
+  return {
+    id: slot.id,
+    classId,
+    startAt,
+    endAt,
+    capacity: slot.capacity,
+    currentReservation:
+      slot.currentReservation ?? slot.currentReservations ?? slot._count?.reservations ?? 0,
+    isOpen: slot.isOpen ?? true,
+    createdAt: slot.createdAt
+      ? typeof slot.createdAt === 'string'
+        ? slot.createdAt
+        : new Date(slot.createdAt).toISOString()
+      : new Date().toISOString(),
+  };
+}
+
 export default function ScheduleTab({
   classId,
+  slots = [],
   selectedDate,
   onDateSelect,
   onTimeSlotSelect,
@@ -25,70 +56,18 @@ export default function ScheduleTab({
   reservationSlotId,
   reservationHour,
 }: ScheduleTabProps) {
-  const [timeSlots, setTimeSlots] = useState<ClassSlot[]>([]);
-  const [allSlots, setAllSlots] = useState<ClassSlot[]>([]);
-  const [slotsLoading, setSlotsLoading] = useState(true);
-  const [slotsError, setSlotsError] = useState(false);
-
-  // 클래스 상세 조회
-  useEffect(() => {
-    const fetchSlots = async () => {
-      setSlotsError(false);
-      setSlotsLoading(true);
-      try {
-        const response = await classApi.getClassDetail(classId);
-        const rawSlots = response.slots ?? [];
-        const mappedSlots: ClassSlot[] = rawSlots.map((slot: SlotItemResponse) => ({
-          id: slot.id,
-          classId: classId,
-          startAt:
-            typeof slot.startAt === 'string' ? slot.startAt : new Date(slot.startAt).toISOString(),
-          endAt: typeof slot.endAt === 'string' ? slot.endAt : new Date(slot.endAt).toISOString(),
-          capacity: slot.capacity,
-          currentReservation:
-            slot.currentReservation ?? slot.currentReservations ?? slot._count?.reservations ?? 0,
-          isOpen: slot.isOpen ?? true,
-          createdAt: slot.createdAt
-            ? typeof slot.createdAt === 'string'
-              ? slot.createdAt
-              : new Date(slot.createdAt).toISOString()
-            : new Date().toISOString(),
-        }));
-        setAllSlots(mappedSlots);
-      } catch (error) {
-        console.error('슬롯 정보 조회 실패:', error);
-        setSlotsError(true);
-        setAllSlots([]);
-      } finally {
-        setSlotsLoading(false);
-      }
-    };
-
-    void fetchSlots();
-  }, [classId]);
-
-  // 선택된 날짜에 해당하는 슬롯 필터링
-  useEffect(() => {
-    if (!selectedDate || allSlots.length === 0) {
-      setTimeSlots([]);
-      return;
-    }
-
-    const formatLocalDate = (date: Date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-
-    const selectedDateStr = formatLocalDate(selectedDate);
-    const filteredSlots = allSlots.filter((slot) => {
-      const slotDateStr = formatLocalDate(new Date(slot.startAt));
-      return slotDateStr === selectedDateStr;
-    });
-
-    setTimeSlots(filteredSlots);
+  const rawSlots = Array.isArray(slots) ? slots : [];
+  const allSlots: ClassSlot[] = useMemo(
+    () => rawSlots.map((s) => mapSlotToClassSlot(s, classId)),
+    [rawSlots, classId],
+  );
+  const timeSlots = useMemo(() => {
+    if (!selectedDate || allSlots.length === 0) return [];
+    const selectedStr = formatLocalDate(selectedDate);
+    return allSlots.filter((s) => formatLocalDate(new Date(s.startAt)) === selectedStr);
   }, [selectedDate, allSlots]);
+  const slotsError = false;
+  const slotsLoading = false;
 
   useEffect(() => {
     if (timeSlots.length === 0) return;
